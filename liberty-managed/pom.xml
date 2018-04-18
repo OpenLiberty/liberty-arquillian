@@ -4,8 +4,8 @@
 
   <!-- Parent -->
   <parent>
-    <groupId>org.jboss.arquillian.container</groupId>
-    <artifactId>arquillian-parent-was</artifactId>
+    <groupId>io.openliberty.arquillian</groupId>
+    <artifactId>arquillian-parent-liberty</artifactId>
     <version>1.0.0.Final-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
@@ -55,6 +55,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>${version.surefire.plugin}</version>
         <configuration>
           <skip>true</skip>
           <systemProperties>
