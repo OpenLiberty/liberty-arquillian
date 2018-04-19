@@ -16,7 +16,7 @@
   <!-- Artifact Configuration -->
   <groupId>io.openliberty.arquillian</groupId>
   <artifactId>arquillian-parent-liberty</artifactId>
-  <version>1.0.0.Final-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Arquillian Container Parent WebSphere AS</name>
   <description>WebSphere AS Container integrations for the Arquillian Project</description>
@@ -67,16 +67,44 @@
     </plugins>
   </build>
 
+  <modules>
+    <module>liberty-managed</module>
+    <module>liberty-remote</module>
+  </modules>
+
+  <!-- Profiles for WLP vs OL -->
   <profiles>
     <profile>
-      <id>all</id>
+      <id>wlp-its</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
+          <property>
+            <name>runtime</name>
+            <value>wlp</value>
+          </property>
       </activation>
-      <modules>
-        <module>liberty-managed</module>
-        <module>liberty-remote</module>
-      </modules>
+      <properties>
+          <runtime>wlp</runtime>
+          <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
+          <runtimeArtifactId>wlp-javaee7</runtimeArtifactId>
+          <runtimeVersion>${runtimeVersion}</runtimeVersion>
+      </properties>
+    </profile>
+    <profile>
+      <id>ol-its</id>
+      <activation>
+        <property>
+          <name>runtime</name>
+          <value>ol</value>
+        </property>
+      </activation>
+      <properties>
+        <runtime>ol</runtime>
+        <runtimeGroupId>io.openliberty</runtimeGroupId>
+        <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
+        <runtimeVersion>${runtimeVersion}</runtimeVersion>
+      </properties>
     </profile>
   </profiles>
+
+
 </project>
