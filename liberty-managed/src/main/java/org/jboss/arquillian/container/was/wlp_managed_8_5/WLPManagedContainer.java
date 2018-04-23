@@ -1098,18 +1098,31 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          br = new BufferedReader(new InputStreamReader(new FileInputStream(messagesFilePath)));
          String line;
          while ((line = br.readLine()) != null) {
-            if (line.contains("CWWKZ0002") && line.contains("DefinitionException") && line.contains(applicationName)) {
-               log.finest("DefinitionException found in line" + line + " of file " + messagesFilePath);
-               DefinitionException cause = new javax.enterprise.inject.spi.DefinitionException(line);
-               throw new DeploymentException(
-                     "Failed to deploy " + applicationName + " on " + containerConfiguration.getServerName(), cause);
-            } else {
-               if (line.contains("DeploymentException") && line.contains(applicationName)) {
-                  log.finest("DeploymentException found in line" + line + " of file " + messagesFilePath);
-                  javax.enterprise.inject.spi.DeploymentException cause = new javax.enterprise.inject.spi.DeploymentException(
-                        line);
+            if (line.contains("CWWKZ0002") && line.contains(applicationName)) {
+               if (line.contains("DefinitionException")) {
+                  log.finest("DefinitionException found in line" + line + " of file " + messagesFilePath);
+                  DefinitionException cause = new javax.enterprise.inject.spi.DefinitionException(line);
                   throw new DeploymentException(
                         "Failed to deploy " + applicationName + " on " + containerConfiguration.getServerName(), cause);
+               } else if (line.contains("DeploymentException") ||
+                          line.contains("InconsistentSpecializationException") ||
+                          line.contains("UnserializableDependencyException")) {
+                  /*
+                   * The CDI specification allows an implementation to throw a subclass of
+                   * javax.enterprise.inject.spi.DeploymentException. Weld has three types
+                   * such exceptions:
+                   *  - org.jboss.weld.exceptions.DeploymentException
+                   *  - org.jboss.weld.exceptions.InconsistentSpecializationException
+                   *  - org.jboss.weld.exceptions.UnserializableDependencyException
+                   */
+                  log.finest("DeploymentException found in line" + line + " of file " + messagesFilePath);
+                  javax.enterprise.inject.spi.DeploymentException cause = new javax.enterprise.inject.spi.DeploymentException(line);
+                  throw new DeploymentException("Failed to deploy " + applicationName + " on " + containerConfiguration.getServerName(), cause);
+               } else {
+                  /*
+                   * Application failed to deploy for some other reason.
+                   */
+                  throw new DeploymentException("Failed to deploy " + applicationName + " on " + containerConfiguration.getServerName());
                }
             }
          }
