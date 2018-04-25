@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.enterprise.inject.spi.DefinitionException;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
@@ -86,7 +87,6 @@ import java.io.InputStreamReader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Properties;
-import javax.enterprise.inject.spi.DefinitionException;
 
 /**
  * WLPManagedContainer
@@ -414,23 +414,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             archive.as(ZipExporter.class).exportTo(exportedArchiveLocation, true);
          }
 
-         // On deployment failure throw an Arquillian DeploymentException with a nested
-         // 'cause' that can also be used in tests' ShouldThrowException(MyFrameworkException.class)
-         try{
-             // Wait until the application is deployed and available
-             waitForApplicationTargetState(new String[] {deployName}, true, containerConfiguration.getAppDeployTimeout());
-
-         }catch( DeploymentException dex) {
-            // We will throw an exception below but lets log this one as we may create another with a different cause below
-            log.warning( "Deployment exception seen: " + dex.getClass() + " " + dex.getMessage() );
-            try {
-               throwWrappedExceptionIfFoundInLog(deployName);
-            } catch (IOException ioe) { // Don't catch DeploymentExceptions
-              log.warning( ioe.getMessage() );
-              ioe.printStackTrace(); //Throw the outer deployment exception caught above
-            }
-            throw dex;
-         }
+         waitForApplicationTargetState(new String[] {deployName}, true, containerConfiguration.getAppDeployTimeout());
 
          // Return metadata on how to contact the deployed application
          ProtocolMetaData metaData = new ProtocolMetaData();
@@ -934,6 +918,9 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       // Loop until the application MBean has reached the target state or until the timeout
       try {
          checkApplicationStatus(appMBeans, targetState, timeout);
+      } catch (DeploymentException de) {
+         // Keep any more specific raised DeploymentExceptions
+         throw de;
       } catch (Exception e) {
          throw new DeploymentException("Exception while checking application state.", e);
       }
@@ -962,9 +949,14 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             // Then check if apps in the targetState have reached the STARTED state, if the targetState == true.
             if(status == AppStatus.MATCHES_TARGET_STATE) {
                if(targetState == true) {
-                  String applicationState = (String)mbsc.getAttribute(appMBean, "State");
-                  if(applicationState.contentEquals("STARTED")) {
+                  String applicationName = appMBean.getKeyProperty("name");
+                  String applicationState = (String) mbsc.getAttribute(appMBean, "State");
+                  if (applicationState.contentEquals("STARTED")) {
                      status = AppStatus.FINISHED;
+                  } else if (applicationState.contentEquals("INSTALLED")) {
+                     // If the application went from STARTING state to INSTALLED state, there should be a
+                     // deployment issue. Check the logs to determine the cause of the deployment failure.
+                     throwDeploymentException(applicationName);
                   }
                }
                else {
@@ -1126,35 +1118,44 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
    /**
     * Enable @ShouldThrowExceptions in tests by looking for messages that indicate
-    * the cause of DeploymentExceptions
+    * the cause of DeploymentExceptions.
     *
     * @param applicationName
     * @throws IOException
     * @throws DeploymentException
     */
-   private void throwWrappedExceptionIfFoundInLog(String applicationName) throws IOException, DeploymentException {
+   private void throwDeploymentException(String applicationName) throws DeploymentException {
       BufferedReader br = null;
       String messagesFilePath = null;
 
       if (log.isLoggable(Level.FINER)) {
-         log.entering(className, "throwWrappedExceptionIfFoundInLog");
+         log.entering(className, "throwDeploymentException");
       }
-
 
       try {
          messagesFilePath = getMessageFilePath();
          log.finest("Scanning message file " + messagesFilePath);
 
-
          br = new BufferedReader(new InputStreamReader(new FileInputStream(messagesFilePath)));
          String line;
+
+         /*
+          * Process the logs to see what the cause of the exception was. If the exception is a CDI
+          * DeploymentException or DefinitionException, wrap it in an Arquillian DeploymentException
+          * and throw it to Arquillian.
+          */
          while ((line = br.readLine()) != null) {
             if (line.contains("CWWKZ0002") && line.contains(applicationName)) {
+               StringBuilder sb = new StringBuilder();
+               sb.append("Failed to deploy ")
+                     .append(applicationName)
+                     .append(" on ")
+                     .append(containerConfiguration.getServerName());
+
                if (line.contains("DefinitionException")) {
                   log.finest("DefinitionException found in line" + line + " of file " + messagesFilePath);
                   DefinitionException cause = new javax.enterprise.inject.spi.DefinitionException(line);
-                  throw new DeploymentException(
-                        "Failed to deploy " + applicationName + " on " + containerConfiguration.getServerName(), cause);
+                  throw new DeploymentException(sb.toString(), cause);
                } else if (line.contains("DeploymentException") ||
                           line.contains("InconsistentSpecializationException") ||
                           line.contains("UnserializableDependencyException")) {
@@ -1168,28 +1169,37 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                    */
                   log.finest("DeploymentException found in line" + line + " of file " + messagesFilePath);
                   javax.enterprise.inject.spi.DeploymentException cause = new javax.enterprise.inject.spi.DeploymentException(line);
-                  throw new DeploymentException("Failed to deploy " + applicationName + " on " + containerConfiguration.getServerName(), cause);
+                  throw new DeploymentException(sb.toString(), cause);
                } else {
                   /*
-                   * Application failed to deploy for some other reason.
+                   * Application failed to deploy due to some other exception.
                    */
-                  throw new DeploymentException("Failed to deploy " + applicationName + " on " + containerConfiguration.getServerName());
+                  String exceptionFound = line.substring(line.indexOf("The exception message was: ") + 27);
+                  sb.append(": ");
+                  sb.append(exceptionFound);
+                  log.finest("A exception was found in line " + line + " of file " + messagesFilePath);
+                  throw new DeploymentException(sb.toString());
                }
+            } else if (line.contains("CWWKZ0001I") && line.contains(applicationName)) {
+               throw new DeploymentException("Application " + applicationName +
+                     " started unexpectedly even though it never reached the STARTED state. This should never happen.");
             }
          }
       } catch (IOException e) {
          log.warning("Exception while reading messages.log: " + messagesFilePath + ": " + e.toString());
-         throw e;
+         e.printStackTrace();
       } catch (XPathExpressionException e) {
         log.warning(e.getMessage());
       } finally {
          closeQuietly(br);
       }
 
-      if (log.isLoggable(Level.FINER)) {
-         log.exiting(className, "throwWrappedExceptionIfFoundInLog");
-      }
+      /* The error message may not have showed up in the log yet. Check again on next pass. */
+      log.finest("The application deployment failure message was not found. Waiting...");
 
+      if (log.isLoggable(Level.FINER)) {
+         log.exiting(className, "throwDeploymentException");
+      }
    }
 
    /**
