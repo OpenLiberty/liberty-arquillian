@@ -1,6 +1,5 @@
-# WebSphere Application Server Containers
+# Arquillian Liberty Server Containers
 
-Issue Tracker: https://jira.jboss.org/jira/browse/ARQ
+For Arquillian Liberty Managed container documentation, click [here](https://github.com/OpenLiberty/liberty-arquillian/tree/master/liberty-managed/README.md).
 
-For using the `liberty-managed` container with IBM's Liberty Maven Plugin,
-please refer to [`liberty-managed/pom.xml`](https://github.com/arquillian/arquillian-container-was/blob/master/liberty-managed/pom.xml) for inspiration.
+For Arquillian Liberty Remote container documentation, click [here](https://github.com/OpenLiberty/liberty-arquillian/tree/master/liberty-remote/README.md).
