@@ -1,3 +1,5 @@
+# Arquillian Liberty Managed Documentation
+
 An Arquillian container adapter (`DeployableContainer` implementation) that can start and stop a local Liberty process and run tests on it over a remote protocol (effectively in a different JVM).
 
 ## Prerequisites
@@ -62,7 +64,7 @@ xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/a
 		<property name="deploymentExportPath">target/</property>
 	</engine>
 	
-	<container qualifier="websphere" default="true">
+	<container qualifier="liberty-managed" default="true">
 		<configuration>
 			<property name="wlpHome">/opt/IBM/wlp/</property>
 			<property name="serverName">defaultServer</property>

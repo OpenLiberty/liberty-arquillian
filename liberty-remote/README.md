@@ -1,3 +1,5 @@
+# Arquillian Liberty Remote Documentation
+
 An Arquillian container adapter (`DeployableContainer` implementation) that can connect and run against a remote (different JVM, different machine) Liberty server andrun tests on it over a remote protocol (effectively in a different JVM).
 
 ## Prerequisites
@@ -71,7 +73,7 @@ xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/a
 		<property name="deploymentExportPath">target/</property>
 	</engine>
 	
-	<container qualifier="wlp-remote">
+	<container qualifier="liberty-remote">
 		<configuration>
 			<property name="hostName">localhost</property>
 			<property name="serverName">defaultServer</property>
@@ -88,12 +90,12 @@ xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/a
 
 ```
 <profile>
-	<id>wlp-remote-8.5</id>
+	<id>liberty-remote</id>
 	<dependencies>
 		<dependency>
-			<groupId>org.jboss.arquillian.container</groupId>
-			<artifactId>arquillian-wlp-remote-8.5</artifactId>
-			<version>1.0.0.CR1</version>
+			<groupId>io.openliberty.arquillian</groupId>
+			<artifactId>arquillian-liberty-remote</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 </profile>
