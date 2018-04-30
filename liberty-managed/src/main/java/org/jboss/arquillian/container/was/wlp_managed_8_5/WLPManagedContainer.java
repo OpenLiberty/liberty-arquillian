@@ -25,15 +25,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.enterprise.inject.spi.DefinitionException;
 import javax.management.MBeanServerConnection;
@@ -83,15 +87,20 @@ import com.sun.tools.attach.VirtualMachineDescriptor;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.sql.Timestamp;
 import java.util.Properties;
 
 /**
  * WLPManagedContainer
  *
  * @author <a href="mailto:gerhard.poul@gmail.com">Gerhard Poul</a>
+ * @author <a href="mailto:gordon.hutchison@gmail.com">Gordon Hutchison</a>
  * @version $Revision: $
  */
 public class WLPManagedContainer implements DeployableContainer<WLPManagedContainerConfiguration>
@@ -134,6 +143,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    private Process wlpProcess;
 
    private Thread shutdownThread;
+   private Map<String, Long>archiveDeployTimes = new HashMap<String, Long>();
 
    // Used in waitForApplicationTargetState
    // When targetState = true (registered), MATCHES_TARGET_STATE means the app is registered and FINISHED means the app is started.
@@ -384,6 +394,8 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       String archiveName = archive.getName();
       String archiveType = createDeploymentType(archiveName);
       String deployName = createDeploymentName(archiveName);
+
+      archiveDeployTimes.put(deployName, System.currentTimeMillis());
 
       try {
          // If the deployment is to server.xml, then update server.xml with the application information
@@ -641,6 +653,8 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       String archiveName = archive.getName();
       String deployName = createDeploymentName(archiveName);
       String deployDir = null; // will become either app or dropin dir
+
+      archiveDeployTimes.remove(deployName);
 
       try {
          // If deploy type is xml, then remove the application from the xml file, which causes undeploy
@@ -1152,9 +1166,11 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                      .append(" on ")
                      .append(containerConfiguration.getServerName());
 
+               Throwable ffdcXChain = getFfdcWithNestedCauseChain(applicationName);
+
                if (line.contains("DefinitionException")) {
                   log.finest("DefinitionException found in line" + line + " of file " + messagesFilePath);
-                  DefinitionException cause = new javax.enterprise.inject.spi.DefinitionException(line);
+                  DefinitionException cause = new javax.enterprise.inject.spi.DefinitionException(line, ffdcXChain);
                   throw new DeploymentException(sb.toString(), cause);
                } else if (line.contains("DeploymentException") ||
                           line.contains("InconsistentSpecializationException") ||
@@ -1168,7 +1184,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                    *  - org.jboss.weld.exceptions.UnserializableDependencyException
                    */
                   log.finest("DeploymentException found in line" + line + " of file " + messagesFilePath);
-                  javax.enterprise.inject.spi.DeploymentException cause = new javax.enterprise.inject.spi.DeploymentException(line);
+                  javax.enterprise.inject.spi.DeploymentException cause = new javax.enterprise.inject.spi.DeploymentException(line, ffdcXChain);
                   throw new DeploymentException(sb.toString(), cause);
                } else {
                   /*
@@ -1178,7 +1194,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                   sb.append(": ");
                   sb.append(exceptionFound);
                   log.finest("A exception was found in line " + line + " of file " + messagesFilePath);
-                  throw new DeploymentException(sb.toString());
+                  throw new DeploymentException(sb.toString(), ffdcXChain);
                }
             } else if (line.contains("CWWKZ0001I") && line.contains(applicationName)) {
                throw new DeploymentException("Application " + applicationName +
@@ -1200,6 +1216,360 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       if (log.isLoggable(Level.FINER)) {
          log.exiting(className, "throwDeploymentException");
       }
+   }
+   
+   /**
+    * This method is called when we see a CWWKZ0002 in the messages log. Its job is
+    * to return an Exception with the causal chain of exceptions that is expressed
+    * in the FFDC log file for the application. It it written to use only Java 6
+    * methods.
+    * 
+    * @param applicationName
+    * @return the exception chain
+    */
+   private Throwable getFfdcWithNestedCauseChain(String appName) {
+
+       // Get the set of ffdc files
+       File[] ffdcFiles = getFfdcFilesSince(archiveDeployTimes.get(appName));
+
+       // Get StateChangeException FFDC file for this application
+       File ffdc = findStateChangeExceptionFfdcFileForApp(appName, ffdcFiles);
+
+       Throwable cause = null;
+
+       if (ffdc != null) {
+           // Get StateChangeException ffdc exception names and info chain
+           ArrayList<ExMsg> chain = getExceptionCausalChain(ffdc);
+
+           if (chain != null) {
+               cause = buildNestedException(chain);
+           }
+       }
+
+       for (Throwable c = cause; c != null; c = c.getCause()) {
+           log.finest("FFDC Exception Chain:" + c.getClass());
+       }
+
+       return cause;
+
+   }
+
+   /**
+    * Create and return the nested FFDC exception chain as a Throwable with
+    * cause(s)
+    * 
+    * @param exs
+    *            - an ordered list of the Exception log messages
+    * @return a Throwable with usable causal chain
+    */
+   private Throwable buildNestedException(ArrayList<ExMsg> exs) {
+
+       Throwable causeSoFar = null;
+
+       for (int nestLevel = exs.size() - 1; nestLevel >= 0; nestLevel--) {
+           causeSoFar = createException(exs.get(nestLevel), causeSoFar);
+       }
+
+       return causeSoFar;
+   }
+
+   /**
+    * Turn a FFDC log line into a Throwable object. This depends on Class.forname
+    * loading so maven pom dependencies need to include classes that need to be
+    * loaded on the classpath
+    * 
+    * @param x - the exception message object
+    * @param cause - something to nest inside the Throwable we create - can be null
+    * @return - a non-null Throwable that reflects the log Line as well as
+    *           possible. Note that fully 'private' classes are unlikely to be in
+    *           tests' @ShouldThrow tests anyway - so in that case the important 
+    *           thing is to not break the causal chain with this link. 
+    *           We may have private subclasses of public Exceptions - we don't handle, 
+    *           but these should be treated as special cases, handled elsewhere - for
+    *           example with a service loaded DeploymentExceptionTransformer.
+    */
+   private Throwable createException(ExMsg x, Throwable cause) {
+
+       Class<?> clazz = null;
+
+       // Can we load the server's exception class here in the container?
+       try {
+           clazz = Class.forName(x.exName);
+           log.info("Class loaded ok for name " + x.exName + " " + clazz.getName());
+
+       } catch (ClassNotFoundException e1) {
+           log.warning(
+                   "Unable to load a class for: " + x.exName + " switching to " 
+                   + UnloadableLogError.class.getName());
+           clazz = UnloadableLogError.class;
+       }
+
+       // Is the class a valid link in an exception chain
+       if (clazz != null && !Throwable.class.isAssignableFrom(clazz)) {
+           log.warning("Loadable class: " + clazz.getName() + " from  " + x 
+                   + " is not assignable to Throwable.");
+           clazz = UnloadableLogError.class;
+       }
+
+       Throwable thisServerThrowable = null;
+
+       log.finest("Attempting to load Throwable: " + clazz.getName());
+       try {
+
+           Constructor<?> xCon = null;
+           if (cause == null) {
+               try {
+                   // Ideally we want to add the FFDC log line
+                   xCon = clazz.getConstructor(String.class);
+                   thisServerThrowable = (Throwable) xCon.newInstance(new Object[] { x.logMsg });
+
+               } catch (NoSuchMethodException e) {
+                   try {
+                       // We could use a null cause
+                       xCon = clazz.getConstructor(String.class, Throwable.class);
+                       thisServerThrowable = (Throwable) xCon.newInstance(new Object[] { x.logMsg, null });
+
+                   } catch (NoSuchMethodException e2) {
+                       try {
+                           // We could even embed the log line via a fake cause:
+                           // throwable.initCause(new RuntimeException(message))
+                           xCon = clazz.getConstructor();
+                           thisServerThrowable = (Throwable) xCon.newInstance();
+                           thisServerThrowable.initCause(new RuntimeException(x.logMsg));
+
+                       } catch (NoSuchMethodException e3) {
+                           log.warning("Arquillian container could not load external Throwable 1, from: " + x);
+                           thisServerThrowable = new UnloadableLogError(x.logMsg);
+                       }
+                   }
+               }
+           } else { // Cause is not null
+               try {
+                   // Ideally we want to add the FFDC log line
+                   xCon = clazz.getConstructor(String.class, Throwable.class);
+                   thisServerThrowable = (Throwable) xCon.newInstance(new Object[] { x.logMsg, cause });
+
+               } catch (NoSuchMethodException e) {
+                   try {
+                       // Some 'old' errors can add the cause afterwards
+                       xCon = clazz.getConstructor(String.class);
+                       thisServerThrowable = (Throwable) xCon.newInstance(new Object[] { x.logMsg });
+                       thisServerThrowable.initCause(cause);
+
+                   } catch (NoSuchMethodException e2) {
+                       try {
+                           // We are prepared to loose the log line to get the correct exception
+                           xCon = clazz.getConstructor(Throwable.class);
+                           thisServerThrowable = (Throwable) xCon.newInstance(new Object[] { cause });
+
+                       } catch (NoSuchMethodException e3) {
+                           // We could not get the right result;
+                           log.warning("Arquillian container could not load external Throwable 2, from: " + x);
+                           thisServerThrowable = new UnloadableLogError(x.logMsg, cause);
+                       }
+                   }
+               }
+
+           }
+
+       } catch (InstantiationException e) {
+           log.warning(e.toString() + "Arquillian container could not load external Throwable 3, from: " + x);
+       } catch (IllegalAccessException e) {
+           log.warning(e.toString() + "Arquillian container could not load external Throwable 4, from: " + x);
+       } catch (IllegalArgumentException e) {
+           log.warning(e.toString() + "Arquillian container could not load external Throwable 5, from: " + x);
+       } catch (InvocationTargetException e) {
+           log.warning(e.toString() + "Arquillian container could not load external Throwable 6, from: " + x);
+       }
+
+       if (thisServerThrowable == null) {
+           thisServerThrowable = new UnloadableLogError(x.logMsg, cause);
+       }
+
+       log.finest("Actually created class= " + thisServerThrowable.getClass().getName() + " instance msg="
+               + thisServerThrowable.getMessage());
+
+       return thisServerThrowable;
+   }
+
+   /**
+    * Get a list of ExMsg objects representing Exceptions in a FFDC log file
+    * 
+    * @param ffdc
+    *            the ffdc file being processed
+    * @return an ordered list of exceptions, as ExMsg, foundß
+    */
+   private ArrayList<ExMsg> getExceptionCausalChain(File ffdc) {
+
+       ArrayList<ExMsg> result = new ArrayList<ExMsg>();
+
+       BufferedReader br = null;
+       try {
+           br = new BufferedReader(new InputStreamReader(new FileInputStream(ffdc)));
+           String line;
+           // FFDC files have the form:
+           // Stack Dump = com.ibm.ws.container.service.state.StateChangeException:
+           // Caused by: org.jboss.weld.exceptions.WeldException:
+           // Caused by: org.jboss.weld.exceptions.DefinitionException:
+
+           while ((line = br.readLine()) != null) {
+               Pattern p = Pattern.compile("(Stack Dump = |Caused by: )([\\p{L}\\p{N}_$\\.]+?):(.*)");
+
+               Matcher m = p.matcher(line);
+               if (m.matches()) {
+                   ExMsg x = new ExMsg();
+                   x.exName = m.group(2);
+                   x.logMsg = line;
+                   log.finest("match on line: " + line + " resolved to className " + x.exName);
+                   result.add(x);
+               } else {
+                   log.finest("no match found on line: " + line);
+               }
+           }
+
+       } catch (IOException e) {
+           // We are OK to return empty handed (and fail the test if needed) but will log the event...
+           log.warning("FFDC file " + ffdc!=null?ffdc.getAbsolutePath():"null" + " IO Exception: " + e.toString());
+       } finally {
+           if (br != null) {
+               try {
+                   br.close();
+               } catch (IOException e) {
+                   log.warning(e.getMessage());
+               }
+           }
+       }
+       log.finest("Exception stack found was: " + Arrays.deepToString(result.toArray()));
+       return result;
+   }
+
+   /**
+    * Find the app's StateChangeException FFDC file (using Java 6 compatible code).
+    * 
+    * @param appName
+    * @param ffdcFiles
+    * 
+    * @return The correct FFDC File or null
+    * 
+    * @throws FileNotFoundException
+    * @throws IOException
+    */
+   private File findStateChangeExceptionFfdcFileForApp(String appName, File[] ffdcFiles) {
+
+       BufferedReader br = null;
+       try {
+           for (int i = 0; i < ffdcFiles.length; i++) {
+
+               // Set up a bufferedReader
+               File ffdcFile = ffdcFiles[i];
+               log.finest("Processing FFDC file: " + ffdcFile.getAbsolutePath());
+               try {
+                   br = new BufferedReader(new InputStreamReader(new FileInputStream(ffdcFile)));
+               } catch (FileNotFoundException e) {
+                   log.warning("File " + ffdcFile.getAbsolutePath() + " is no longer accessible");
+                   continue; // File has been deleted but it might not have been the target one
+               }
+
+               // See if it fulfills the criteria
+               try {
+
+                   boolean fileIsForStateChangeException = false;
+                   boolean fileIsForCorrectApplication = false;
+
+                   String line;
+                   while ((line = br.readLine()) != null) {
+
+                       fileIsForStateChangeException = fileIsForStateChangeException || line
+                               .contains("Stack Dump = com.ibm.ws.container.service.state.StateChangeException");
+                       log.finest("fileIsForStateChangeException:" + fileIsForStateChangeException + " " + line);
+
+                       fileIsForCorrectApplication = fileIsForCorrectApplication
+                               || line.contains("appName") && line.contains(appName);
+                       log.finest("fileIsForCorrectApplication:" + fileIsForCorrectApplication + "(" + appName + ")"
+                               + " " + line);
+
+                       // Have we found all the criteria we are looking for?
+                       if (fileIsForStateChangeException && fileIsForCorrectApplication) {
+                           // We have found what we are looking for
+                           log.finest("Found StateChangeExceptionFfdc for " + appName + ": "
+                                   + ffdcFile.getAbsolutePath());
+                           return ffdcFile;
+                       }
+
+                   }
+                   log.finest("Did not find StateChangeExceptionFfdc for " + appName + ": "
+                           + ffdcFile.getAbsolutePath() + "(file was scanned completely)");
+
+               } catch (IOException e) {
+                   log.warning("File " + ffdcFile.getAbsolutePath() + " is not readable");
+                   continue; // File has perhaps deleted but not necessarily a disaster if we find what we
+                             // need later
+               }
+           }
+
+       } finally {
+           if (br != null) {
+               try {
+                   br.close();
+               } catch (IOException e) {
+                   log.warning(e.getMessage());
+               }
+           }
+       }
+
+       // We did not find what we are looking for
+       log.finest("No StateChangeExceptionFfdc for " + appName + " was found ");
+       return null;
+   }
+
+   /**
+    * Get the set of FFDC files, we are only called when we are expecting to see
+    * some FFDC's so we will loop, waiting for 1/100th of a second and up to 10
+    * seconds until we see at least on FFDC. Normally we will not have to wait at
+    * all.
+    * 
+    * @return an array of File from the FFDC dir that start "ffdc_"
+    * @throws IOException
+    */
+   private File[] getFfdcFilesSince(Long deployTime) {
+
+       // We want to look for all FFDCs from at least 1 second before deploy until
+       // now...
+       final long AT_LEAST_ONE_SECOND = (1 * 1000) + 1;
+       // Perhaps we have not passed in the deploy time - if so scan all FFDCs:
+       final long since = deployTime != null ? (deployTime - AT_LEAST_ONE_SECOND) : 0;
+       File[] ffdcFiles = null;
+
+       int attempts = 0;
+       do {
+           try {
+               Thread.sleep(100);
+           } catch (InterruptedException e1) {
+               // do nothing
+           }
+           File ffdcDir = null;
+           String ffdcDirPath = "NOT_SET";
+           try {
+               ffdcDirPath = getLogsDirectory() + "/ffdc";
+               ffdcDir = new File(ffdcDirPath);
+           } catch (IOException e) {
+               log.warning("FFDC path : " + ffdcDirPath + " not (yet?) openable as new File");
+               continue;
+           }
+           log.finest(
+                   "FFDC Dir: " + ffdcDir.getAbsolutePath() + "looking for ffdc_* file since " + new Timestamp(since));
+           ffdcFiles = ffdcDir.listFiles(new FilenameFilter() {
+               public boolean accept(File dir, String fileName) {
+                   File ffdcFile = new File(dir, fileName);
+                   return (ffdcFile.lastModified() >= since) && fileName.startsWith("ffdc_");
+               }
+           });
+           attempts++;
+           log.finest("FFDC files are: " + Arrays.toString(ffdcFiles));
+
+       } while ((ffdcFiles == null || ffdcFiles.length == 0) && attempts <= 100);
+
+       return ffdcFiles;
    }
 
    /**
@@ -1462,4 +1832,37 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
        }
 
    }
+   
+   /*
+    * When we can't find/load a class from what we think is the
+    * exception name we use a generic wrapper to allow us to
+    * see the log line later
+    */
+   public class UnloadableLogError extends RuntimeException {
+       private static final long serialVersionUID = 1L;
+       private String logLine;
+       private Throwable cause;
+       
+       public UnloadableLogError(String logLine){
+           this.logLine=logLine;
+       }
+       public UnloadableLogError(String logLine, Throwable cause){
+           super(logLine, cause);
+           this.logLine=logLine;
+           this.cause = cause;
+       }
+       
+   }
+
+   /**
+    * Small class the hold an potential nested exception
+    */
+   private class ExMsg {
+       String exName;
+       String logMsg;
+       public String toString(){
+           return exName + "(" + logMsg + ")";
+       }
+   }
+
 }
