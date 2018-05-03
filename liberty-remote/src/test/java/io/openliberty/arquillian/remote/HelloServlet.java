@@ -1,5 +1,4 @@
 /*
- * JBoss, Home of Professional Open Source
  * Copyright 2012, Red Hat Middleware LLC, and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
@@ -24,12 +23,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * HelloServlet
- * 
- * @author <a href="mailto:aslak@redhat.com">Aslak Knutsen</a>
- * @author <a href="mailto:gerhard.poul@gmail.com">Gerhard Poul</a>
- */
 @WebServlet("/HelloServlet")
 public class HelloServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;

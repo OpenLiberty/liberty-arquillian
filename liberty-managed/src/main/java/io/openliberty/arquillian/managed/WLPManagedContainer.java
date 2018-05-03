@@ -1,6 +1,5 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2012, 2013, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2012, 2018, IBM Corporation, Red Hat Middleware LLC, and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -96,13 +95,6 @@ import java.security.PrivilegedAction;
 import java.sql.Timestamp;
 import java.util.Properties;
 
-/**
- * WLPManagedContainer
- *
- * @author <a href="mailto:gerhard.poul@gmail.com">Gerhard Poul</a>
- * @author <a href="mailto:gordon.hutchison@gmail.com">Gordon Hutchison</a>
- * @version $Revision: $
- */
 public class WLPManagedContainer implements DeployableContainer<WLPManagedContainerConfiguration>
 {
 

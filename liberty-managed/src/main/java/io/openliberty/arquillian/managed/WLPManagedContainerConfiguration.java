@@ -1,6 +1,5 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2012, 2013, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2012, 2018, IBM Corporation, Red Hat Middleware LLC, and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -21,12 +20,6 @@ import java.io.File;
 import org.jboss.arquillian.container.spi.ConfigurationException;
 import org.jboss.arquillian.container.spi.client.container.ContainerConfiguration;
 
-/**
- * WLPManagedContainerConfiguration
- *
- * @author <a href="mailto:gerhard.poul@gmail.com">Gerhard Poul</a>
- * @version $Revision: $
- */
 public class WLPManagedContainerConfiguration implements
       ContainerConfiguration {
 

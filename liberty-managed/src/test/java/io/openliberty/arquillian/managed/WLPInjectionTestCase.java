@@ -1,5 +1,4 @@
 /*
- * JBoss, Home of Professional Open Source
  * Copyright 2013, Red Hat Middleware LLC, and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
@@ -27,11 +26,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/**
- * WLPInjectionTestCase
- *
- * @author <a href="mailto:gerhard.poul@gmail.com">Gerhard Poul</a>
- */
 @RunWith(Arquillian.class)
 public class WLPInjectionTestCase
 {

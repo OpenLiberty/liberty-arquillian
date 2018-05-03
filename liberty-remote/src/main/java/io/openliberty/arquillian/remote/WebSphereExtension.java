@@ -1,5 +1,4 @@
 /*
- * JBoss, Home of Professional Open Source
  * Copyright 2014 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
  * See the copyright.txt in the distribution for a
@@ -20,12 +19,6 @@ package io.openliberty.arquillian.remote;
 import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 
-/**
- * WebSphereExtension
- *
- * @author <a href="mailto:tayres@gmail.com">Tony Ayres</a>
- * @version $Revision: $
- */
 public class WebSphereExtension implements LoadableExtension {
     @Override
     public void register(ExtensionBuilder builder) {

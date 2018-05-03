@@ -1,5 +1,4 @@
 /*
- * JBoss, Home of Professional Open Source
  * Copyright 2013, Red Hat Middleware LLC, and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
@@ -16,11 +15,6 @@
  */
 package io.openliberty.arquillian.managed;
 
-/**
- * Greeter
- * 
- * @author <a href="mailto:gerhard.poul@gmail.com">Gerhard Poul</a>
- */
 public class Greeter {
     public String createGreeting(String name) {
         return "Hello, " + name + "!";

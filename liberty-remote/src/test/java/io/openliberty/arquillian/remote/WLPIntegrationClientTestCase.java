@@ -1,5 +1,4 @@
 /*
- * JBoss, Home of Professional Open Source
  * Copyright 2010-2012, Red Hat Middleware LLC, and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
@@ -35,13 +34,6 @@ import org.junit.runner.RunWith;
 // This is based on the JettyEmbeddedClientTestCase.java
 // written by Dan Allen and Aslak Knutsen.
 
-/**
- * WLPIntegrationClientTestCase
- *
- * @author <a href="mailto:aslak@redhat.com">Aslak Knutsen</a>
- * @author <a href="mailto:gerhard.poul@gmail.com">Gerhard Poul</a>
- * @version $Revision: $
- */
 @RunWith(Arquillian.class)
 public class WLPIntegrationClientTestCase {
     @Deployment(testable = false)

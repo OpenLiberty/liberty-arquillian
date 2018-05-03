@@ -1,5 +1,4 @@
 /*
- * JBoss, Home of Professional Open Source
  * Copyright 2014 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
  * See the copyright.txt in the distribution for a
@@ -34,14 +33,6 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
-/**
- * <p>
- * WLPRemoteContainer
- * </p>
- * 
- * @author <a href="mailto:tayres@gmail.com">Tony Ayres</a>
- *
- */
 public class WLPRemoteContainer implements DeployableContainer<WLPRemoteContainerConfiguration> {
 
     private static final String className = WLPRemoteContainer.class.getName();

@@ -1,6 +1,5 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2010-2012, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2018, IBM Corporation
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
