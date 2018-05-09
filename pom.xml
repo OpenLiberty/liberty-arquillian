@@ -104,6 +104,22 @@
         <runtimeVersion>${runtimeVersion}</runtimeVersion>
       </properties>
     </profile>
+    <profile>
+      <id>default-its</id>
+      <activation>
+        <property>
+          <name>runtime</name>
+          <value>ol</value>
+        </property>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <runtime>ol</runtime>
+        <runtimeGroupId>io.openliberty</runtimeGroupId>
+        <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
+        <runtimeVersion>18.0.0.1</runtimeVersion>
+      </properties>
+    </profile>
   </profiles>
 
 
