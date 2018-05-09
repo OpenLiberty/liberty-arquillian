@@ -18,8 +18,8 @@
   <artifactId>arquillian-parent-liberty</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>Arquillian Container Parent WebSphere AS</name>
-  <description>WebSphere AS Container integrations for the Arquillian Project</description>
+  <name>Arquillian Container Liberty Parent</name>
+  <description>Liberty Container integrations for the Arquillian Project</description>
 
   <!-- Properties -->
   <properties>
