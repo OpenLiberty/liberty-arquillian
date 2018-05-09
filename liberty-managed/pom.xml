@@ -200,16 +200,6 @@
       <version>1.2</version>
     </dependency>
 
-    <!-- WELD classes, these are present in FFDC 
-         and are sometimes instances of TCK @ShouldThrow exceptions -->
-    <dependency>
-      <groupId>org.jboss.weld</groupId>
-      <artifactId>weld-core-bom</artifactId>
-      <version>3.0.4.Final</version>
-      <scope>import</scope>
-      <type>pom</type>
-    </dependency>
-
     <!-- Sun Tools -->
 
     <dependency>
@@ -218,6 +208,16 @@
       <version>1.6.0</version>
       <scope>system</scope>
       <systemPath>${java.home}/../lib/tools.jar</systemPath>
+    </dependency>
+
+    <!-- WELD classes, these are present in FFDC
+         and are sometimes instances of TCK @ShouldThrow exceptions -->
+
+    <dependency>
+      <groupId>org.jboss.weld</groupId>
+      <artifactId>weld-core-bom</artifactId>
+      <version>3.0.4.Final</version>
+      <type>pom</type>
     </dependency>
 
     <!-- Testing -->
@@ -235,4 +235,5 @@
     </dependency>
 
   </dependencies>
+
 </project>
