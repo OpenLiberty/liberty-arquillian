@@ -210,6 +210,16 @@
       <systemPath>${java.home}/../lib/tools.jar</systemPath>
     </dependency>
 
+    <!-- WELD classes, these are present in FFDC
+         and are sometimes instances of TCK @ShouldThrow exceptions -->
+
+    <dependency>
+      <groupId>org.jboss.weld</groupId>
+      <artifactId>weld-core-bom</artifactId>
+      <version>3.0.4.Final</version>
+      <type>pom</type>
+    </dependency>
+
     <!-- Testing -->
 
     <dependency>
@@ -225,23 +235,5 @@
     </dependency>
 
   </dependencies>
-
-  <dependencyManagement>
-
-    <dependencies>
-
-    <!-- WELD classes, these are present in FFDC
-         and are sometimes instances of TCK @ShouldThrow exceptions -->
-    <dependency>
-      <groupId>org.jboss.weld</groupId>
-      <artifactId>weld-core-bom</artifactId>
-      <version>3.0.4.Final</version>
-      <scope>import</scope>
-      <type>pom</type>
-    </dependency>
-
-    </dependencies>
-
-  </dependencyManagement>
 
 </project>
