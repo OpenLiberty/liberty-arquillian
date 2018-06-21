@@ -12,7 +12,7 @@
 
   <!-- Model Version -->
   <modelVersion>4.0.0</modelVersion>
-
+  
   <!-- Artifact Configuration -->
   <artifactId>arquillian-liberty-managed</artifactId>
   <name>Arquillian Container Liberty Managed</name>
@@ -21,6 +21,30 @@
   <properties>
     <skipTests>false</skipTests>
   </properties>
+
+  <profiles>
+    <profile>
+      <id>jigsaw</id>
+      <activation>
+        <jdk>[1.9,)</jdk>
+      </activation>
+    </profile>
+    <profile>
+      <id>non-jigsaw</id>
+      <activation>
+        <jdk>[1.0,1.9)</jdk>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>com.sun</groupId>
+          <artifactId>tools</artifactId>
+          <version>1.6.0</version>
+          <scope>system</scope>
+          <systemPath>${java.home}/../lib/tools.jar</systemPath>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 
   <!-- Build -->
   <build>
@@ -198,16 +222,6 @@
       <groupId>javax.enterprise</groupId>
       <artifactId>cdi-api</artifactId>
       <version>1.2</version>
-    </dependency>
-
-    <!-- Sun Tools -->
-
-    <dependency>
-      <groupId>com.sun</groupId>
-      <artifactId>tools</artifactId>
-      <version>1.6.0</version>
-      <scope>system</scope>
-      <systemPath>${java.home}/../lib/tools.jar</systemPath>
     </dependency>
 
     <!-- WELD classes, these are present in FFDC

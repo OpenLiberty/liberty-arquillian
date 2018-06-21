@@ -4,6 +4,7 @@ language: java
 jdk:
     - openjdk7
     - oraclejdk8
+    - openjdk9
 env:
     - RUNTIME=ol RUNTIME_VERSION=18.0.0.1
     - RUNTIME=ol RUNTIME_VERSION=17.0.0.4

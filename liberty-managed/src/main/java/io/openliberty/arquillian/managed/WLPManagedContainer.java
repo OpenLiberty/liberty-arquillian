@@ -93,6 +93,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.sql.Timestamp;
 import java.util.Properties;
+import java.util.Scanner;
 
 public class WLPManagedContainer implements DeployableContainer<WLPManagedContainerConfiguration>
 {
@@ -213,6 +214,12 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
             cmd.add(System.getProperty("java.home") + "/bin/java");
             cmd.add("-Dcom.ibm.ws.logging.console.log.level=INFO");
+
+            // Only add JPMS options for Java 9+
+            if (!System.getProperty("java.specification.version").startsWith("1.")) {
+            		cmd.addAll(getJPMSOptions());
+            }
+            
             if (!javaVmArguments.equals("")) {
             	cmd.addAll(parseJvmArgs(javaVmArguments));
          	}
@@ -220,7 +227,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             cmd.add("-jar");
             cmd.add("lib/ws-launch.jar");
             cmd.add(containerConfiguration.getServerName());
-
+            
             log.finer("Starting server with command: " + cmd.toString());
 
             ProcessBuilder pb = new ProcessBuilder(cmd);
@@ -1725,6 +1732,34 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       log.finer("system wide server.env path: " + systemServerEnv);
       return systemServerEnv;
    }
+   
+	private List<String> getJPMSOptions() {
+		List<String> args = new ArrayList<String>();
+		File jpmsOptions = new File(containerConfiguration.getWlpHome(), "lib/platform/java/java9.options");
+		try (Scanner s = new Scanner(jpmsOptions)) {
+			String line = null;
+			String arg = null;
+			while(s.hasNextLine()) {
+				line = s.nextLine().trim();
+				// the java9.options file is of the format:
+				// # Optional comment
+				// --add-exports
+				// jdk.management.agent/jdk.internal.agent=ALL-UNNAMED
+				if(line.startsWith("#")) { 
+					continue; // skip over commented out lines
+				} else if(line.startsWith("--")) {
+					arg = line;
+				} else {
+					args.add(arg + '=' + line);
+					arg = null;
+				}
+			}
+		} catch (IOException e) {
+			log.finer("Unable to locate Liberty JPMS options file at: " + jpmsOptions.getAbsolutePath());
+			return args;
+		}
+		return args;
+	}
 
    /**
     * Get the path of the messages.log file
