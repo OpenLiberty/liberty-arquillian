@@ -28,7 +28,6 @@
       <activation>
         <jdk>[1.9,)</jdk>
       </activation>
-      <dependencies/>
     </profile>
     <profile>
       <id>non-jigsaw</id>
