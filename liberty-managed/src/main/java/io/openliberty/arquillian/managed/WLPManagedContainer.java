@@ -21,7 +21,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -421,7 +423,13 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             // Save the archive to disk so it can be loaded by the container.
             String dropInDir = getDropInDirectory();
             File exportedArchiveLocation = new File(dropInDir, archiveName);
-            archive.as(ZipExporter.class).exportTo(exportedArchiveLocation, true);
+            String tempDir = getDropInTempDirectory();
+            File tempArchiveLocation = new File(tempDir, archiveName);
+            
+            // Create the archive in a temporary location, then move it to the dropins directory
+            // to prevent liberty trying to start the archive before it's complete
+            archive.as(ZipExporter.class).exportTo(tempArchiveLocation, true);
+            Files.move(tempArchiveLocation.toPath(), exportedArchiveLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
          }
 
          waitForApplicationTargetState(new String[] {deployName}, true, containerConfiguration.getAppDeployTimeout());
@@ -717,6 +725,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             "/dropins";
       if (log.isLoggable(Level.FINER))
          log.finer("dropInDir: " + dropInDir);
+      new File(dropInDir).mkdirs();
       return dropInDir;
    }
 
@@ -725,8 +734,17 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       String appDir = getServerConfigDir() + "/apps";
       if (log.isLoggable(Level.FINER))
          log.finer("appDir: " + appDir);
+      new File(appDir).mkdirs();
       return appDir;
    }
+   
+   private String getDropInTempDirectory() throws IOException {
+      String dropInTempDir = getServerConfigDir() + "/temp";
+      if (log.isLoggable(Level.FINER))
+          log.finer("dropInDir: " + dropInTempDir);
+      new File(dropInTempDir).mkdirs();
+      return dropInTempDir;
+    }
 
    private String getServerXML() throws IOException
    {
