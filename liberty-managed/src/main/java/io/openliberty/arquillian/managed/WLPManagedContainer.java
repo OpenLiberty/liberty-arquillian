@@ -398,6 +398,9 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       try {
          // If the deployment is to server.xml, then update server.xml with the application information
          if (containerConfiguration.isDeployTypeXML()) {
+             if (log.isLoggable(FINER)) {
+                 log.finer("Deploying using server.xml");
+             }
             // Throw error if deployment type is not ear, war, or eba
             if (!archiveType.equalsIgnoreCase("ear") && !archiveType.equalsIgnoreCase("war") && !archiveType.equalsIgnoreCase("eba"))
                throw new DeploymentException("Invalid archive type: " + archiveType + ".  Valid archive types are ear, war, and eba.");
@@ -418,10 +421,17 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          }
          // Otherwise put the application in the dropins directory
          else {
+             if (log.isLoggable(FINER)) {
+                 log.finer("Deploying using dropins");
+             }
             // Save the archive to disk so it can be loaded by the container.
             String dropInDir = getDropInDirectory();
             File exportedArchiveLocation = new File(dropInDir, archiveName);
             archive.as(ZipExporter.class).exportTo(exportedArchiveLocation, true);
+         }
+         
+         if (log.isLoggable(FINER)) {
+             log.finer("Deployment done");
          }
 
          waitForApplicationTargetState(new String[] {deployName}, true, containerConfiguration.getAppDeployTimeout());
@@ -646,6 +656,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    {
       if (log.isLoggable(Level.FINER)) {
          log.entering(className, "undeploy");
+         log.finer("Undeploying " + archive.getName());
       }
 
       String archiveName = archive.getName();
@@ -909,6 +920,11 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    private void waitForApplicationTargetState(String[] applicationNames, boolean targetState, int timeout) throws DeploymentException {
       if (log.isLoggable(Level.FINER)) {
          log.entering(className, "waitForApplicationTargetState");
+         StringBuilder sb = new StringBuilder();
+         sb.append("Waiting for apps to ").append(targetState ? "start" : "stop").append(" - ");
+         for (String appName : applicationNames) {
+             sb.append(appName).append(", ");
+         }
       }
 
       Map<ObjectName, AppStatus> appMBeans = new HashMap<ObjectName, AppStatus>();
@@ -950,11 +966,19 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          for(Entry<ObjectName, AppStatus> entry : appMBeans.entrySet()) {
             ObjectName appMBean = entry.getKey();
             AppStatus status = entry.getValue();
-
+            
             // First check if apps in the INITIAL state have reached the targetState. If so, update their AppStatus.
             if(status == AppStatus.INITIAL) {
-               if(mbsc.isRegistered(appMBean) == targetState) {
+               boolean isRegistered = mbsc.isRegistered(appMBean);
+               if (log.isLoggable(FINER)) {
+                   log.finer("AppMBean for " + appMBean.getKeyProperty("name") + (isRegistered ? " is registered" : " is not registered"));
+               }
+
+               if(isRegistered == targetState) {
                   status = AppStatus.MATCHES_TARGET_STATE;
+                  if (log.isLoggable(FINER)) {
+                      log.finer("AppMBean for " + appMBean.getKeyProperty("name") + " is in target state");
+                  }
                }
             }
 
@@ -963,15 +987,27 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                if(targetState == true) {
                   String applicationName = appMBean.getKeyProperty("name");
                   String applicationState = (String) mbsc.getAttribute(appMBean, "State");
+                  if (log.isLoggable(FINER)) {
+                      log.finer("AppMBean state for " + applicationName + " is " + applicationState);
+                  }
                   if (applicationState.contentEquals("STARTED")) {
+                     if (log.isLoggable(FINER)) {
+                         log.finer(applicationName + " has started");
+                     }
                      status = AppStatus.FINISHED;
                   } else if (applicationState.contentEquals("INSTALLED")) {
                      // If the application went from STARTING state to INSTALLED state, there should be a
                      // deployment issue. Check the logs to determine the cause of the deployment failure.
+                     if (log.isLoggable(FINER)) {
+                         log.finer(applicationName + " has failed to start");
+                     }
                      throwDeploymentException(applicationName);
                   }
                }
                else {
+                  if (log.isLoggable(FINER)) {
+                      log.finer(appMBean.getKeyProperty("name") + " has stopped");
+                  }
                   status = AppStatus.FINISHED;
                }
             }
