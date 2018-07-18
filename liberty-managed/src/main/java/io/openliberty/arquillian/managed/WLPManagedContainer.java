@@ -16,21 +16,31 @@ package io.openliberty.arquillian.managed;
 
 import static java.util.logging.Level.FINER;
 
+import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -83,18 +93,6 @@ import org.xml.sax.SAXException;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
-import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.sql.Timestamp;
-import java.util.Properties;
-import java.util.Scanner;
-
 public class WLPManagedContainer implements DeployableContainer<WLPManagedContainerConfiguration>
 {
 
@@ -136,15 +134,6 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
    private Thread shutdownThread;
    private Map<String, Long>archiveDeployTimes = new HashMap<String, Long>();
-
-   // Used in waitForApplicationTargetState
-   // When targetState = true (registered), MATCHES_TARGET_STATE means the app is registered and FINISHED means the app is started.
-   // When targetState = false (unregistered), MATCHES_TARGET_STATE and FINISHED both mean the application is unregistered.
-   private enum AppStatus {
-      INITIAL,
-      MATCHES_TARGET_STATE,
-      FINISHED
-   }
 
    @Override
    public void setup(WLPManagedContainerConfiguration configuration)
@@ -398,6 +387,9 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       try {
          // If the deployment is to server.xml, then update server.xml with the application information
          if (containerConfiguration.isDeployTypeXML()) {
+             if (log.isLoggable(FINER)) {
+                 log.finer("Deploying using server.xml");
+             }
             // Throw error if deployment type is not ear, war, or eba
             if (!archiveType.equalsIgnoreCase("ear") && !archiveType.equalsIgnoreCase("war") && !archiveType.equalsIgnoreCase("eba"))
                throw new DeploymentException("Invalid archive type: " + archiveType + ".  Valid archive types are ear, war, and eba.");
@@ -418,10 +410,23 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          }
          // Otherwise put the application in the dropins directory
          else {
+             if (log.isLoggable(FINER)) {
+                 log.finer("Deploying using dropins");
+             }
             // Save the archive to disk so it can be loaded by the container.
             String dropInDir = getDropInDirectory();
             File exportedArchiveLocation = new File(dropInDir, archiveName);
-            archive.as(ZipExporter.class).exportTo(exportedArchiveLocation, true);
+            String tempDir = getDropInTempDirectory();
+            File tempArchiveLocation = new File(tempDir, archiveName);
+            
+            // Create the archive in a temporary location, then move it to the dropins directory
+            // to prevent liberty trying to start the archive before it's complete
+            archive.as(ZipExporter.class).exportTo(tempArchiveLocation, true);
+            Files.move(tempArchiveLocation.toPath(), exportedArchiveLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
+         }
+
+         if (log.isLoggable(FINER)) {
+             log.finer("Deployment done");
          }
 
          waitForApplicationTargetState(new String[] {deployName}, true, containerConfiguration.getAppDeployTimeout());
@@ -717,6 +722,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             "/dropins";
       if (log.isLoggable(Level.FINER))
          log.finer("dropInDir: " + dropInDir);
+      new File(dropInDir).mkdirs();
       return dropInDir;
    }
 
@@ -725,8 +731,17 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       String appDir = getServerConfigDir() + "/apps";
       if (log.isLoggable(Level.FINER))
          log.finer("appDir: " + appDir);
+      new File(appDir).mkdirs();
       return appDir;
    }
+   
+   private String getDropInTempDirectory() throws IOException {
+      String dropInTempDir = getServerConfigDir() + "/temp";
+      if (log.isLoggable(Level.FINER))
+          log.finer("dropInDir: " + dropInTempDir);
+      new File(dropInTempDir).mkdirs();
+      return dropInTempDir;
+    }
 
    private String getServerXML() throws IOException
    {
@@ -909,112 +924,86 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    private void waitForApplicationTargetState(String[] applicationNames, boolean targetState, int timeout) throws DeploymentException {
       if (log.isLoggable(Level.FINER)) {
          log.entering(className, "waitForApplicationTargetState");
-      }
-
-      Map<ObjectName, AppStatus> appMBeans = new HashMap<ObjectName, AppStatus>();
-
-      for(String applicationName : applicationNames) {
-    	 ObjectName appMBean = null;
-         try {
-            appMBean = new ObjectName("WebSphere:service=com.ibm.websphere.application.ApplicationMBean,name=" + applicationName);
-         } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("The generated object name is wrong. The applicationName used was '" + applicationName + "'", e);
-         } catch (NullPointerException e) {
-            // This should never happen given that the name parameter to the
-            // ObjectName constructor above can never be null
-            throw new DeploymentException("This should never happen", e);
+         StringBuilder sb = new StringBuilder();
+         sb.append("Waiting for apps to ").append(targetState ? "start" : "stop").append(" - ");
+         for (String appName : applicationNames) {
+             sb.append(appName).append(", ");
          }
-         appMBeans.put(appMBean, AppStatus.INITIAL);
       }
-
-      // Loop until the application MBean has reached the target state or until the timeout
-      try {
-         checkApplicationStatus(appMBeans, targetState, timeout);
-      } catch (DeploymentException de) {
-         // Keep any more specific raised DeploymentExceptions
-         throw de;
-      } catch (Exception e) {
-         throw new DeploymentException("Exception while checking application state.", e);
+      
+      String desiredState = targetState ? "STARTED" : "NOT_INSTALLED";
+      List<AppStateChecker> appStateCheckers = new ArrayList<>();
+      
+      for (String appName : applicationNames) {
+          appStateCheckers.add(new AppStateChecker(mbsc, appName));
+      }
+      
+      boolean allReady;
+      int timeleft = timeout * 1000;
+      
+      do {
+          allReady = true;
+          
+          for (AppStateChecker appStateChecker : appStateCheckers) {
+              String currentState = appStateChecker.checkState();
+              
+              if (log.isLoggable(FINER)) {
+                  log.finer("AppMBean for " + appStateChecker.getAppName() + " is in state " + currentState);
+              }
+              
+              if (!currentState.equals(desiredState)) {
+                  allReady = false;
+              }
+              
+              // Applications should only be in INSTALLED state for a very short time before moving to STARTING
+              // An application which stays in INSTALLED state has failed to start
+              if (desiredState.equals("STARTED") && currentState.equals("INSTALLED") && appStateChecker.getMsInState() >= 1000) {
+                  log.finer(appStateChecker.getAppName() + " has failed to start (in INSTALLED state for more than one second)");
+                  throwDeploymentException(appStateChecker.getAppName());
+              }
+          }
+          
+          if (allReady) {
+              break;
+          }
+          try {
+              Thread.sleep(100);
+          } catch (InterruptedException e) {
+              throw new DeploymentException("Deployment interrupted", e);
+          }
+          timeleft -= 100;
+      } while (timeleft > 0);
+      
+      if (!allReady) {
+          // We're about to get the status of apps one more time to build the error message
+          // but there's a possibility they've all finished between now and the last time we checked
+          // so we reset allReady and compute it again as we loop through the apps
+          allReady = true;
+          
+          StringBuilder appMessageStatus = new StringBuilder();
+          for (AppStateChecker appStateChecker : appStateCheckers) {
+              String actualState = appStateChecker.checkState();
+              if (!actualState.equals(desiredState)) {
+                  appMessageStatus.append("Timeout while waiting for \"")
+                          .append(appStateChecker.getAppName())
+                          .append("\" ApplicationMBean to reach ")
+                          .append(desiredState)
+                          .append(". Actual state: ")
+                          .append(actualState)
+                          .append(".");
+                  allReady = false;
+              }
+          }
+          
+          if (allReady == false) {
+              logAllApps();
+              throw new DeploymentException(appMessageStatus.toString());
+          }
       }
 
       if (log.isLoggable(Level.FINER)) {
          log.exiting(className, "waitForApplicationTargetState");
       }
-   }
-
-   private void checkApplicationStatus(Map<ObjectName, AppStatus> appMBeans, boolean targetState, int timeout) throws Exception {
-      int timeleft = timeout * 1000;
-
-      // Loop until all apps are ready. If timeleft is 0, fail the deployment
-      do {
-         for(Entry<ObjectName, AppStatus> entry : appMBeans.entrySet()) {
-            ObjectName appMBean = entry.getKey();
-            AppStatus status = entry.getValue();
-
-            // First check if apps in the INITIAL state have reached the targetState. If so, update their AppStatus.
-            if(status == AppStatus.INITIAL) {
-               if(mbsc.isRegistered(appMBean) == targetState) {
-                  status = AppStatus.MATCHES_TARGET_STATE;
-               }
-            }
-
-            // Then check if apps in the targetState have reached the STARTED state, if the targetState == true.
-            if(status == AppStatus.MATCHES_TARGET_STATE) {
-               if(targetState == true) {
-                  String applicationName = appMBean.getKeyProperty("name");
-                  String applicationState = (String) mbsc.getAttribute(appMBean, "State");
-                  if (applicationState.contentEquals("STARTED")) {
-                     status = AppStatus.FINISHED;
-                  } else if (applicationState.contentEquals("INSTALLED")) {
-                     // If the application went from STARTING state to INSTALLED state, there should be a
-                     // deployment issue. Check the logs to determine the cause of the deployment failure.
-                     throwDeploymentException(applicationName);
-                  }
-               }
-               else {
-                  status = AppStatus.FINISHED;
-               }
-            }
-
-            // Update the appMBeans dictionary
-            appMBeans.put(appMBean, status);
-         }
-
-         if(allAppsReady(appMBeans)) {
-            return;
-         }
-
-         Thread.sleep(100);
-
-         timeleft -= 100;
-      } while (timeleft > 0);
-
-      // If we haven't returned in the while loop, not all apps were ready in the given timeout period.
-
-      logAllApps();
-
-      String appMessageStatus = "";
-      for(Entry<ObjectName, AppStatus> entry : appMBeans.entrySet()) {
-         // Timeout while waiting for ApplicationMBean to reach targetState
-         String appName = entry.getKey().getCanonicalName();
-         AppStatus status = entry.getValue();
-         if(status == AppStatus.INITIAL) {
-            appMessageStatus += "Timeout while waiting for \"" + appName + "\" ApplicationMBean to reach targetState.\n";
-         }
-         else if(status == AppStatus.MATCHES_TARGET_STATE) {
-            appMessageStatus += "Timeout while waiting for \"" + appName + "\" ApplicationState to reach STARTED.\n";
-         }
-      }
-      throw new DeploymentException(appMessageStatus);
-   }
-
-   private boolean allAppsReady(Map<ObjectName, AppStatus> appMBeans) {
-      for(AppStatus status : appMBeans.values()) {
-         if(status != AppStatus.FINISHED) {
-            return false;
-         }
-      }
-      return true;
    }
 
    public void stop() throws LifecycleException
