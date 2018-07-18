@@ -982,11 +982,15 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
           
           StringBuilder appMessageStatus = new StringBuilder();
           for (AppStateChecker appStateChecker : appStateCheckers) {
-              if (!appStateChecker.checkState().equals(desiredState)) {
+              String actualState = appStateChecker.checkState();
+              if (!actualState.equals(desiredState)) {
                   appMessageStatus.append("Timeout while waiting for \"")
                           .append(appStateChecker.getAppName())
                           .append("\" ApplicationMBean to reach ")
-                          .append(desiredState);
+                          .append(desiredState)
+                          .append(". Actual state: ")
+                          .append(actualState)
+                          .append(".");
                   allReady = false;
               }
           }
