@@ -1146,7 +1146,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
           * and throw it to Arquillian.
           */
          while ((line = br.readLine()) != null) {
-            if (line.contains("CWWKZ0002") && line.contains(applicationName)) {
+            if (line.contains("CWWKZ0002") && line.contains(" " + applicationName + " ")) {
                StringBuilder sb = new StringBuilder();
                sb.append("Failed to deploy ")
                      .append(applicationName)
@@ -1183,7 +1183,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                   log.finest("A exception was found in line " + line + " of file " + messagesFilePath);
                   throw new DeploymentException(sb.toString(), ffdcXChain);
                }
-            } else if (line.contains("CWWKZ0001I") && line.contains(applicationName)) {
+            } else if (line.contains("CWWKZ0001I") && line.contains(" " + applicationName + " ")) {
                throw new DeploymentException("Application " + applicationName +
                      " started unexpectedly even though it never reached the STARTED state. This should never happen.");
             }
