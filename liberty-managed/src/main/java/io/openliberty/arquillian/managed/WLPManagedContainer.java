@@ -1138,55 +1138,72 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          log.finest("Scanning message file " + messagesFilePath);
 
          br = new BufferedReader(new InputStreamReader(new FileInputStream(messagesFilePath)));
-         String line;
+         String bestLine = null;
 
          /*
           * Process the logs to see what the cause of the exception was. If the exception is a CDI
           * DeploymentException or DefinitionException, wrap it in an Arquillian DeploymentException
           * and throw it to Arquillian.
           */
+         /*
+          * Find the last line where our application either starts or fails to start.
+          * We look for the last line in case a test deploys several apps with the same name, we want the most recent.
+          */
+         String line;
          while ((line = br.readLine()) != null) {
-            if (line.contains("CWWKZ0002") && line.contains(applicationName)) {
-               StringBuilder sb = new StringBuilder();
-               sb.append("Failed to deploy ")
-                     .append(applicationName)
-                     .append(" on ")
-                     .append(containerConfiguration.getServerName());
+             if ( (line.contains("CWWKZ0002") || line.contains("CWWKZ0001I")) && line.contains(applicationName)) {
+                 bestLine = line;
+             }
+         }
+         
+         /*
+          * Having found the line, find what the cause of the exception was. If the exception is a CDI
+          * DeploymentException or DefinitionException, wrap it in an Arquillian DeploymentException
+          * and throw it to Arquillian.
+          */
+         if (bestLine == null) {
+             /* The error message may not have showed up in the log yet. Check again on next pass. */
+             log.finest("The application deployment failure message was not found. Waiting...");
+         } else if (bestLine.contains("CWWKZ0002")) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Failed to deploy ")
+                  .append(applicationName)
+                  .append(" on ")
+                  .append(containerConfiguration.getServerName());
 
-               Throwable ffdcXChain = getFfdcWithNestedCauseChain(applicationName);
+            Throwable ffdcXChain = getFfdcWithNestedCauseChain(applicationName);
 
-               if (line.contains("DefinitionException")) {
-                  log.finest("DefinitionException found in line" + line + " of file " + messagesFilePath);
-                  DefinitionException cause = new javax.enterprise.inject.spi.DefinitionException(line, ffdcXChain);
-                  throw new DeploymentException(sb.toString(), cause);
-               } else if (line.contains("DeploymentException") ||
-                          line.contains("InconsistentSpecializationException") ||
-                          line.contains("UnserializableDependencyException")) {
-                  /*
-                   * The CDI specification allows an implementation to throw a subclass of
-                   * javax.enterprise.inject.spi.DeploymentException. Weld has three types
-                   * such exceptions:
-                   *  - org.jboss.weld.exceptions.DeploymentException
-                   *  - org.jboss.weld.exceptions.InconsistentSpecializationException
-                   *  - org.jboss.weld.exceptions.UnserializableDependencyException
-                   */
-                  log.finest("DeploymentException found in line" + line + " of file " + messagesFilePath);
-                  javax.enterprise.inject.spi.DeploymentException cause = new javax.enterprise.inject.spi.DeploymentException(line, ffdcXChain);
-                  throw new DeploymentException(sb.toString(), cause);
-               } else {
-                  /*
-                   * Application failed to deploy due to some other exception.
-                   */
-                  String exceptionFound = line.substring(line.indexOf("The exception message was: ") + 27);
-                  sb.append(": ");
-                  sb.append(exceptionFound);
-                  log.finest("A exception was found in line " + line + " of file " + messagesFilePath);
-                  throw new DeploymentException(sb.toString(), ffdcXChain);
-               }
-            } else if (line.contains("CWWKZ0001I") && line.contains(applicationName)) {
-               throw new DeploymentException("Application " + applicationName +
-                     " started unexpectedly even though it never reached the STARTED state. This should never happen.");
+            if (bestLine.contains("DefinitionException")) {
+               log.finest("DefinitionException found in line" + bestLine + " of file " + messagesFilePath);
+               DefinitionException cause = new javax.enterprise.inject.spi.DefinitionException(bestLine, ffdcXChain);
+               throw new DeploymentException(sb.toString(), cause);
+            } else if (bestLine.contains("DeploymentException") ||
+                       bestLine.contains("InconsistentSpecializationException") ||
+                       bestLine.contains("UnserializableDependencyException")) {
+               /*
+                * The CDI specification allows an implementation to throw a subclass of
+                * javax.enterprise.inject.spi.DeploymentException. Weld has three types
+                * such exceptions:
+                *  - org.jboss.weld.exceptions.DeploymentException
+                *  - org.jboss.weld.exceptions.InconsistentSpecializationException
+                *  - org.jboss.weld.exceptions.UnserializableDependencyException
+                */
+               log.finest("DeploymentException found in line" + bestLine + " of file " + messagesFilePath);
+               javax.enterprise.inject.spi.DeploymentException cause = new javax.enterprise.inject.spi.DeploymentException(bestLine, ffdcXChain);
+               throw new DeploymentException(sb.toString(), cause);
+            } else {
+               /*
+                * Application failed to deploy due to some other exception.
+                */
+               String exceptionFound = bestLine.substring(bestLine.indexOf("The exception message was: ") + 27);
+               sb.append(": ");
+               sb.append(exceptionFound);
+               log.finest("A exception was found in line " + bestLine + " of file " + messagesFilePath);
+               throw new DeploymentException(sb.toString(), ffdcXChain);
             }
+         } else if (bestLine.contains("CWWKZ0001I") && bestLine.contains(applicationName)) {
+            throw new DeploymentException("Application " + applicationName +
+                  " started unexpectedly even though it never reached the STARTED state. This should never happen.");
          }
       } catch (IOException e) {
          log.warning("Exception while reading messages.log: " + messagesFilePath + ": " + e.toString());
@@ -1196,9 +1213,6 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       } finally {
          closeQuietly(br);
       }
-
-      /* The error message may not have showed up in the log yet. Check again on next pass. */
-      log.finest("The application deployment failure message was not found. Waiting...");
 
       if (log.isLoggable(Level.FINER)) {
          log.exiting(className, "throwDeploymentException");
