@@ -440,8 +440,8 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          } else if (archive instanceof WebArchive) {
              WebModule m = new WebModule();
              m.name = deployName;
-             m.contextRoot = deployName;
              m.archive = (WebArchive) archive;
+             m.contextRoot = getContextRoot(m.archive);
              modules = Collections.singletonList(m);
          } else {
              modules = Collections.emptyList();
@@ -576,8 +576,32 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 			   closeQuietly(input);
 		   }
 	   }
-	   return createDeploymentName(war.getName());
-	}
+	   return getContextRoot(war);
+   }
+
+   private String getContextRoot(WebArchive war) throws DeploymentException {
+       org.jboss.shrinkwrap.api.Node webExtXmlNode = war.get("WEB-INF/ibm-web-ext.xml");
+       if(webExtXmlNode != null && webExtXmlNode.getAsset() != null) {
+           InputStream input = null;
+           try {
+               input = war.get("WEB-INF/ibm-web-ext.xml").getAsset().openStream();
+               Document webExtXml = readXML(input);
+               XPath xPath = XPathFactory.newInstance().newXPath();
+               XPathExpression ctxRootSelector = xPath.compile("//context-root/@uri");
+               String ctxRoot = ctxRootSelector.evaluate(webExtXml);
+               if(ctxRoot != null && ctxRoot.trim().length() > 0) {
+                   return ctxRoot;
+               }
+           } catch (Exception e) {
+               throw new DeploymentException("Unable to retrieve context-root from ibm-web-ext.xml");
+           } finally {
+               closeQuietly(input);
+           }
+       }
+       return createDeploymentName(war.getName());
+   }
+
+
 
 	private static void closeQuietly(Closeable closable) {
 		try {
