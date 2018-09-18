@@ -532,7 +532,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    private List<String> getServletNames(String appDeployName, WebModule webModule) throws DeploymentException {
        try {
            // If Java EE Management MBeans are present, query them for deployed servlets. This requires j2eeManagement-1.1 feature
-           Set<ObjectInstance> servletMbeans = mbsc.queryMBeans(new ObjectName("WebSphere:*,J2EEServer=" + containerConfiguration.getServerName() + ",J2EEApplication=" + appDeployName + ",j2eeType=Servlet,WebModule="+webModule.name), null);
+           Set<ObjectInstance> servletMbeans = mbsc.queryMBeans(new ObjectName("WebSphere:*,J2EEApplication=" + appDeployName + ",j2eeType=Servlet,WebModule="+webModule.name), null);
            List<String> servletNames = new ArrayList<String>();
            
            for (ObjectInstance servletMbean : servletMbeans) {
