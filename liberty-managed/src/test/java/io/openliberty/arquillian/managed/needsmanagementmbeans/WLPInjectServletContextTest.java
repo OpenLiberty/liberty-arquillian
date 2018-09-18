@@ -17,6 +17,7 @@ package io.openliberty.arquillian.managed.needsmanagementmbeans;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -26,6 +27,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
+import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptors;
@@ -40,7 +42,7 @@ public class WLPInjectServletContextTest
     
     private static final String DEPLOYMENT1 = "app1";
     private static final String DEPLOYMENT2 = "app2";
-    
+    private static final String DEPLOYMENT3 = "app3";
     
     @Deployment(testable = false, name = DEPLOYMENT1)
     public static WebArchive app1() {
@@ -67,6 +69,28 @@ public class WLPInjectServletContextTest
         return ear;
     }
     
+    @Deployment(testable = false, name = DEPLOYMENT3)
+    public static EnterpriseArchive app3() {
+    	
+        EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class)
+                .addAsModule(ShrinkWrap.create(WebArchive.class, "test3.war")
+                             .addClass(BuzServlet.class));
+    	
+    	File deploymentFile = new File ("target/testAppWithLoadedFromFile.ear");
+    	
+        ApplicationDescriptor appXml = Descriptors.create(ApplicationDescriptor.class)
+                .version(ApplicationDescriptor.VERSION)
+                .applicationName("testAppWithLoadedFromFile")
+                .createModule().getOrCreateWeb().contextRoot("/test3").webUri("test3.war").up().up();
+        ear.setApplicationXML(new StringAsset(appXml.exportAsString()));
+    	ear.as(ZipExporter.class).exportTo(deploymentFile, true);
+    	
+    	// Create the ShrinkWrap archive from file system, which leads to leading slashes '/' in the
+    	// web module names.
+    	
+		return ShrinkWrap.createFromZipFile(EnterpriseArchive.class, deploymentFile);
+    }
+    
     @ArquillianResource(FooServlet.class)
     @OperateOnDeployment(DEPLOYMENT1)
     private URL fooContextRoot;
@@ -78,6 +102,10 @@ public class WLPInjectServletContextTest
     @ArquillianResource(BazServlet.class)
     @OperateOnDeployment(DEPLOYMENT2)
     private URL bazContextRoot;
+    
+    @ArquillianResource(BuzServlet.class)
+    @OperateOnDeployment(DEPLOYMENT3)
+    private URL buzContextRoot;
     
     @Test
     public void testFoo() throws Exception {
@@ -98,6 +126,13 @@ public class WLPInjectServletContextTest
         URL url = new URL(bazContextRoot, "baz");
         String response = readAllAndClose(url.openStream());
         assertEquals("I am baz", response);
+    }
+    
+    @Test
+    public void testBuz() throws Exception {
+        URL url = new URL(buzContextRoot, "buz");
+        String response = readAllAndClose(url.openStream());
+        assertEquals("I am buz", response);
     }
     
     private String readAllAndClose(InputStream is) throws Exception 
