@@ -116,7 +116,7 @@ public class WLPContextRootTestCase
    }
    
    @Test
-   public void testIfBarContextRootMatchesWebExtValue() throws Exception {
+   public void testIfBarContextRootMatchesApplicationXmlValue() throws Exception {
        URL url = new URL(barContextRoot, "bar");
        assertEquals("/test1/", barContextRoot.getPath());
        String response = readAllAndClose(url.openStream());
@@ -124,7 +124,7 @@ public class WLPContextRootTestCase
    }
    
    @Test
-   public void testIfBazContextRootMatchesApplicationXml() throws Exception {
+   public void testIfBazContextRootMatchesWebExtValue() throws Exception {
        URL url = new URL(bazContextRoot, "baz");
        assertEquals("/contextRootFromWebExt3/", bazContextRoot.getPath());
        String response = readAllAndClose(url.openStream());
