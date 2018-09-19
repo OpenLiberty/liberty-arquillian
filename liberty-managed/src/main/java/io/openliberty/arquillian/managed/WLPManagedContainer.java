@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
@@ -322,13 +323,29 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          throws IOException {
       String serviceURL;
       String PROPERTY_NAME = "com.sun.management.jmxremote.localConnectorAddress";
-
+      
       serviceURL = wlpvm.getAgentProperties().getProperty(PROPERTY_NAME);
 
       // On some environments like the IBM JVM the localConnectorAddress is not
       // in the AgentProperties but in the SystemProperties.
       if (serviceURL == null)
          serviceURL = wlpvm.getSystemProperties().getProperty(PROPERTY_NAME);
+      
+      if (serviceURL == null) {
+          File jmxAddr = new File(getServerOutputDir() + "/logs/state/com.ibm.ws.jmx.local.address");
+          if (log.isLoggable(Level.FINER)) {
+              log.info("Checking local connector address file for JMX address at " + jmxAddr.getAbsolutePath());
+          }
+          if (jmxAddr.exists() && jmxAddr.isFile() && jmxAddr.canRead()) {
+              List<String> lines = Files.readAllLines(jmxAddr.toPath(), StandardCharsets.UTF_8);
+              if (lines != null && lines.size() > 0) {
+                  if (log.isLoggable(Level.FINER)) {
+                      log.info("Checking local connector address file for JMX address at " + lines.get(0));
+                  }
+                  return lines.get(0);
+              }
+          }
+      }
 
       if (log.isLoggable(Level.FINER)) {
          log.finer("service url: " + serviceURL);
