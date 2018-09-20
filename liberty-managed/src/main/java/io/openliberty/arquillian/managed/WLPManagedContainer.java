@@ -516,7 +516,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
            if (path.get().endsWith("war")) {
                WebModule module = new WebModule();
                module.archive = ear.getAsType(WebArchive.class, path);
-               module.name = module.archive.getName().replaceFirst("\\.war$", "");
+               module.name = module.archive.getName().replaceFirst("^\\/", "").replaceFirst("\\.war$", "");
                module.contextRoot = getContextRoot(ear, module.archive);
                modules.add(module);
            }
