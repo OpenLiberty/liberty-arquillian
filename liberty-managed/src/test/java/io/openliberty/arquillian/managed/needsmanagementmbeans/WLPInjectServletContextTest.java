@@ -71,24 +71,25 @@ public class WLPInjectServletContextTest
     
     @Deployment(testable = false, name = DEPLOYMENT3)
     public static EnterpriseArchive app3() {
-    	
+
         EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class)
                 .addAsModule(ShrinkWrap.create(WebArchive.class, "test3.war")
-                             .addClass(BuzServlet.class));
-    	
-    	File deploymentFile = new File ("target/testAppWithLoadedFromFile.ear");
-    	
+                        .addClass(BuzServlet.class));
+
+        File deploymentFile = new File("target/testAppWithLoadedFromFile.ear");
+
         ApplicationDescriptor appXml = Descriptors.create(ApplicationDescriptor.class)
                 .version(ApplicationDescriptor.VERSION)
                 .applicationName("testAppWithLoadedFromFile")
                 .createModule().getOrCreateWeb().contextRoot("/test3").webUri("test3.war").up().up();
         ear.setApplicationXML(new StringAsset(appXml.exportAsString()));
-    	ear.as(ZipExporter.class).exportTo(deploymentFile, true);
-    	
-    	// Create the ShrinkWrap archive from file system, which leads to leading slashes '/' in the
-    	// web module names.
-    	
-		return ShrinkWrap.createFromZipFile(EnterpriseArchive.class, deploymentFile);
+        ear.as(ZipExporter.class).exportTo(deploymentFile, true);
+
+        // Create the ShrinkWrap archive from file system, which leads to leading
+        // slashes '/' in the
+        // web module names.
+
+        return ShrinkWrap.createFromZipFile(EnterpriseArchive.class, deploymentFile);
     }
     
     @ArquillianResource(FooServlet.class)
