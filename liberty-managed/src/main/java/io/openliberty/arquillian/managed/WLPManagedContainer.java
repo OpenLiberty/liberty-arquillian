@@ -1102,8 +1102,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                // We can safely ignore FileNotFound
             }
             // Process environment variables
-            if (value == null && !key.equals(WLP_USER_DIR)) { // WLP_USER_DIR can be specified only in the
-                                                              // ${wlp.install.dir}/etc/server.env file
+            if (value == null) {
                value = getEnv(key);
             }
          }
