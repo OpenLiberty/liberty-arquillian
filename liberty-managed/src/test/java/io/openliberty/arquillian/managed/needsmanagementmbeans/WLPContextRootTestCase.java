@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2018, IBM Corporation, and other contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,78 +37,81 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class WLPContextRootTestCase
 {
-	
     private static final String DEPLOYMENT1 = "app1";
     private static final String DEPLOYMENT2 = "app2";
     private static final String DEPLOYMENT3 = "app3";
     private static final String DEPLOYMENT4 = "app4";
-
+    
     @Deployment(testable = false, name = DEPLOYMENT1)
-    public static WebArchive app1() {
+    public static WebArchive app1()
+    {
         return ShrinkWrap.create(WebArchive.class, "testApp1.war")
                 .addClass(FooServlet.class);
     }
     
     @Deployment(testable = false, name = DEPLOYMENT2)
-    public static WebArchive app2() {
+    public static WebArchive app2()
+    {
         return ShrinkWrap.create(WebArchive.class, "testApp2.war")
-        		.addAsWebInfResource(new File("src/test/resources/ibm-web-ext_1.xml"), "ibm-web-ext.xml")
-                .addClass(OtherFooServlet.class);
+            .addAsWebInfResource(new File("src/test/resources/ibm-web-ext_1.xml"), "ibm-web-ext.xml")
+            .addClass(OtherFooServlet.class);
     }
     
     @Deployment(testable = false, name = DEPLOYMENT3)
-    public static EnterpriseArchive app3() {
+    public static EnterpriseArchive app3() 
+    {
         EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "testApp3.ear")
             .addAsModule(ShrinkWrap.create(WebArchive.class, "test1.war")
-                 .addClass(BarServlet.class)
-           		 .addAsWebInfResource(new File("src/test/resources/ibm-web-ext_2.xml"), "ibm-web-ext.xml"));                			 
-                			 
+                .addClass(BarServlet.class)
+                .addAsWebInfResource(new File("src/test/resources/ibm-web-ext_2.xml"), "ibm-web-ext.xml"));
+        
         ApplicationDescriptor appXml = Descriptors.create(ApplicationDescriptor.class)
-                                                     .version(ApplicationDescriptor.VERSION)
-                                                     .applicationName("testApp3")
-                                                     .createModule().getOrCreateWeb().contextRoot("/test1").webUri("test1.war").up().up();
+           .version(ApplicationDescriptor.VERSION)
+           .applicationName("testApp3")
+           .createModule().getOrCreateWeb().contextRoot("/test1").webUri("test1.war").up().up();
         ear.setApplicationXML(new StringAsset(appXml.exportAsString()));
         
         return ear;
    }
     
     @Deployment(testable = false, name = DEPLOYMENT4)
-    public static EnterpriseArchive app4() {
+    public static EnterpriseArchive app4() 
+    {
         EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "testApp4.ear")
             .addAsModule(ShrinkWrap.create(WebArchive.class, "test2.war")
-                 .addClass(BazServlet.class)
-				 .addAsWebInfResource(new File("src/test/resources/ibm-web-ext_3.xml"), "ibm-web-ext.xml"));
-        
+                .addClass(BazServlet.class)
+                .addAsWebInfResource(new File("src/test/resources/ibm-web-ext_3.xml"), "ibm-web-ext.xml"));
         return ear;
    }
-    
     
    @ArquillianResource(FooServlet.class)
    @OperateOnDeployment(DEPLOYMENT1)
    private URL fooContextRoot;
-    
+   
    @ArquillianResource(OtherFooServlet.class)
    @OperateOnDeployment(DEPLOYMENT2)
    private URL otherFooContextRoot;
-    
+   
    @ArquillianResource(BarServlet.class)
    @OperateOnDeployment(DEPLOYMENT3)
    private URL barContextRoot;
    
    @ArquillianResource(BazServlet.class)
    @OperateOnDeployment(DEPLOYMENT4)
-   private URL bazContextRoot;    
-
+   private URL bazContextRoot;
+   
    @Test
-   public void testIfFooContextRootMatchesWarName() throws Exception {
+   public void testIfFooContextRootMatchesWarName() throws Exception 
+   {
        URL url = new URL(fooContextRoot, "foo");
        assertEquals("/testApp1/", fooContextRoot.getPath());
        String response = readAllAndClose(url.openStream());
        assertEquals("I am foo", response);
    }
-
+   
    @Test
-   public void testIfOtherFooContextRootMatchesWebExtValue() throws Exception {
+   public void testIfOtherFooContextRootMatchesWebExtValue() throws Exception 
+   {
        URL url = new URL(otherFooContextRoot, "otherFoo");
        assertEquals("/contextRootFromWebExt1/", otherFooContextRoot.getPath());
        String response = readAllAndClose(url.openStream());
@@ -116,7 +119,8 @@ public class WLPContextRootTestCase
    }
    
    @Test
-   public void testIfBarContextRootMatchesApplicationXmlValue() throws Exception {
+   public void testIfBarContextRootMatchesApplicationXmlValue() throws Exception 
+   {
        URL url = new URL(barContextRoot, "bar");
        assertEquals("/test1/", barContextRoot.getPath());
        String response = readAllAndClose(url.openStream());
@@ -148,6 +152,4 @@ public class WLPContextRootTestCase
       }
       return out.toString();
    }
-   
-   
 }
