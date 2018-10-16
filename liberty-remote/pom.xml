@@ -14,8 +14,8 @@
 
   <properties>
     <skipTests>false</skipTests>
-    <version.jackson>2.4.4</version.jackson>
-    <version.apache.fluent.hc>4.3.6</version.apache.fluent.hc>
+    <version.jackson>2.9.7</version.jackson>
+    <version.apache.fluent.hc>4.5.6</version.apache.fluent.hc>
   </properties>
   
   <profiles>
