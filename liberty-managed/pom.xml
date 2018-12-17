@@ -103,6 +103,7 @@
             </property>
           </systemProperties>
           <argLine>-Dproject.build.directory=${project.build.directory}</argLine>
+          <trimStackTrace>false</trimStackTrace>
         </configuration>
         <executions>
           <execution>
