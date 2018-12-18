@@ -16,6 +16,7 @@ package io.openliberty.arquillian.managed.exceptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -49,6 +50,7 @@ public class NestedExceptionBuilder {
     public static class ExMsg {
         String exName;
         String logMsg;
+        List<String> superclasses = new ArrayList<>();
         public String toString(){
             return exName + "(" + logMsg + ")";
         }
@@ -81,7 +83,7 @@ public class NestedExceptionBuilder {
      *            - an ordered list of the Exception log messages
      * @return a Throwable with usable causal chain
      */
-    public static Throwable buildNestedException(ArrayList<ExMsg> exs) {
+    public static Throwable buildNestedException(List<ExMsg> exs) {
 
         Throwable causeSoFar = null;
 
@@ -112,6 +114,16 @@ public class NestedExceptionBuilder {
         Throwable t = attemptCreation(x.exName, x.logMsg, cause);
         
         if (t == null) {
+            // We couldn't load the actual class, try any superclasses if we know them
+            for (String superclass : x.superclasses) {
+                t = attemptCreation(superclass, x.logMsg, cause);
+                if (t != null) {
+                    break;
+                }
+            }
+        }
+        
+        if (t == null) {
             // If we couldn't load the actual class, check if it's a known name that we can map to an API exception class
             String mappedExName = exceptionMappings.get(x.exName);
             if (mappedExName != null) {
@@ -120,6 +132,7 @@ public class NestedExceptionBuilder {
         }
         
         if (t == null) {
+            // If we still can't load the class, fall back to an UnloadableLogException
             log.warning("Unable to create an object for " + x.exName + ", falling back to UnloadableLogException");
             t = new UnloadableLogException("<" + x.exName + "> " + x.logMsg, cause);
         }

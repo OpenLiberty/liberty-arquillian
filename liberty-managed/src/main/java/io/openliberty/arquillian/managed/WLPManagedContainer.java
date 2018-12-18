@@ -87,7 +87,10 @@ import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 
 import io.openliberty.arquillian.managed.exceptions.CDILogExceptionLocator;
+import io.openliberty.arquillian.managed.exceptions.DeploymentExceptionLocator;
 import io.openliberty.arquillian.managed.exceptions.FFDCExceptionLocator;
+import io.openliberty.arquillian.managed.exceptions.SupportFeatureSerializedExceptionLocator;
+import io.openliberty.arquillian.managed.exceptions.SupportFeatureTextExceptionLocator;
 
 public class WLPManagedContainer implements DeployableContainer<WLPManagedContainerConfiguration>
 {
@@ -136,6 +139,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
    private Thread shutdownThread;
    private Map<String, Long>archiveDeployTimes = new HashMap<>();
+   private List<DeploymentExceptionLocator> exceptionLocators;
 
    @Override
    public void setup(WLPManagedContainerConfiguration configuration)
@@ -214,7 +218,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
             log.finer("Setting JVM arguments: " + vmArgs.toString());
             pb.environment().put(JAVA_TOOL_OPTIONS, vmArgs.toString());
-
+            
             log.finer("Starting server with command: " + cmd.toString());
 
             wlpProcess = pb.start();
@@ -224,7 +228,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
              cmd = getServerCommand(CommandType.STOP);
              shutdownThread = getShutDownThread(cmd);
 
-             Runtime.getRuntime().addShutdownHook(shutdownThread);
+            Runtime.getRuntime().addShutdownHook(shutdownThread);
 
             // Wait up to 30s for the server to start
             int startupTimeout = containerConfiguration.getServerStartTimeout() * 1000;
@@ -272,6 +276,8 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       } catch (IOException e) {
          throw new LifecycleException("Connecting to the JMX MBean Server failed", e);
       }
+
+      initExceptionLocators();
 
       if (log.isLoggable(Level.FINER)) {
          log.exiting(className, "start");
@@ -334,7 +340,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
         });
     }
 
-    private List<String> parseJvmArgs(String javaVmArguments) {
+	private List<String> parseJvmArgs(String javaVmArguments) {
 		List<String> parsedJavaVmArguments = new ArrayList<>();
 		String[] splitJavaVmArguments = javaVmArguments.split(javaVmArgumentsDelimiter);
 		if (splitJavaVmArguments.length > 1) {
@@ -422,6 +428,19 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
       return null;
    }
+
+    private void initExceptionLocators() throws LifecycleException {
+       try {
+          // Attempt to find the exception that occurred on the server
+          exceptionLocators = new ArrayList<>();
+          exceptionLocators.add(new SupportFeatureSerializedExceptionLocator("localhost", getHttpPort()));
+          exceptionLocators.add(new SupportFeatureTextExceptionLocator("localhost", getHttpPort()));
+          exceptionLocators.add(new FFDCExceptionLocator(getLogsDirectory()));
+          exceptionLocators.add(new CDILogExceptionLocator());
+       } catch (Exception e) {
+          throw new LifecycleException("Failed to initialize exception locators", e);
+       }
+    }
 
    @Override
    public ProtocolMetaData deploy(final Archive<?> archive) throws DeploymentException
@@ -1246,16 +1265,15 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          } else if (bestLine.contains("CWWKZ0002")) {
            log.finest("A exception was found in line " + bestLine + " of file " + messagesFilePath);
 
-           // Attempt to find the exception that occurred on the server
-           FFDCExceptionLocator ffdcLocator = new FFDCExceptionLocator(getLogsDirectory());
-           CDILogExceptionLocator cdiLocator = new CDILogExceptionLocator();
-           
            long deploymentTime = archiveDeployTimes.get(applicationName);
            
-           Throwable serverException = ffdcLocator.getException(applicationName, bestLine, deploymentTime);
-           
-           if (serverException == null) {
-               serverException = cdiLocator.getException(applicationName, bestLine, deploymentTime);
+           Throwable serverException = null;
+           for (DeploymentExceptionLocator locator : exceptionLocators) {
+               serverException = locator.getException(applicationName, bestLine, deploymentTime);
+               if (serverException != null) {
+                   log.info("Deployment exception retrieved using " + locator.getClass().getSimpleName() + ": " + serverException);
+                   break;
+               }
            }
            
            // Now build the DeploymentException message
