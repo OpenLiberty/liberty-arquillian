@@ -299,7 +299,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    }
 
     /***
-     * Searches and parses existant server.env files to the ProcessBuilder.environment prior to server start-up
+     * Searches and parses existing server.env files to the ProcessBuilder.environment prior to server start-up
      *
      * The server management script searches for server.env files in two locations:
      * ${wlp.install.dir}/etc/server.env and ${server.config.dir}/server.env. If both files are present, the
@@ -331,7 +331,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             if(key.matches(alphaNumPattern) && value.matches(alphaNumPattern))
                 environment.put(key, props.getProperty(key));
             else
-                throw new LifecycleException("Non alphanumeric values in server.env not allowed! ( " + key + " = " + value + " )");
+                throw new LifecycleException("Non-alphanumeric values in server.env not allowed! ( " + key + " = " + value + " )");
         }
     }
 
