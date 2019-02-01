@@ -37,6 +37,7 @@ Default Protocol: Servlet 3.0
 | wlpHome | String | None | Home directory of the WLP runtime. |
 | serverName | String | defaultServer | Name of the server to start. |
 | httpPort | Integer | 9080 | HTTP Port of the server.  |
+| javaVmArguments | String | None | JVM Arguments to pass into the WLP runtime.  |
 | deployType | String | dropins | Type of deployment (available: dropins or xml) |
 | sharedLib | String | None | ID of the shared library reference; if provided it will be used as the commonLibraryRef attribute of the application/classloader configuration element |
 | securityConfiguration | String | None | When using xml deployType the referred file will be embedded within the application tag into the server.xml and should be used to configure the security settings. |

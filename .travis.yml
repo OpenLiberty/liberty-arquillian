@@ -6,8 +6,10 @@ jdk:
     - oraclejdk8
     - openjdk9
 env:
+    - RUNTIME=ol RUNTIME_VERSION=19.0.0.1
     - RUNTIME=ol RUNTIME_VERSION=18.0.0.1
     - RUNTIME=ol RUNTIME_VERSION=17.0.0.4
+    - RUNTIME=wlp RUNTIME_VERSION=19.0.0.1
     - RUNTIME=wlp RUNTIME_VERSION=18.0.0.1
     - RUNTIME=wlp RUNTIME_VERSION=17.0.0.4
 script:

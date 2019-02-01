@@ -6,6 +6,7 @@
         <feature>jsp-2.3</feature>
         <feature>localConnector-1.0</feature>
         <feature>cdi-1.2</feature>
+        <feature>jndi-1.0</feature>
     </featureManager>
 
     <!-- To access this server from a remote client add a host attribute 
@@ -14,5 +15,7 @@
         id="defaultHttpEndpoint" />
 
     <applicationMonitor updateTrigger="mbean" />
+
+    <jndiEntry jndiName="env/foo" value="${env.foo}" />
 
 </server>
