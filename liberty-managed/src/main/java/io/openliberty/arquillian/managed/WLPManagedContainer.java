@@ -213,15 +213,18 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             if (!javaVmArguments.equals("")) {
             	cmd.addAll(parseJvmArgs(javaVmArguments));
          	}
-            cmd.add("-javaagent:lib/bootstrap-agent.jar");
+            cmd.add("-javaagent:" + containerConfiguration.getWlpHome() + "bin/tools/ws-javaagent.jar");
             cmd.add("-jar");
-            cmd.add("lib/ws-launch.jar");
+            cmd.add(containerConfiguration.getWlpHome() + "bin/tools/ws-server.jar");
             cmd.add(containerConfiguration.getServerName());
             
             log.finer("Starting server with command: " + cmd.toString());
 
             ProcessBuilder pb = new ProcessBuilder(cmd);
             pb.directory(new File(containerConfiguration.getWlpHome()));
+
+            parseServerEnv(pb.environment());
+
             pb.redirectErrorStream(true);
             wlpProcess = pb.start();
 
@@ -295,7 +298,64 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       }
    }
 
-	private List<String> parseJvmArgs(String javaVmArguments) {
+    /***
+     * Searches and parses existant server.env files to the ProcessBuilder.environment prior to server start-up
+     *
+     * The server management script searches for server.env files in two locations:
+     * ${wlp.install.dir}/etc/server.env and ${server.config.dir}/server.env. If both files are present, the
+     * contents of the two files are merged; values in the server-level file take precedence over values in the
+     * runtime-level file.
+     *
+     * The allowed server.env variables shall be alphanumeric with possible underscores
+     * {@link [com.ibm.ws.kernel.boot.ws-server.]server.bat[#readServerEnv()]}
+     *
+     * @param environment
+     * @throws LifecycleException
+     * @throws IOException
+     */
+    private void parseServerEnv(Map<String, String> environment) throws LifecycleException, IOException {
+        log.finer("Attempting to parse server.env");
+        Properties props = new Properties();
+
+        // We only allow alphanumeric values with underscores @see
+        String alphaNumPattern = "[a-zA-z0-9\\s]*"; //Check if necessary
+
+        // Server-level server.env loaded last
+        loadServerEnvToProps(props, getSystemServerEnvFilename());
+        loadServerEnvToProps(props, getServerEnvFilename());
+
+        // Parse properties and add them to ProcessBuilder.environment
+        Set<String> keys = props.stringPropertyNames();
+        for(String key : keys){
+            String value = props.getProperty(key);
+            if(key.matches(alphaNumPattern) && value.matches(alphaNumPattern))
+                environment.put(key, props.getProperty(key));
+            else
+                throw new LifecycleException("Non alphanumeric values in server.env not allowed! ( " + key + " = " + value + " )");
+        }
+    }
+
+    /***
+     * Finds and loads server.env files to a Properties holder.
+     *
+     * @param props
+     * @param serverEnvFile
+     * @throws LifecycleException
+     */
+    private void loadServerEnvToProps(Properties props, String serverEnvFile) throws LifecycleException {
+
+        try (InputStream fisServerEnv = new FileInputStream(new File(serverEnvFile))) {
+            props.load(fisServerEnv);
+
+        } catch (FileNotFoundException ex) {
+            //We can silently ignore this, no server.env file is allowed.
+            log.finer("Server specific server.env not found");
+        } catch (IOException ioEx) {
+            throw new LifecycleException("Error while parsing server.env file", ioEx);
+        }
+    }
+
+    private List<String> parseJvmArgs(String javaVmArguments) {
 		List<String> parsedJavaVmArguments = new ArrayList<String>();
 		String[] splitJavaVmArguments = javaVmArguments.split(javaVmArgumentsDelimiter);
 		if (splitJavaVmArguments.length > 1) {
