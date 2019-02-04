@@ -202,31 +202,43 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
 			String javaVmArguments = containerConfiguration.getJavaVmArguments();
 
-            cmd.add(System.getProperty("java.home") + "/bin/java");
-            cmd.add("-Dcom.ibm.ws.logging.console.log.level=INFO");
+//            cmd.add(System.getProperty("java.home") + "/bin/java");
+//            cmd.add("-Dcom.ibm.ws.logging.console.log.level=INFO");
+//
+//            // Only add JPMS options for Java 9+
+//            if (!System.getProperty("java.specification.version").startsWith("1.")) {
+//            		cmd.addAll(getJPMSOptions());
+//            }
+//
+//            if (!javaVmArguments.equals("")) {
+//            	cmd.addAll(parseJvmArgs(javaVmArguments));
+//         	}
+//            cmd.add("-javaagent:" + containerConfiguration.getWlpHome() + "bin/tools/ws-javaagent.jar");
+//            cmd.add("-jar");
+//            cmd.add(containerConfiguration.getWlpHome() + "bin/tools/ws-server.jar");
+//            cmd.add(containerConfiguration.getServerName());
 
-            // Only add JPMS options for Java 9+
-            if (!System.getProperty("java.specification.version").startsWith("1.")) {
-            		cmd.addAll(getJPMSOptions());
-            }
-            
-            if (!javaVmArguments.equals("")) {
-            	cmd.addAll(parseJvmArgs(javaVmArguments));
-         	}
-            cmd.add("-javaagent:" + containerConfiguration.getWlpHome() + "bin/tools/ws-javaagent.jar");
-            cmd.add("-jar");
-            cmd.add(containerConfiguration.getWlpHome() + "bin/tools/ws-server.jar");
-            cmd.add(containerConfiguration.getServerName());
-            
-            log.finer("Starting server with command: " + cmd.toString());
+//            log.finer("Starting server with command: " + cmd.toString());
+//
+//            ProcessBuilder pb = new ProcessBuilder(cmd);
+//            pb.directory(new File(containerConfiguration.getWlpHome()));
+//
+//            parseServerEnv(pb.environment());
+//
+//            pb.redirectErrorStream(true);
 
-            ProcessBuilder pb = new ProcessBuilder(cmd);
-            pb.directory(new File(containerConfiguration.getWlpHome()));
+            String os = System.getProperty("os.name").toLowerCase();
 
-            parseServerEnv(pb.environment());
 
-            pb.redirectErrorStream(true);
-            wlpProcess = pb.start();
+             if (os.contains("win")) {
+                 cmd.add("cmd.exe");
+             } else {
+                 cmd.add("sh");
+             }
+             cmd.add(containerConfiguration.getWlpHome() + "bin/server");
+             cmd.add(containerConfiguration.getServerName());
+
+            wlpProcess = Runtime.getRuntime().exec(cmd.toArray(new String[0]));
 
             new Thread(new ConsoleConsumer()).start();
 
