@@ -23,8 +23,8 @@ public class WLPResourceTestCase {
     String foo;
 
     @Test
-    public void serverXMLJNDIEntryShouldNotBeNull(){
-        Assert.assertNotNull(foo);
+    public void serverXMLResourceInjectionShouldHaveCorrectValue(){
+        Assert.assertEquals("bar" ,foo);
     }
 
     @Test
