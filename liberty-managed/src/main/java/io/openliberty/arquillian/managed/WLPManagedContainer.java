@@ -114,6 +114,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    private static final String LOG_DIR = "LOG_DIR";
    private static final String WLP_OUTPUT_DIR = "WLP_OUTPUT_DIR";
    private static final String WLP_USER_DIR = "WLP_USER_DIR";
+   private static final String JAVA_TOOL_OPTIONS = "JAVA_TOOL_OPTIONS";
    
    private static final String ARQUILLIAN_SERVLET_NAME = "ArquillianServletRunner";
 
@@ -134,7 +135,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    private Process wlpProcess;
 
    private Thread shutdownThread;
-   private Map<String, Long>archiveDeployTimes = new HashMap<String, Long>();
+   private Map<String, Long>archiveDeployTimes = new HashMap<>();
 
    @Override
    public void setup(WLPManagedContainerConfiguration configuration)
@@ -209,19 +210,21 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             cmd.add("run");
             cmd.add(containerConfiguration.getServerName());
 
-            log.finer("Starting server with command: " + cmd.toString());
-
             ProcessBuilder pb = new ProcessBuilder(cmd);
             // Merge any errors with stdout
             pb.redirectErrorStream(true);
 
             // Process JVM args and add JAVA_TOOL_OPTIONS to pb.environment()
 			List<String> javaVmArguments = parseJvmArgs(containerConfiguration.getJavaVmArguments());
-            if(javaVmArguments.size() > 1){
-                // TODO: Add JAVA_TOOL_OPTIONS to pb.environment()
-                // TODO: Trace log the defined env-var and its value
-			    log.finer("");
-            }
+            StringBuilder vmArgs = new StringBuilder("-Dcom.ibm.ws.logging.console.log.level=INFO");
+            for (String javaVmArgument : javaVmArguments )
+                vmArgs.append(javaVmArgumentsDelimiter)
+                    .append(javaVmArgument);
+
+            log.finer("Setting JVM arguments: " + vmArgs.toString());
+            pb.environment().put(JAVA_TOOL_OPTIONS, vmArgs.toString());
+
+            log.finer("Starting server with command: " + cmd.toString());
 
             wlpProcess = pb.start();
 
@@ -297,7 +300,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    }
 
     private List<String> parseJvmArgs(String javaVmArguments) {
-		List<String> parsedJavaVmArguments = new ArrayList<String>();
+		List<String> parsedJavaVmArguments = new ArrayList<>();
 		String[] splitJavaVmArguments = javaVmArguments.split(javaVmArgumentsDelimiter);
 		if (splitJavaVmArguments.length > 1) {
 			for (String javaVmArgument : splitJavaVmArguments) {
