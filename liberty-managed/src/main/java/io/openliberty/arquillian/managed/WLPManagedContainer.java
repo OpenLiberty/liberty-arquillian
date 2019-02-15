@@ -230,22 +230,9 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
             new Thread(new ConsoleConsumer()).start();
 
-            final Process proc = wlpProcess;
+             shutdownThread = getShutDownThread(cmd);
 
-            shutdownThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if (proc != null) {
-                        proc.destroy();
-                        try {
-                            proc.waitFor();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
-            });
-            Runtime.getRuntime().addShutdownHook(shutdownThread);
+             Runtime.getRuntime().addShutdownHook(shutdownThread);
 
             // Wait up to 30s for the server to start
             int startupTimeout = containerConfiguration.getServerStartTimeout() * 1000;
@@ -298,6 +285,34 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          log.exiting(className, "start");
       }
    }
+
+    /***
+     * Initializes a thread as a shutdown-hook to run <i>bin/server stop</i> shell
+     * script command upon JVM shut-down.
+     *
+     * Utilizes the initial command list for startup by just replacing start-up command (run)
+     * with shut-down (stop).
+     *
+     * @param cmd
+     * @return an initialized unstarted thread to be registered as a shutdown hook.
+     */
+    private Thread getShutDownThread(final List<String> cmd) {
+       Collections.replaceAll(cmd, "run", "stop");
+       final ProcessBuilder shutDownProcessBuilder = new ProcessBuilder(cmd);
+
+       return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // Upon JVM shut-down run the shut-down shell command
+                    Process proc = shutDownProcessBuilder.start();
+                    proc.waitFor();
+                } catch (InterruptedException | IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
 
     private List<String> parseJvmArgs(String javaVmArguments) {
 		List<String> parsedJavaVmArguments = new ArrayList<>();
