@@ -126,6 +126,11 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    private static final String javaVmArgumentsDelimiter = " ";
    private static final String javaVmArgumentsIndicator = "-";
 
+   private enum CommandType{
+       RUN,
+       STOP
+   }
+
    private WLPManagedContainerConfiguration containerConfiguration;
 
    private JMXConnector jmxConnector;
@@ -199,16 +204,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             }
 
             // Start the WebSphere Liberty Profile VM
-            List<String> cmd = new ArrayList<String>();
-
-            String os = System.getProperty("os.name").toLowerCase();
-
-            if(os.contains("win"))
-                cmd.add(containerConfiguration.getWlpHome() + "bin/server.bat");
-            else
-                cmd.add(containerConfiguration.getWlpHome() + "bin/server");
-            cmd.add("run");
-            cmd.add(containerConfiguration.getServerName());
+            List<String> cmd = getServerCommand(CommandType.RUN);
 
             ProcessBuilder pb = new ProcessBuilder(cmd);
             // Merge any errors with stdout
@@ -230,6 +226,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
             new Thread(new ConsoleConsumer()).start();
 
+             cmd = getServerCommand(CommandType.STOP);
              shutdownThread = getShutDownThread(cmd);
 
              Runtime.getRuntime().addShutdownHook(shutdownThread);
@@ -287,6 +284,35 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    }
 
     /***
+     * Returns an OS specific server command based on provided CommandType
+     *
+     * @param type
+     * @return appropriate ProcessBuilder command based on CommandType enum
+     */
+    private List<String> getServerCommand(CommandType type) {
+        List<String> cmd = new ArrayList<>();
+
+        String os = System.getProperty("os.name").toLowerCase();
+
+        if (os.contains("win"))
+            cmd.add(containerConfiguration.getWlpHome() + "bin/server.bat");
+        else
+            cmd.add(containerConfiguration.getWlpHome() + "bin/server");
+
+        switch (type){
+            case RUN:
+                cmd.add("run");
+                break;
+            case STOP:
+                cmd.add("stop");
+                break;
+        }
+
+        cmd.add(containerConfiguration.getServerName());
+        return cmd;
+    }
+
+    /***
      * Initializes a thread as a shutdown-hook to run <i>bin/server stop</i> shell
      * script command upon JVM shut-down.
      *
@@ -297,7 +323,6 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
      * @return an initialized unstarted thread to be registered as a shutdown hook.
      */
     private Thread getShutDownThread(final List<String> cmd) {
-       Collections.replaceAll(cmd, "run", "stop");
        final ProcessBuilder shutDownProcessBuilder = new ProcessBuilder(cmd);
 
        return new Thread(new Runnable() {
