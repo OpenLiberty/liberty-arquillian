@@ -160,6 +160,11 @@ public class NestedExceptionBuilder {
                 // Can also try with a message and a null cause
                 t = attemptConstruction(clazz, message, null);
             }
+            
+            if (t == null) {
+                // Final option, try the no-arg constructor
+                t = attemptConstruction(clazz);
+            }
         } else {
             // Cause and message
             t = attemptConstruction(clazz, message, cause);
@@ -253,6 +258,15 @@ public class NestedExceptionBuilder {
             return clazz.getConstructor(Throwable.class).newInstance(new Object[] { cause });
         } catch (Exception e) {
             log.finer("Arquillian container could not construct " + clazz.getName() + "(Throwable): " + e);
+            return null;
+        }
+    }
+    
+    private static Throwable attemptConstruction(Class<? extends Throwable> clazz) {
+        try {
+            return clazz.getConstructor().newInstance();
+        } catch (Exception e) {
+            log.finer("Arquillian container could not construct " + clazz.getName() + "(): " + e);
             return null;
         }
     }

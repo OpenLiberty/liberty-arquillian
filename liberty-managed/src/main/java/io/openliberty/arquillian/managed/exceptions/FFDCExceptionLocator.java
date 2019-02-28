@@ -215,7 +215,7 @@ public class FFDCExceptionLocator implements DeploymentExceptionLocator {
             // Caused by: org.jboss.weld.exceptions.DefinitionException:
 
             while ((line = br.readLine()) != null) {
-                Pattern p = Pattern.compile("(Stack Dump = |Caused by: )([\\p{L}\\p{N}_$\\.]+?):(.*)");
+                Pattern p = Pattern.compile("(Stack Dump = |Caused by: )([\\p{L}\\p{N}_$\\.]+?)(:|$)(.*)");
 
                 Matcher m = p.matcher(line);
                 if (m.matches()) {
