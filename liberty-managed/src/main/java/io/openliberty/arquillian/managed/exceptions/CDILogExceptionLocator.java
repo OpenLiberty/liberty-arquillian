@@ -29,7 +29,7 @@ public class CDILogExceptionLocator implements DeploymentExceptionLocator {
     @Override
     public Throwable getException(String appName, String logLine, long deploymentTime) {
         if (logLine.contains("DefinitionException")) {
-            log.finest("DefinitionException found in line" + logLine);
+            log.finest("DefinitionException found in line " + logLine);
             return new DefinitionException(logLine);
          } else if (logLine.contains("DeploymentException") ||
                  logLine.contains("InconsistentSpecializationException") ||
@@ -42,7 +42,7 @@ public class CDILogExceptionLocator implements DeploymentExceptionLocator {
              *  - org.jboss.weld.exceptions.InconsistentSpecializationException
              *  - org.jboss.weld.exceptions.UnserializableDependencyException
              */
-            log.finest("DeploymentException found in line" + logLine);
+            log.finest("DeploymentException found in line " + logLine);
             return new DeploymentException(logLine);
          } else {
              return null;
