@@ -17,6 +17,8 @@ The following features are required in the `server.xml` of the Liberty server.
 <featureManager>
     <feature>jsp-2.2</feature>
     <feature>localConnector-1.0</feature>
+    <feature>j2eeManagement-1.1</feature> <!-- Optional, needed to allow injection on ArquillianResources related to servlets -->
+    <feature>usr:arquillian-support-1.0</feature> <!-- Optional, needed for reliable reporting of correct DeploymentExceptions -->
 </featureManager>
 ```
 

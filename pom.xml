@@ -71,6 +71,7 @@
   <modules>
     <module>liberty-managed</module>
     <module>liberty-remote</module>
+    <module>liberty-support-feature</module>
   </modules>
 
   <!-- Profiles for WLP vs OL -->

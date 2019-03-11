@@ -30,7 +30,6 @@ public class WLPResourceTestCase {
     @Test
     public void serverEnvironmentVariablesShouldBeSet(){
         Assert.assertNotNull(System.getenv("foo"));
-        Assert.assertNotNull(System.getenv("WLP_SKIP_MAXPERMSIZE"));
         Assert.assertNotNull(System.getenv("keystore_password"));
     }
 
