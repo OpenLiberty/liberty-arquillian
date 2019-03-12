@@ -294,11 +294,11 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
         List<String> cmd = new ArrayList<>();
 
         String os = System.getProperty("os.name").toLowerCase();
-
+        
         if (os.contains("win"))
-            cmd.add(containerConfiguration.getWlpHome() + "bin/server.bat");
+            cmd.add(containerConfiguration.getWlpHome() + "/bin/server.bat");
         else
-            cmd.add(containerConfiguration.getWlpHome() + "bin/server");
+            cmd.add(containerConfiguration.getWlpHome() + "/bin/server");
 
         switch (type){
             case RUN:

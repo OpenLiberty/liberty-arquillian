@@ -92,7 +92,7 @@ public class WLPManagedContainerConfiguration implements
    }
 
    public String getWlpHome() {
-      return wlpHome;
+      return new File(wlpHome).getAbsolutePath();
    }
 
    public void setWlpHome(String wlpHome) {
