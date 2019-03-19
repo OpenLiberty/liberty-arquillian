@@ -5,10 +5,17 @@ jdk:
     - openjdk7
     - oraclejdk8
     - openjdk9
+    - oraclejdk11
 env:
     - RUNTIME=ol RUNTIME_VERSION=19.0.0.2
     - RUNTIME=ol RUNTIME_VERSION=18.0.0.4
     - RUNTIME=wlp RUNTIME_VERSION=19.0.0.2
     - RUNTIME=wlp RUNTIME_VERSION=18.0.0.4
+matrix:
+    exclude:
+    - jdk: oraclejdk11
+      env: RUNTIME=ol RUNTIME_VERSION=18.0.0.4
+    - jdk: oraclejdk11
+      env: RUNTIME=wlp RUNTIME_VERSION=18.0.0.4
 script:
 - travis_wait mvn verify -Druntime=$RUNTIME -DruntimeVersion=$RUNTIME_VERSION
