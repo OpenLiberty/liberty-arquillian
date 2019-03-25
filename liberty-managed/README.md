@@ -52,6 +52,9 @@ Default Protocol: Servlet 3.0
 | appUndeployTimeout | Integer | 2 | Time in seconds to wait for the application undeployment to complete |
 | allowConnectingToRunningServer | Boolean | false | Allow a connection to be made to an already running application server process |
 | outputToConsole | Boolean | true | When enabled output from the application server process will be emitted to stdout |
+| fileDeleteRetries | Integer | 30 | How many times to attempt deleting a file |
+| standardFileDeleteRetryInterval | Integer | 50 | How long in milliseconds to wait between attempting to delete a file |
+
 
 ## Examples
 
@@ -90,4 +93,3 @@ xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/a
 	    </dependency>
 	</dependencies>
 </profile>
-```
