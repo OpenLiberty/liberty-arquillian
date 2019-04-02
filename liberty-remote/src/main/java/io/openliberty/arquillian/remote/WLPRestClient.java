@@ -17,18 +17,28 @@ package io.openliberty.arquillian.remote;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -56,12 +66,46 @@ public class WLPRestClient {
     private static final String UTF_8 = "UTF-8";
     private static final String STARTED = "STARTED";
 
+    private static TrustManager[] TRUST_ALL_CERTIFICATES = new TrustManager[] {
+        new X509TrustManager() {
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+
+            public void checkClientTrusted(X509Certificate[] certs, String authType) {
+            }
+
+            public void checkServerTrusted(X509Certificate[] certs, String authType) {
+            }
+        }
+    };
+
     private final Executor executor;
 
     public WLPRestClient(WLPRemoteContainerConfiguration configuration) {
         this.configuration = configuration;
-        executor = Executor.newInstance().auth(new HttpHost(configuration.getHostName()), configuration.getUsername(),
+
+        executor = Executor.newInstance(getClient(configuration))
+            .auth(new HttpHost(configuration.getHostName()),
+                configuration.getUsername(),
                 configuration.getPassword());
+    }
+
+    private HttpClient getClient(WLPRemoteContainerConfiguration configuration) {
+        if (configuration.isDisableHostnameVerification()) {
+            try {
+                SSLContext sc = SSLContext.getInstance("SSL");
+                sc.init(null, TRUST_ALL_CERTIFICATES, new SecureRandom());
+
+                return HttpClients.custom()
+                    .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                    .setSSLContext(sc).build();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            return HttpClientBuilder.create().build();
+        }
     }
 
     /**
