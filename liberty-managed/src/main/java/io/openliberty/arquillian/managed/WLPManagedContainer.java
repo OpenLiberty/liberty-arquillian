@@ -116,7 +116,6 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    
    private static final String ARQUILLIAN_SERVLET_NAME = "ArquillianServletRunner";
 
-
    private static final String className = WLPManagedContainer.class.getName();
 
    private static Logger log = Logger.getLogger(className);
@@ -783,22 +782,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
          // Remove the deployed archive
          File exportedArchiveLocation = new File(deployDir, archiveName);
-         if (!containerConfiguration.isFailSafeUndeployment()) {
-            try {
-               if (!Files.deleteIfExists(exportedArchiveLocation.toPath())) {
-                  throw new DeploymentException("Archive already deleted from deployment directory");
-               }
-            } catch (IOException e) {
-               throw new DeploymentException("Unable to delete archive from deployment directory", e);
-            }
-         } else {
-            try {
-               Files.deleteIfExists(exportedArchiveLocation.toPath());
-            } catch (IOException e) {
-               log.log(Level.WARNING, "Unable to delete archive from deployment directory -> failsafe -> file marked for delete on exit", e);
-               exportedArchiveLocation.deleteOnExit();
-            }
-         }
+         deleteWithRetries(exportedArchiveLocation, containerConfiguration.isFailSafeUndeployment(), containerConfiguration.getFileDeleteRetries(), containerConfiguration.getStandardFileDeleteRetryInterval());
 
          // If it was the archive deletion that caused the undeploy we wait for the
          // correct state
@@ -813,6 +797,42 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
       if (log.isLoggable(Level.FINER)) {
          log.exiting(className, "undeploy");
+      }
+   }
+
+   private void deleteWithRetries(File archveToDelete, boolean isFailSafeUndeployment, int retries, int retryInterval) throws DeploymentException {
+      boolean complete = false;
+      boolean failSafeUndeployment = containerConfiguration.isFailSafeUndeployment();
+      Exception lastException = null;
+      for (int attempt = 0; !complete && attempt <= retries; attempt ++) {
+         if (attempt > 0) {
+            try {
+               Thread.sleep(retryInterval);
+            } catch (InterruptedException e) {
+               throw new DeploymentException("Interrupted while trying to delete " + archveToDelete, e);
+            }
+         }
+
+         try {
+            //Attempt to delete the archive. If failSafeUndeployment is false and the archive is already gone throw an exception. 	
+            if (Files.deleteIfExists(archveToDelete.toPath())) {
+               complete = true;               
+            } else if(!failSafeUndeployment) {
+               throw new DeploymentException("Archive " + archveToDelete + " already deleted from deployment directory");
+            }
+         } catch (IOException e) {
+            //Store this for now. We will throw an exception after the loop if complete is false. 
+            lastException = e;
+         }
+      }
+
+      if (!complete) {
+         if (failSafeUndeployment) {
+            log.log(Level.WARNING, "Unable to delete archive from deployment directory -> failsafe -> archive " + archveToDelete + " marked for delete on exit", lastException);
+            archveToDelete.deleteOnExit();
+         } else {
+            throw new DeploymentException("Could not delete " + archveToDelete, lastException);
+         }
       }
    }
 
