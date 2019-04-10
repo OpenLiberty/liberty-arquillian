@@ -41,6 +41,8 @@ public class WLPManagedContainerConfiguration implements
    private boolean outputToConsole = true;
    private String verifyApps = null;
    private int verifyAppDeployTimeout = appDeployTimeout;
+   private int fileDeleteRetries = 30; 
+   private int standardFileDeleteRetryInterval = 50;
 
    @Override
    public void validate() throws ConfigurationException {
@@ -88,6 +90,14 @@ public class WLPManagedContainerConfiguration implements
             if (!deployType.equalsIgnoreCase("xml"))
                throw new ConfigurationException("deployType must be set to xml when apiTypeVisibility is not empty");
          }
+      }
+
+      if (fileDeleteRetries < 0) {
+         throw new ConfigurationException("fileDeleteRetries cannot be negative");
+      }
+
+      if (standardFileDeleteRetryInterval < 0) {
+         throw new ConfigurationException("standardFileDeleteRetryInterval cannot be negative");
       }
    }
 
@@ -240,6 +250,22 @@ public class WLPManagedContainerConfiguration implements
    
    public void setVerifyAppDeployTimeout(int verifyAppDeployTimeout) {
 	   this.verifyAppDeployTimeout = verifyAppDeployTimeout;
+   }
+
+   public int getFileDeleteRetries() {
+      return fileDeleteRetries;
+   }
+
+   public void setFileDeleteRetries(int fileDeleteRetries) {
+      this.fileDeleteRetries = fileDeleteRetries;
+   }
+
+   public int getStandardFileDeleteRetryInterval() {
+      return fileDeleteRetries;
+   }
+
+   public void setStandardFileDeleteRetryInterval(int standardFileDeleteRetryInterval) {
+      this.standardFileDeleteRetryInterval = standardFileDeleteRetryInterval;
    }
 
 }
