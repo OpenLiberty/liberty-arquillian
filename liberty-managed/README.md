@@ -48,6 +48,7 @@ Default Protocol: Servlet 3.0
 | verifyApps | String | None | Specifies a comma-separated list of names of applications that will be verified to be started before tests are executed |
 | verifyAppDeployTimeout | Integer | 20 | Time in seconds to wait for the verifyApps application deployment to complete and the applications to start |
 | serverStartTimeout | Integer | 30 | Time in seconds to wait for the application server to start |
+| serverStopTimeout | Integer | 30 | Time in seconds to wait for the application server to stop |
 | appDeployTimeout | Integer | 20 | Time in seconds to wait for the application deployment to complete and the application to start |
 | appUndeployTimeout | Integer | 2 | Time in seconds to wait for the application undeployment to complete |
 | allowConnectingToRunningServer | Boolean | false | Allow a connection to be made to an already running application server process |
