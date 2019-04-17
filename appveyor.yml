@@ -1,0 +1,18 @@
+environment:
+  matrix:
+        - jdk: "C:\\Program Files\\Java\\jdk1.8.0\\bin:"
+          RUNTIME: ol
+        - jdk: "C:\\Program Files\\Java\\jdk1.8.0\\bin:"
+          RUNTIME: wlp
+
+install:
+    - cmd: |
+        choco install maven
+        refreshenv
+        where mvn
+        cd C:\projects\liberty-arquillian
+
+build_script:
+      - "mvn verify -Druntime=%RUNTIME% -DruntimeVersion=19.0.0.3"
+
+test: off
