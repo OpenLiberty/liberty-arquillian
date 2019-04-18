@@ -1,16 +1,24 @@
 environment:
+  MAVEN_VERSION: 3.6.0
   matrix:
-        - jdk: "C:\\Program Files\\Java\\jdk1.8.0\\bin:"
-          RUNTIME: ol
-        - jdk: "C:\\Program Files\\Java\\jdk1.8.0\\bin:"
-          RUNTIME: wlp
+    - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
+      RUNTIME: ol
+    - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
+      RUNTIME: wlp
 
 install:
-    - cmd: |
-        choco install maven
-        refreshenv
-        where mvn
-        cd C:\projects\liberty-arquillian
+  - ps: |
+      Add-Type -AssemblyName System.IO.Compression.FileSystem
+      if (!(Test-Path -Path "C:\maven" )) {
+        Write-Host "Downloading Maven $env:MAVEN_VERSION"
+        (new-object System.Net.WebClient).DownloadFile("https://repo1.maven.org/maven2/org/apache/maven/apache-maven/$env:MAVEN_VERSION/apache-maven-$env:MAVEN_VERSION-bin.zip", 'C:\maven-bin.zip')
+        [System.IO.Compression.ZipFile]::ExtractToDirectory("C:\maven-bin.zip", "C:\maven")
+      }
+  - cmd: SET M2_HOME=C:\maven\apache-maven-%MAVEN_VERSION%
+  # Prepend Java entry, remove Ruby entry (C:\Ruby193\bin;) from PATH
+  - cmd: SET PATH=%M2_HOME%\bin;%JAVA_HOME%\bin;%PATH:C:\Ruby193\bin;=%;
+  - cmd: mvn --version
+  - cmd: java -version
 
 build_script:
       - "mvn verify -Druntime=%RUNTIME% -DruntimeVersion=19.0.0.3"
