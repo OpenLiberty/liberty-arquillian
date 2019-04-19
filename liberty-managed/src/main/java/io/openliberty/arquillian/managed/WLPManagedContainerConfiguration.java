@@ -27,6 +27,7 @@ public class WLPManagedContainerConfiguration implements
    private int httpPort = 0;
    
    private int serverStartTimeout = 30;
+   private int serverStopTimeout = 30;
    private int appDeployTimeout = 20;
    private int appUndeployTimeout = 2;
    private String sharedLib = null;
@@ -172,6 +173,14 @@ public class WLPManagedContainerConfiguration implements
 
    public void setServerStartTimeout(int serverStartTimeout) {
       this.serverStartTimeout = serverStartTimeout;
+   }
+
+   public int getServerStopTimeout() {
+      return serverStopTimeout;
+   }
+
+   public void setServerStopTimeout(int serverStopTimeout) {
+      this.serverStopTimeout = serverStopTimeout;
    }
 
    public int getAppDeployTimeout() {
