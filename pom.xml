@@ -15,7 +15,7 @@
   <!-- Artifact Configuration -->
   <groupId>io.openliberty.arquillian</groupId>
   <artifactId>arquillian-parent-liberty</artifactId>
-  <version>1.0.5-SNAPSHOT</version>
+  <version>1.0.6-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Arquillian Container Liberty Parent</name>
   <description>Liberty Container integrations for the Arquillian Project</description>
