@@ -19,9 +19,16 @@
 
   <properties>
     <skipTests>false</skipTests>
+    <loggingPropertiesFile>${basedir}/src/test/resources/logging.properties</loggingPropertiesFile>
   </properties>
 
   <profiles>
+    <profile>
+      <id>log-info</id>
+      <properties>
+        <loggingPropertiesFile>${basedir}/src/test/resources/logging-info.properties</loggingPropertiesFile>
+      </properties>
+    </profile>
     <profile>
       <id>jigsaw</id>
       <activation>
@@ -140,7 +147,7 @@
               <systemProperties>
                 <property>
                   <name>java.util.logging.config.file</name>
-                  <value>${basedir}/src/test/resources/logging.properties</value>
+                  <value>${loggingPropertiesFile}</value>
                 </property>
               </systemProperties>
               <argLine>-Dproject.build.directory=${project.build.directory}</argLine>
