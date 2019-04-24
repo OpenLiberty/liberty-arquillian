@@ -270,7 +270,7 @@ public class WLPManagedContainerConfiguration implements
    }
 
    public int getStandardFileDeleteRetryInterval() {
-      return fileDeleteRetries;
+      return standardFileDeleteRetryInterval;
    }
 
    public void setStandardFileDeleteRetryInterval(int standardFileDeleteRetryInterval) {
