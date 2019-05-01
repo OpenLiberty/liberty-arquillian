@@ -21,6 +21,6 @@ install:
   - cmd: java -version
 
 build_script:
-      - "mvn verify -Druntime=%RUNTIME% -DruntimeVersion=19.0.0.3"
+      - "mvn verify -Druntime=%RUNTIME% -DruntimeVersion=19.0.0.3 -Plog-info"
 
 test: off
