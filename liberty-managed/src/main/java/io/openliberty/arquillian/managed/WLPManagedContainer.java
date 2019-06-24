@@ -211,6 +211,8 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             ProcessBuilder pb = new ProcessBuilder(cmd);
             // Merge any errors with stdout
             pb.redirectErrorStream(true);
+            // Set the working directory to the wlp home. Seems to be required to get server.env properly processed
+            pb.directory(new File(containerConfiguration.getWlpHome()));
 
             // Process JVM args and add JAVA_TOOL_OPTIONS to pb.environment()
 			List<String> javaVmArguments = parseJvmArgs(containerConfiguration.getJavaVmArguments());
@@ -264,7 +266,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
             // If serviceURL is still null, we were unable to start the virtual machine
             if (serviceURL == null)
-               throw new LifecycleException("Unable to retrieve connector address for localConnector of started VM");
+               throw new LifecycleException("Unable to retrieve connector address for localConnector of started VM. vmid: " + vmid + " connectedVM: " + wlpvm);
 
             log.finer("vmid: " + vmid);
          }
@@ -300,8 +302,16 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
         
         if (os.contains("win"))
             cmd.add(containerConfiguration.getWlpHome() + "/bin/server.bat");
-        else
-            cmd.add(containerConfiguration.getWlpHome() + "/bin/server");
+        else {
+            String serverCommand = containerConfiguration.getWlpHome() + "/bin/server";
+            cmd.add(serverCommand);
+
+            // Attempt to make sure the server script is executable. Arquillian Chameleon needs this.
+            File f = new File(serverCommand);
+            if (!f.canExecute()) {
+               f.setExecutable(true, true);
+            }
+        }
 
         switch (type){
             case RUN:
