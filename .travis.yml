@@ -8,14 +8,15 @@ jdk:
     - oraclejdk11
 env:
     - RUNTIME=ol RUNTIME_VERSION=19.0.0.3
-    - RUNTIME=ol RUNTIME_VERSION=18.0.0.4
+    - RUNTIME=ol RUNTIME_VERSION=19.0.0.6
     - RUNTIME=wlp RUNTIME_VERSION=19.0.0.3
-    - RUNTIME=wlp RUNTIME_VERSION=18.0.0.4
-matrix:
-    exclude:
-    - jdk: oraclejdk11
-      env: RUNTIME=ol RUNTIME_VERSION=18.0.0.4
-    - jdk: oraclejdk11
-      env: RUNTIME=wlp RUNTIME_VERSION=18.0.0.4
+    - RUNTIME=wlp RUNTIME_VERSION=19.0.0.6
+before_install:
+    - echo 'Installing chameleon lib...'
+    - git clone https://github.com/chyt/arquillian-container-chameleon.git ./chameleon
+    - cd ./chameleon
+    - git checkout liberty
+    - mvn clean install -DskipTests
+    - cd ..
 script:
 - travis_wait mvn verify -Druntime=$RUNTIME -DruntimeVersion=$RUNTIME_VERSION
