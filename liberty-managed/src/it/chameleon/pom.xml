@@ -44,7 +44,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <arquillian.container>liberty:19.0.0.6:managed</arquillian.container>
-                    </systemPropertyVariables>>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
