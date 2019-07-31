@@ -26,7 +26,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -510,7 +512,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             // Create the archive in a temporary location, then move it to the dropins directory
             // to prevent liberty trying to start the archive before it's complete
             archive.as(ZipExporter.class).exportTo(tempArchiveLocation, true);
-            Files.move(tempArchiveLocation.toPath(), exportedArchiveLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            fileMoveWithRetries(containerConfiguration.getFileDeleteRetries(), containerConfiguration.getStandardFileDeleteRetryInterval(),tempArchiveLocation.toPath(), exportedArchiveLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
          }
 
          if (log.isLoggable(FINER)) {
@@ -574,7 +576,33 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          throw new DeploymentException("Exception while deploying application.", e);
       }
    }
+   private void fileMoveWithRetries(int retries, int retryInterval,Path source, Path target, CopyOption... options) throws DeploymentException {
+	      boolean complete = false;
+	      Exception lastException = null;
+	      for (int attempt = 0; !complete && attempt <= retries; attempt ++) {
+	         if (attempt > 0) {
+	            try {
+	               Thread.sleep(retryInterval);
+	            } catch (InterruptedException e) {
+	               throw new DeploymentException("Interrupted while trying to move file " + e);
+	            }
+	         }
 
+	         try {
+	            //Attempt to delete the archive. If failSafeUndeployment is false and the archive is already gone throw an exception. 	
+	        	 Files.move(source, target, options);
+	        	 complete=true;
+	         } catch (IOException e) {
+	            //Store this for now. We will throw an exception after the loop if complete is false. 
+	            lastException = e;
+	         }
+	      }
+
+	      if (!complete) {
+	            throw new DeploymentException("Could not move files " + lastException);
+	      }
+   }
+	
    private void waitForVerifyApps() throws DeploymentException {
       String verifyApps = containerConfiguration.getVerifyApps();
 
