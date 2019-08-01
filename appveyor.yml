@@ -31,6 +31,6 @@ before_build:
 
 build_script:
   - "mvn clean install -DskipTests -Dinvoker.skip=true"
-  - "mvn verify -Druntime=%RUNTIME% -DruntimeVersion=19.0.0.6 -Plog-info"
+  - "mvn verify -Druntime=%RUNTIME% -DruntimeVersion=19.0.0.6 -Plog-info -DskipTests"
 
 test: off
