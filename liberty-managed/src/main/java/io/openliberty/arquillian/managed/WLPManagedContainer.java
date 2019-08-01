@@ -43,7 +43,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -887,13 +886,13 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             log.log(Level.WARNING, "Unable to delete archive from deployment directory -> failsafe -> archive " + archveToDelete + " marked for delete on exit", lastException);
             archveToDelete.deleteOnExit();
          } else {
+             try {
+                 dumpServer();
+             } catch (Exception e) {
+                 e.printStackTrace();
+             }
             throw new DeploymentException("Could not delete " + archveToDelete, lastException);
          }
-         try {
-            dumpServer();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
       }
    }
    
@@ -918,12 +917,14 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
            File dumpFile = new File(containerConfiguration.getWlpHome() + "/usr/servers/defaultServer/" + getDumpArchiveName());
            if(dumpFile.exists()) {
                System.out.println("printing dump file introspection ---------------");
-               String zipCachingIntrospectionRegex = "dump.*\\/introspections\\/ZipCachingIntrospector.txt";
                ZipFile zipFile = new ZipFile(dumpFile);
                Enumeration<? extends ZipEntry> entries = zipFile.entries();
                while(entries.hasMoreElements()){
                    ZipEntry entry = entries.nextElement();
-                   if(entry.getName().matches(zipCachingIntrospectionRegex)) {
+                   if(entry.getName().contains("/introspections/")) {
+                       System.out.println("found introspection file: " + entry.getName());
+                   }
+                   if(entry.getName().endsWith("ZipCachingIntrospector.txt")) {
                        System.out.println("zip file entry: "+ entry.getName());
                        InputStream stream = zipFile.getInputStream(entry);
                        BufferedReader br = new BufferedReader(new InputStreamReader(stream));
@@ -937,6 +938,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                zipFile.close();
            }
        }
+       System.out.println("----------------------------------- done performing server dump");
    }
    
    private String getDumpArchiveName() {
