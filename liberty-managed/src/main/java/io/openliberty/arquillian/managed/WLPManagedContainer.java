@@ -937,8 +937,8 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                }
                zipFile.close();
            }
+           System.out.println("----------------------------------- done performing server dump");
        }
-       System.out.println("----------------------------------- done performing server dump");
    }
    
    private String getDumpArchiveName() {
