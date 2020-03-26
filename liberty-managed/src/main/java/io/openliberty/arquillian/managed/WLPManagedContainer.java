@@ -1407,7 +1407,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    private String getWlpUsrDir() throws IOException {
       String usrDir = getLibertyEnvVar(WLP_USER_DIR);
       if (usrDir == null) {
-         usrDir = containerConfiguration.getWlpHome() + "/usr/";
+         usrDir = containerConfiguration.getWlpHome() + "/usr";
       }
       log.finer("wlp.usr.dir path: " + usrDir);
       return usrDir;
@@ -1437,7 +1437,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
     * @throws IOException
     */
    private String getServerConfigDir() throws IOException {
-	   String serverConfigDir = getWlpUsrDir() + "servers/" + containerConfiguration.getServerName();
+	   String serverConfigDir = getWlpUsrDir() + "/servers/" + containerConfiguration.getServerName();
 	   log.finer("server.config.dir path: " + serverConfigDir);
 	   return serverConfigDir;
    }
