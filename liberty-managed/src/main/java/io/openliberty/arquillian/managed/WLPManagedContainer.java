@@ -1409,11 +1409,8 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
     * @throws IOException
     */
    private String getWlpUsrDir() throws IOException {
-      String usrDir;
-      if(containerConfiguration.getUsrDir() != null) {
-         usrDir = containerConfiguration.getUsrDir();
-      }
-      else {
+      String usrDir = containerConfiguration.getUsrDir();
+      if (usrDir == null) {
          usrDir = getLibertyEnvVar(WLP_USER_DIR);
          if (usrDir == null) {
             usrDir = containerConfiguration.getWlpHome() + "/usr/";
