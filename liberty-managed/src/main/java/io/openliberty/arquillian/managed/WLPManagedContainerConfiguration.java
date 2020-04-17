@@ -23,6 +23,7 @@ public class WLPManagedContainerConfiguration implements
       ContainerConfiguration {
 
    private String wlpHome;
+   private String usrDir;
    private String serverName = "defaultServer";
    private int httpPort = 0;
    
@@ -57,6 +58,14 @@ public class WLPManagedContainerConfiguration implements
       } else {
          // If wlpHome is null, throw exception
          throw new ConfigurationException("wlpHome is required for initialization");
+      }
+
+      // Validate usrDirectory
+      if(usrDir != null) {
+         File usr = new File(usrDir);
+         if(!(usr.exists() && usr.isDirectory())) {
+            throw new ConfigurationException("usrDir provided is not valid: " + usr);
+         }
       }
 
       if(securityConfiguration != null && securityConfiguration.trim().length() > 0) {
@@ -108,6 +117,14 @@ public class WLPManagedContainerConfiguration implements
 
    public void setWlpHome(String wlpHome) {
       this.wlpHome = wlpHome;
+   }
+
+   public String getUsrDir() {
+      return usrDir;
+   }
+
+   public void setUsrDir(String usrDir) {
+      this.usrDir = usrDir;
    }
 
    public String getServerName() {
