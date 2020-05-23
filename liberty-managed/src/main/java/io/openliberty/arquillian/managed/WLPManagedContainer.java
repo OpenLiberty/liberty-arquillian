@@ -24,25 +24,28 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.ProcessBuilder.Redirect;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
@@ -51,7 +54,6 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import javax.swing.text.html.MinimalHTMLWriter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -66,6 +68,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.io.FileUtils;
 import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
@@ -129,7 +132,8 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
    private enum CommandType{
        RUN,
-       STOP
+       STOP,
+       DUMP
    }
 
    private WLPManagedContainerConfiguration containerConfiguration;
@@ -143,6 +147,8 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    private Thread shutdownThread;
    private Map<String, Long>archiveDeployTimes = new HashMap<>();
    private List<DeploymentExceptionLocator> exceptionLocators;
+   
+   private long currentTime = 0;
 
    @Override
    public void setup(WLPManagedContainerConfiguration configuration)
@@ -157,6 +163,20 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          log.exiting(className, "setup");
       }
    }
+   
+   private void copyArtifactJar() throws IOException {
+       System.out.println("Copying new artifact jar");
+       String jarName = "com.ibm.ws.artifact.zip_1.0.29.jar";
+       File jarOnDisk = new File(containerConfiguration.getWlpHome() + "/lib/" + jarName);
+       if(jarOnDisk.exists()) {
+           System.out.println("Deleting old artifact jar ------------------");
+           jarOnDisk.delete();
+       } else {
+           System.out.println("Jar is located at " + jarOnDisk.getCanonicalPath());
+       }
+       InputStream is = getClass().getClassLoader().getResourceAsStream(jarName);
+       FileUtils.copyInputStreamToFile(is, jarOnDisk);
+   }
 
    // This method includes parts heavily based on the ManagedDeployableContainer.java in the jboss-as
    // managed container implementation as written by Thomas.Diesler@jboss.com
@@ -166,6 +186,12 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       if (log.isLoggable(Level.FINER)) {
          log.entering(className, "start");
       }
+      
+      try {
+        copyArtifactJar();
+    } catch (IOException e1) {
+        e1.printStackTrace();
+    }
 
       // Find WebSphere Liberty Profile VMs by looking for ws-launch.jar and the name of the server
       String vmid;
@@ -324,9 +350,17 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             case STOP:
                 cmd.add("stop");
                 break;
+            case DUMP:
+                cmd.add("dump");
         }
 
         cmd.add(containerConfiguration.getServerName());
+        if(type.equals(CommandType.RUN)) {
+            cmd.add("--clean");
+        }
+        if(type.equals(CommandType.DUMP)) {
+            cmd.add("--archive=\"" + getDumpArchiveName() + "\"");
+        }
         return cmd;
     }
 
@@ -576,6 +610,13 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       catch (Exception e) {
          // Wrap generic exceptions as DeploymentExceptions
          throw new DeploymentException("Exception while deploying application.", e);
+      } finally {
+          // Do a server dump to verify the application was deployed
+          try {
+            dumpServer();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
       }
    }
 
@@ -849,9 +890,63 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             log.log(Level.WARNING, "Unable to delete archive from deployment directory -> failsafe -> archive " + archveToDelete + " marked for delete on exit", lastException);
             archveToDelete.deleteOnExit();
          } else {
+             try {
+                 dumpServer();
+             } catch (Exception e) {
+                 e.printStackTrace();
+             }
             throw new DeploymentException("Could not delete " + archveToDelete, lastException);
          }
       }
+   }
+   
+   private void dumpServer() throws LifecycleException, ZipException, IOException {
+       System.out.println("performing server dump -----------------------------------");
+       currentTime = Instant.now().getEpochSecond();
+       ProcessBuilder pb = new ProcessBuilder(getServerCommand(CommandType.DUMP));
+       pb.redirectErrorStream(true);
+       try {
+          Process process = pb.start();
+          new Thread(new ConsoleConsumer(process)).start();
+          int rc = waitFor(process, 300, TimeUnit.SECONDS);
+          if (rc != 0) {
+             throw new LifecycleException("Server dump failed, see log for details. RC = " + rc);
+          }
+       } catch (TimeoutException e) {
+          throw new LifecycleException("Server dump command did not complete within 5 minutes", e);
+       } catch (Exception e) {
+          throw new LifecycleException("Failed to run server dump command");
+       } finally {
+           System.out.println("done performing server dump -----------------------------------");
+           File dumpFile = new File(containerConfiguration.getWlpHome() + "/usr/servers/defaultServer/" + getDumpArchiveName());
+           if(dumpFile.exists()) {
+               System.out.println("printing dump file introspection ---------------");
+               ZipFile zipFile = new ZipFile(dumpFile);
+               Enumeration<? extends ZipEntry> entries = zipFile.entries();
+               while(entries.hasMoreElements()){
+                   ZipEntry entry = entries.nextElement();
+                   if(entry.getName().contains("/introspections/")) {
+                       System.out.println("found introspection file: " + entry.getName());
+                   }
+                   if(entry.getName().endsWith("ZipCachingIntrospector.txt")) {
+                       System.out.println("zip file entry: "+ entry.getName());
+                       InputStream stream = zipFile.getInputStream(entry);
+                       BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+                       String line;
+                       while((line = br.readLine()) != null) {
+                           System.out.println("    " + line);
+                       }
+                       break;
+                   }
+               }
+               zipFile.close();
+           }
+           System.out.println("----------------------------------- done performing server dump");
+       }
+   }
+   
+   private String getDumpArchiveName() {
+       return "dump-" + currentTime + ".zip";
    }
 
    private String getDropInDirectory() throws IOException {
@@ -1552,34 +1647,6 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       log.finer("system wide server.env path: " + systemServerEnv);
       return systemServerEnv;
    }
-   
-	private List<String> getJPMSOptions() {
-		List<String> args = new ArrayList<String>();
-		File jpmsOptions = new File(containerConfiguration.getWlpHome(), "lib/platform/java/java9.options");
-		try (Scanner s = new Scanner(jpmsOptions)) {
-			String line = null;
-			String arg = null;
-			while(s.hasNextLine()) {
-				line = s.nextLine().trim();
-				// the java9.options file is of the format:
-				// # Optional comment
-				// --add-exports
-				// jdk.management.agent/jdk.internal.agent=ALL-UNNAMED
-				if(line.startsWith("#")) { 
-					continue; // skip over commented out lines
-				} else if(line.startsWith("--")) {
-					arg = line;
-				} else {
-					args.add(arg + '=' + line);
-					arg = null;
-				}
-			}
-		} catch (IOException e) {
-			log.finer("Unable to locate Liberty JPMS options file at: " + jpmsOptions.getAbsolutePath());
-			return args;
-		}
-		return args;
-	}
 
    /**
     * Get the path of the messages.log file

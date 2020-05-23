@@ -1,20 +1,31 @@
 sudo: required
 dist: trusty
 language: java
+install: true
 jdk:
     - oraclejdk8
     - openjdk9
     - oraclejdk11
 env:
     - RUNTIME=ol RUNTIME_VERSION=19.0.0.3
-    - RUNTIME=ol RUNTIME_VERSION=18.0.0.4
+    - RUNTIME=ol RUNTIME_VERSION=19.0.0.6
     - RUNTIME=wlp RUNTIME_VERSION=19.0.0.3
-    - RUNTIME=wlp RUNTIME_VERSION=18.0.0.4
-matrix:
-    exclude:
-    - jdk: oraclejdk11
-      env: RUNTIME=ol RUNTIME_VERSION=18.0.0.4
-    - jdk: oraclejdk11
-      env: RUNTIME=wlp RUNTIME_VERSION=18.0.0.4
+    - RUNTIME=wlp RUNTIME_VERSION=19.0.0.6
+before_install:
+    - |
+        if [ "$TRAVIS_JDK_VERSION" = "oraclejdk8" ] || [ "$TRAVIS_JDK_VERSION" = "openjdk9" ]; then
+            echo 'Installing chameleon lib...'
+            git clone https://github.com/chyt/arquillian-container-chameleon.git ./chameleon
+            cd ./chameleon
+            git checkout liberty
+            mvn clean install -DskipTests > out.txt
+            cd ..
+        fi;
 script:
-- travis_wait mvn verify -Druntime=$RUNTIME -DruntimeVersion=$RUNTIME_VERSION
+    - mvn clean install -DskipTests -Dinvoker.skip=true
+    - |
+        if [ "$TRAVIS_JDK_VERSION" = "oraclejdk8" ] || [ "$TRAVIS_JDK_VERSION" = "openjdk9" ]; then
+            travis_wait mvn verify -Druntime=$RUNTIME -DruntimeVersion=$RUNTIME_VERSION -Plog-info
+        else
+            travis_wait mvn verify -Druntime=$RUNTIME -DruntimeVersion=$RUNTIME_VERSION -Plog-info -Dinvoker.skip=true
+        fi;

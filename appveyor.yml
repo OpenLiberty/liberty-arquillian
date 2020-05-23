@@ -20,7 +20,17 @@ install:
   - cmd: mvn --version
   - cmd: java -version
 
+before_build:
+  - cmd: |
+      echo  "Installing chameleon lib ...."
+      git clone https://github.com/chyt/arquillian-container-chameleon.git chameleon
+      cd chameleon
+      git checkout liberty
+      mvn clean install -DskipTests > out.txt
+      cd..
+
 build_script:
-      - "mvn verify -Druntime=%RUNTIME% -DruntimeVersion=19.0.0.3 -Plog-info"
+  - "mvn clean install -DskipTests -Dinvoker.skip=true"
+  - "mvn verify -Druntime=%RUNTIME% -DruntimeVersion=19.0.0.6 -Plog-info -DskipTests"
 
 test: off
