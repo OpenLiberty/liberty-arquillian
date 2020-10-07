@@ -1,5 +1,5 @@
 Web-ContextPath: arquillian-support
-Import-Package: javax.servlet.*; version="[2.6, 3)", \
+Import-Package: jakarta.servlet.*; version="[5.0,)", \
   com.ibm.ws.container.service.app.deploy; version="[1.0, 3)", \
   *
 Bundle-Version: ${parsedVersion.osgiVersion}

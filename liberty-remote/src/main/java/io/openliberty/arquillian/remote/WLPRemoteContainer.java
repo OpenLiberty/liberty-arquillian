@@ -147,7 +147,7 @@ public class WLPRemoteContainer implements DeployableContainer<WLPRemoteContaine
         // Return metadata on how to contact the deployed application
         ProtocolMetaData metaData = new ProtocolMetaData();
         HTTPContext httpContext = new HTTPContext(containerConfiguration.getHostName(), containerConfiguration.getHttpPort());
-        httpContext.add(new Servlet("ArquillianServletRunner", deployName));
+        httpContext.add(new Servlet("ArquillianServletRunnerEE9", deployName));
         metaData.addContext(httpContext);
 
         if (log.isLoggable(Level.FINER)) {

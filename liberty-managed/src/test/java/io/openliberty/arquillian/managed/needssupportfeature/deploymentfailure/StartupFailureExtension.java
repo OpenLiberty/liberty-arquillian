@@ -14,9 +14,9 @@
  */
 package io.openliberty.arquillian.managed.needssupportfeature.deploymentfailure;
 
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.spi.Extension;
-import javax.enterprise.inject.spi.ProcessAnnotatedType;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.spi.Extension;
+import jakarta.enterprise.inject.spi.ProcessAnnotatedType;
 
 /**
  * Causes a definition error by throwing a TestAppException during startup

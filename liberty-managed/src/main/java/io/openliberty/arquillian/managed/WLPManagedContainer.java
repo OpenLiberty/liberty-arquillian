@@ -118,7 +118,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    private static final String WLP_USER_DIR = "WLP_USER_DIR";
    private static final String JAVA_TOOL_OPTIONS = "JAVA_TOOL_OPTIONS";
    
-   private static final String ARQUILLIAN_SERVLET_NAME = "ArquillianServletRunner";
+   private static final String ARQUILLIAN_SERVLET_NAME = "ArquillianServletRunnerEE9";
 
    private static final String className = WLPManagedContainer.class.getName();
 

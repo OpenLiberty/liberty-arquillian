@@ -168,18 +168,18 @@
       <artifactId>arquillian-testenricher-initialcontext</artifactId>
     </dependency>
 
-    <!-- Java EE Spec APIs -->
+    <!-- Jakarta EE Spec APIs -->
 
     <dependency>
-      <groupId>org.jboss.spec.javax.servlet</groupId>
-      <artifactId>jboss-servlet-api_3.0_spec</artifactId>
-      <version>[1.0,)</version>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>[5.0,)</version>
     </dependency>
 
     <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-      <version>1</version>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+      <version>[2.0,)</version>
     </dependency>
 
     <!-- Testing -->

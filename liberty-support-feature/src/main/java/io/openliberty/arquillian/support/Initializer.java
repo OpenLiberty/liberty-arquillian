@@ -17,10 +17,10 @@ package io.openliberty.arquillian.support;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.annotation.WebListener;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;

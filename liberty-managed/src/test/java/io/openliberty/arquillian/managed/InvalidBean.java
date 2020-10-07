@@ -1,6 +1,6 @@
 package io.openliberty.arquillian.managed;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  * This bean should result in a definition error because it has a public non-static field and is not Dependent scoped

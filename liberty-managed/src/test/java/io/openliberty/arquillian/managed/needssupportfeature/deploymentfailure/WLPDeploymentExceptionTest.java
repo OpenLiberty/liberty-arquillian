@@ -16,7 +16,7 @@ package io.openliberty.arquillian.managed.needssupportfeature.deploymentfailure;
 
 import static org.junit.Assert.fail;
 
-import javax.enterprise.inject.spi.Extension;
+import jakarta.enterprise.inject.spi.Extension;
 
 import org.jboss.arquillian.container.test.api.Deployer;
 import org.jboss.arquillian.container.test.api.Deployment;
