@@ -106,7 +106,7 @@ public class WLPRemoteContainer implements DeployableContainer<WLPRemoteContaine
             log.entering(className, "getDefaultProtocol");
         }
 
-        String defaultProtocol = "Servlet 3.0";
+        String defaultProtocol = "Servlet 5.0";
 
         if (log.isLoggable(Level.FINER)) {
             log.exiting(className, "getDefaultProtocol", defaultProtocol);
