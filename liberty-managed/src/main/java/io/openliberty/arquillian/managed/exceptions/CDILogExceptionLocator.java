@@ -16,8 +16,8 @@ package io.openliberty.arquillian.managed.exceptions;
 
 import java.util.logging.Logger;
 
-import javax.enterprise.inject.spi.DefinitionException;
-import javax.enterprise.inject.spi.DeploymentException;
+import jakarta.enterprise.inject.spi.DefinitionException;
+import jakarta.enterprise.inject.spi.DeploymentException;
 
 /**
  * This is old code to determine CDI exceptions from log lines
@@ -36,7 +36,7 @@ public class CDILogExceptionLocator implements DeploymentExceptionLocator {
                  logLine.contains("UnserializableDependencyException")) {
             /*
              * The CDI specification allows an implementation to throw a subclass of
-             * javax.enterprise.inject.spi.DeploymentException. Weld has three types
+             * jakarta.enterprise.inject.spi.DeploymentException. Weld has three types
              * such exceptions:
              *  - org.jboss.weld.exceptions.DeploymentException
              *  - org.jboss.weld.exceptions.InconsistentSpecializationException

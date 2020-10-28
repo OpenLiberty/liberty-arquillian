@@ -38,12 +38,12 @@
   <!-- Properties -->
   <properties>
     <!-- Versioning -->
-    <version.arquillian_core>1.4.0.Final</version.arquillian_core>
+    <version.arquillian_core>1.7.0.Alpha3</version.arquillian_core>
     <version.surefire.plugin>2.21.0</version.surefire.plugin>
 
     <!-- override from parent -->
-    <maven.compiler.target>1.7</maven.compiler.target>
-    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -117,9 +117,9 @@
       </activation>
       <properties>
         <runtime>ol</runtime>
-        <runtimeGroupId>io.openliberty</runtimeGroupId>
+        <runtimeGroupId>io.openliberty.beta</runtimeGroupId>
         <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
-        <runtimeVersion>18.0.0.4</runtimeVersion>
+        <runtimeVersion>20.0.0.11-beta</runtimeVersion>
       </properties>
     </profile>
   </profiles>
