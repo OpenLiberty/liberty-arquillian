@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, IBM Corporation, and other contributors
+ * Copyright 2020, IBM Corporation, and other contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
