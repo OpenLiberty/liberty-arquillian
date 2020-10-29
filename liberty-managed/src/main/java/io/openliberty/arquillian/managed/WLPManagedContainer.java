@@ -670,16 +670,24 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                // recursively search web archives within the web-inf/lib directory
                getServletNames(archiveAsset.getArchive(), servletNames);
             }
-            // TODO: handle the case where a class is a ByteArrayAsset
-            // see WLPInjectServletContextText for an example
+            // if asset is a bytearray of a class 
             if (node.getAsset() != null && node.getAsset() instanceof ByteArrayAsset) {
-               ByteArrayAsset byteArrayAsset = (ByteArrayAsset) node.getAsset();
-               byte[] ba = byteArrayAsset.getSource();
-
+               if (key.get().endsWith(".class")) {
+                  ByteArrayAsset byteArrayAsset = (ByteArrayAsset) node.getAsset();
+                  byte[] ba = byteArrayAsset.getSource();
+                  ByteClassLoader loader = new ByteClassLoader();
+                  Class<?> c = loader.defineClass(null, ba);
+                  String name = getServletNameFromAnnotation(c);
+                  if (name != null) {
+                     servletNames.add(name);
+                  }                  
+               }
             }
+            // if asset is a class 
             if (node.getAsset() != null && node.getAsset() instanceof ClassAsset) {
                ClassAsset classAsset = (ClassAsset) node.getAsset();
-               String name = getServletNameFromAnnotation(classAsset);
+               Class<?> c = classAsset.getSource();
+               String name = getServletNameFromAnnotation(c);
                if (name != null) {
                   servletNames.add(name);
                }
@@ -706,9 +714,8 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
     * class name. If none of the classes detected have the @WebServlet annotation,
     * returns null
     */
-   private String getServletNameFromAnnotation(ClassAsset classAsset) throws DeploymentException {
+   private String getServletNameFromAnnotation(Class<?> c) throws DeploymentException {
       try {
-         Class<?> c = classAsset.getSource();
          jakarta.servlet.annotation.WebServlet webServlet = c
                .getAnnotation(jakarta.servlet.annotation.WebServlet.class);
          if (webServlet != null) {
