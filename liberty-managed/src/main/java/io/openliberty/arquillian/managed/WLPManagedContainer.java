@@ -643,6 +643,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             if (node.getAsset() != null && node.getAsset() instanceof ArchiveAsset) {
                ArchiveAsset archiveAsset = (ArchiveAsset) node.getAsset();
                // TODO: archive asset, recursively scan through to find all servlets
+               // want to scan all libraries in web-inf/lib
                // most notable here is the ArquillianServletRunnerEE9
                // see
                // https://github.com/arquillian/arquillian-core/blob/2f91caf4b992470d4e73ab6f5941aaaf5f0e4a8b/protocols/servlet-jakarta/src/main/resources/org/jboss/arquillian/protocol/servlet5/v_5/web-fragment.xml

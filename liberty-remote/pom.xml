@@ -153,15 +153,15 @@
 
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-cdi</artifactId>
+      <artifactId>arquillian-testenricher-cdi-jakarta</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-ejb</artifactId>
+      <artifactId>arquillian-testenricher-ejb-jakarta</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-resource</artifactId>
+      <artifactId>arquillian-testenricher-resource-jakarta</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
