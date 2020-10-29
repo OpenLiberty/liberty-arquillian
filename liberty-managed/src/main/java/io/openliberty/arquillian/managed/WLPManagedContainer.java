@@ -85,6 +85,7 @@ import org.jboss.shrinkwrap.api.asset.ByteArrayAsset;
 import org.jboss.shrinkwrap.api.asset.ClassAsset;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 import org.w3c.dom.DOMException;
@@ -630,33 +631,51 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    /**
     * Returns the servlet name(s).
     * <p>
-    * Attempts to resolve the classes witin the Web Archive, and detect servlets
-    * from the @WebServlet annotation. Falls back to just returning
-    * ArquillianServletRunner for testable archives and nothing otherwise.
+    * Attempts to resolve the classes within the Web Archive and detect servlets.
+    * Falls back to just returning ArquillianServletRunner for testable archives
+    * and returns an empty list otherwise.
     */
    private List<String> getServletNames(WebModule webModule) throws DeploymentException {
       try {
          List<String> servletNames = new ArrayList<String>();
-         Map<ArchivePath, org.jboss.shrinkwrap.api.Node> content = webModule.archive.getContent();
+         getServletNames(webModule.archive, servletNames);
+
+         // If we didn't find any servlets and this is a testable archive it ought to
+         // contain the arquillian test servlet, which is all that most tests need to
+         // work
+         if (servletNames.isEmpty() && Testable.isArchiveToTest(webModule.archive)) {
+            servletNames.add(ARQUILLIAN_SERVLET_NAME);
+         }
+         return servletNames;
+      } catch (Exception e) {
+         throw new DeploymentException("Error trying to retrieve servlet names", e);
+      }
+   }
+
+   /**
+    * Recursively search for servlets within the Web Archive and add servlet names.
+    * Only searches for classes within the war file and recursively searches within
+    * the WEB-INF/lib direcotry. Detects servlets if defined in the web.xml or
+    * annotated with @WebServlet.
+    */
+   private void getServletNames(Archive archive, List<String> servletNames) throws DeploymentException {
+      try {
+         Map<ArchivePath, org.jboss.shrinkwrap.api.Node> content = archive.getContent();
          for (ArchivePath key : content.keySet()) {
             org.jboss.shrinkwrap.api.Node node = content.get(key);
-            if (node.getAsset() != null && node.getAsset() instanceof ArchiveAsset) {
+            // want to scan all libraries in web-inf/lib
+            boolean isWebINF = node.getPath().get().startsWith(File.separator + "WEB-INF" + File.separator + "lib");
+            if (node.getAsset() != null && node.getAsset() instanceof ArchiveAsset && isWebINF) {
                ArchiveAsset archiveAsset = (ArchiveAsset) node.getAsset();
-               // TODO: archive asset, recursively scan through to find all servlets
-               // want to scan all libraries in web-inf/lib
-               // most notable here is the ArquillianServletRunnerEE9
-               // see
-               // https://github.com/arquillian/arquillian-core/blob/2f91caf4b992470d4e73ab6f5941aaaf5f0e4a8b/protocols/servlet-jakarta/src/main/resources/org/jboss/arquillian/protocol/servlet5/v_5/web-fragment.xml
-               // see
-               // https://github.com/arquillian/arquillian-core/blob/master/protocols/servlet/src/main/java/org/jboss/arquillian/protocol/servlet/runner/ServletTestRunner.java
+               // recursively search web archives within the web-inf/lib directory
+               getServletNames(archiveAsset.getArchive(), servletNames);
             }
-
             // TODO: handle the case where a class is a ByteArrayAsset
             // see WLPInjectServletContextText for an example
             if (node.getAsset() != null && node.getAsset() instanceof ByteArrayAsset) {
                ByteArrayAsset byteArrayAsset = (ByteArrayAsset) node.getAsset();
                byte[] ba = byteArrayAsset.getSource();
-q
+
             }
             if (node.getAsset() != null && node.getAsset() instanceof ClassAsset) {
                ClassAsset classAsset = (ClassAsset) node.getAsset();
@@ -666,14 +685,6 @@ q
                }
             }
          }
-
-         // If we didn't find any servlets and this is a testable archive it ought to
-         // contain the arquillian test servlet, which is all that most tests need to
-         // work
-         if (servletNames.isEmpty() && Testable.isArchiveToTest(webModule.archive)) {
-            servletNames.add(ARQUILLIAN_SERVLET_NAME);
-         }
-         return servletNames;
       } catch (Exception e) {
          throw new DeploymentException("Error trying to retrieve servlet names", e);
       }
