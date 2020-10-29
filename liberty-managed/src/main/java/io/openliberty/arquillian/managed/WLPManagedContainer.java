@@ -684,6 +684,14 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                   servletNames.add(name);
                }
             }
+            // if the current resource is a web.xml / web-fragment.xml file read the servlet
+            // names from the xml
+            if (key.get().endsWith("web.xml") || key.get().endsWith("web-fragment.xml")) {
+               DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+               DocumentBuilder builder = factory.newDocumentBuilder();
+               Document doc = builder.parse(node.getAsset().openStream());
+               servletNames.addAll(getServletNamesFromWebXML(doc));
+            }
          }
       } catch (Exception e) {
          throw new DeploymentException("Error trying to retrieve servlet names", e);
@@ -717,6 +725,27 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          throw new DeploymentException(
                "Error trying to resolve servlet name from jakarta.servlet.annotation.WebServlet annotation", e);
       }
+   }
+
+   private List<String> getServletNamesFromWebXML(Document webXML) {
+      List<String> servletNames = new ArrayList<String>();
+
+      // find all <servlet> elements
+      NodeList servlets = webXML.getElementsByTagName("servlet");
+      for (int i = 0; i < servlets.getLength(); i++) {
+         Node currElement = servlets.item(i);
+         if (currElement.getNodeType() == Node.ELEMENT_NODE) {
+            // find all <servlet-name> elements inside the current <servlet> element
+            Element servletElement = (Element) currElement;
+            NodeList nameElements = servletElement.getElementsByTagName("servlet-name");
+            if (nameElements.getLength() >= 1) {
+               String servletName = nameElements.item(0).getTextContent();
+               servletNames.add(servletName);
+            }
+         }
+      }
+
+      return servletNames;
    }
 
    /**
