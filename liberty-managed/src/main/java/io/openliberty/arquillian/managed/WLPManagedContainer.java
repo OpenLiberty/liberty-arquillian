@@ -664,7 +664,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          for (ArchivePath key : content.keySet()) {
             org.jboss.shrinkwrap.api.Node node = content.get(key);
             // want to scan all libraries in web-inf/lib
-            boolean isWebINF = node.getPath().get().startsWith(File.separator + "WEB-INF" + File.separator + "lib");
+            boolean isWebINF = node.getPath().get().startsWith("/WEB-INF/lib");
             if (node.getAsset() != null && node.getAsset() instanceof ArchiveAsset && isWebINF) {
                ArchiveAsset archiveAsset = (ArchiveAsset) node.getAsset();
                // recursively search web archives within the web-inf/lib directory
