@@ -551,10 +551,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          // register servlets
          boolean addedSomeServlets = false;
          for (WebModule module : modules) {
-
-            // TODO: scan for the all the servlets in the modules (webarchive)
             List<String> servlets = getServletNames(module);
-            // List<String> servlets = getServletNames(deployName, module);
             for (String servlet : servlets) {
                   httpContext.add(new Servlet(servlet, module.contextRoot));
                addedSomeServlets = true;
@@ -753,39 +750,6 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       }
 
       return servletNames;
-   }
-
-   /**
-    * Returns the short names of all servlets deployed in the module
-    * <p>
-    * Attempts to use J2EE management MBeans, falls back to just returning ArquillianServletRunner for testable archives and nothing otherwise.
-    */
-   private List<String> getServletNames(String appDeployName, WebModule webModule) throws DeploymentException {
-       try {
-           // If Java EE Management MBeans are present, query them for deployed servlets. This requires j2eeManagement-1.1 feature
-           Set<ObjectInstance> servletMbeans = mbsc.queryMBeans(new ObjectName("WebSphere:*,J2EEApplication=" + appDeployName + ",j2eeType=Servlet,WebModule="+webModule.name), null);
-           List<String> servletNames = new ArrayList<String>();
-           
-           for (ObjectInstance servletMbean : servletMbeans) {
-               String name = servletMbean.getObjectName().getKeyProperty("name");
-               
-               // Websphere uses the fully qualified servlet class as the servlet name, but arquillian just wants the simple name
-               if (name.contains(".")) {
-                   name = name.substring(name.lastIndexOf(".") + 1);
-               }
-               
-               servletNames.add(name);
-           }
-           
-           // J2EE Management MBeans aren't always available, so if we didn't find any servlets and this is a testable archive
-           // it ought to contain the arquillian test servlet, which is all that most tests need to work
-           if (servletNames.isEmpty() && Testable.isArchiveToTest(webModule.archive)) {
-               servletNames.add(ARQUILLIAN_SERVLET_NAME);
-           }
-           return servletNames;
-       } catch (Exception e) {
-           throw new DeploymentException("Error trying to retrieve servlet names", e);
-       }
    }
 
    private String getContextRoot(EnterpriseArchive ear, WebArchive war) throws DeploymentException {

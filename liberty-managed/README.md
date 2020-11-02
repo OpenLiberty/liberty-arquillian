@@ -15,9 +15,8 @@ The following features are required in the `server.xml` of the Liberty server.
 ```
 <!-- Enable features -->
 <featureManager>
-    <feature>jsp-2.2</feature>
+    <feature>jsp-3.0</feature>
     <feature>localConnector-1.0</feature>
-    <feature>j2eeManagement-1.1</feature> <!-- Optional, needed to allow injection on ArquillianResources related to servlets -->
     <feature>usr:arquillian-support-1.0</feature> <!-- Optional, needed for reliable reporting of correct DeploymentExceptions -->
 </featureManager>
 ```
@@ -30,7 +29,7 @@ You will also need to enable the `applicationMonitor` MBean support:
 
 ## Configuration
 
-Default Protocol: Servlet 3.0
+Default Protocol: Servlet 5.0
 
 **Container Configuration Options**
 
