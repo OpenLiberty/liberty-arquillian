@@ -15,8 +15,8 @@ The following features are required in the `server.xml` of the Liberty server.
 ```
 <!-- Enable features -->
 <featureManager>
-    <feature>jsp-2.2</feature>
-    <feature>restConnector-1.0</feature>
+    <feature>jsp-3.0</feature>
+    <feature>restConnector-2.0</feature>
 </featureManager>
 ```
 
@@ -42,7 +42,7 @@ If you need a sample `server.xml`, please refer to the [one in our source reposi
 
 ## Configuration
 
-Default Protocol: Servlet 3.0
+Default Protocol: Servlet 5.0
 
 **Container Configuration Options**
 
