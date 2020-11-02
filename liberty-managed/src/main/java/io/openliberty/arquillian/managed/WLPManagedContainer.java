@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, 2018, IBM Corporation, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2012, 2020, IBM Corporation, Red Hat Middleware LLC, and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
