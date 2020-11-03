@@ -106,7 +106,7 @@ public class WLPRemoteContainer implements DeployableContainer<WLPRemoteContaine
             log.entering(className, "getDefaultProtocol");
         }
 
-        String defaultProtocol = "Servlet 3.0";
+        String defaultProtocol = "Servlet 5.0";
 
         if (log.isLoggable(Level.FINER)) {
             log.exiting(className, "getDefaultProtocol", defaultProtocol);
@@ -147,7 +147,7 @@ public class WLPRemoteContainer implements DeployableContainer<WLPRemoteContaine
         // Return metadata on how to contact the deployed application
         ProtocolMetaData metaData = new ProtocolMetaData();
         HTTPContext httpContext = new HTTPContext(containerConfiguration.getHostName(), containerConfiguration.getHttpPort());
-        httpContext.add(new Servlet("ArquillianServletRunner", deployName));
+        httpContext.add(new Servlet("ArquillianServletRunnerEE9", deployName));
         metaData.addContext(httpContext);
 
         if (log.isLoggable(Level.FINER)) {

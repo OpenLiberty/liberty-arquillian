@@ -38,10 +38,10 @@ public class NestedExceptionBuilder {
      */
     private final static Map<String, String> exceptionMappings = new HashMap<>();
     static {
-        exceptionMappings.put("org.jboss.weld.exceptions.DeploymentException", "javax.enterprise.inject.spi.DeploymentException");
-        exceptionMappings.put("org.jboss.weld.exceptions.InconsistentSpecializationException", "javax.enterprise.inject.spi.DeploymentException");
-        exceptionMappings.put("org.jboss.weld.exceptions.UnserializableDependencyException", "javax.enterprise.inject.spi.DeploymentException");
-        exceptionMappings.put("org.jboss.weld.exceptions.DefinitionException", "javax.enterprise.inject.spi.DefinitionException");
+        exceptionMappings.put("org.jboss.weld.exceptions.DeploymentException", "jakarta.enterprise.inject.spi.DeploymentException");
+        exceptionMappings.put("org.jboss.weld.exceptions.InconsistentSpecializationException", "jakarta.enterprise.inject.spi.DeploymentException");
+        exceptionMappings.put("org.jboss.weld.exceptions.UnserializableDependencyException", "jakarta.enterprise.inject.spi.DeploymentException");
+        exceptionMappings.put("org.jboss.weld.exceptions.DefinitionException", "jakarta.enterprise.inject.spi.DefinitionException");
     }
     
     /**

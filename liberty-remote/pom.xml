@@ -86,24 +86,28 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
-        <version>1.2</version>
+        <version>3.2.2</version>
         <executions>
           <execution>
             <id>start-server</id>
             <!-- Plugin execution needs to be bound to previous phase.
                  Because Maven. See MNG-5799 and MNG-5987 -->
             <phase>process-test-classes</phase>
+            <configuration>
+              <serverName>defaultServer</serverName>
+               <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
+             </configuration>
             <goals>
-              <goal>start-server</goal>
+              <goal>start</goal>
             </goals>
           </execution>
           <execution>
             <id>stop-server</id>
             <phase>test</phase>
             <goals>
-              <goal>stop-server</goal>
+              <goal>stop</goal>
             </goals>
           </execution>
         </executions>
@@ -148,38 +152,38 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.protocol</groupId>
-      <artifactId>arquillian-protocol-servlet</artifactId>
+      <artifactId>arquillian-protocol-servlet-jakarta</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-cdi</artifactId>
+      <artifactId>arquillian-testenricher-cdi-jakarta</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-ejb</artifactId>
+      <artifactId>arquillian-testenricher-ejb-jakarta</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
-      <artifactId>arquillian-testenricher-resource</artifactId>
+      <artifactId>arquillian-testenricher-resource-jakarta</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
       <artifactId>arquillian-testenricher-initialcontext</artifactId>
     </dependency>
 
-    <!-- Java EE Spec APIs -->
+    <!-- Jakarta EE Spec APIs -->
 
     <dependency>
-      <groupId>org.jboss.spec.javax.servlet</groupId>
-      <artifactId>jboss-servlet-api_3.0_spec</artifactId>
-      <version>[1.0,)</version>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>[5.0,)</version>
     </dependency>
 
     <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-      <version>1</version>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+      <version>[2.0,)</version>
     </dependency>
 
     <!-- Testing -->

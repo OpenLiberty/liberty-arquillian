@@ -16,6 +16,7 @@ package io.openliberty.arquillian.managed;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -40,7 +41,7 @@ public class WLPIntegrationClientTestCase
    public static EnterpriseArchive createDeployment() 
    {
       return ShrinkWrap.create(EnterpriseArchive.class, "test.ear")
-            .addAsModule(ShrinkWrap.create(WebArchive.class, "test.war")
+            .addAsModule(ShrinkWrap.create(WebArchive.class, "test1.war")
                               .addClass(HelloServlet.class))
             .addAsModule(ShrinkWrap.create(JavaArchive.class, "test.jar")
                               .addClass(WLPIntegrationClientTestCase.class)
@@ -50,30 +51,37 @@ public class WLPIntegrationClientTestCase
    @Test
    public void shouldBeAbleToInvokeServletInDeployedWebApp(@ArquillianResource URL url) throws Exception
    {
+      URL helloEndpoint = new URL(url, HelloServlet.URL_PATTERN);
+
+      HttpURLConnection conn = (HttpURLConnection) helloEndpoint.openConnection();
+      Assert.assertEquals(
+         "The url: " + helloEndpoint + " response code should be 200 but was: " + conn.getResponseCode(),
+         HttpURLConnection.HTTP_OK,
+         conn.getResponseCode());
+
       String body = readAllAndClose(
-            new URL(url, HelloServlet.URL_PATTERN).openStream());
-      
+        helloEndpoint.openStream());
       Assert.assertEquals(
             "Verify that the servlet was deployed and returns expected result",
             HelloServlet.MESSAGE,
             body);
    }
    
-   private String readAllAndClose(InputStream is) throws Exception 
+   private String readAllAndClose(InputStream is) throws Exception
    {
-      ByteArrayOutputStream out = new ByteArrayOutputStream();
-      try
-      {
-         int read;
-         while( (read = is.read()) != -1)
-         {
-            out.write(read);
-         }
-      }
-      finally 
-      {
-         try { is.close(); } catch (Exception e) { }
-      }
-      return out.toString();
+       ByteArrayOutputStream out = new ByteArrayOutputStream();
+       try {
+           int read;
+           while ((read = is.read()) != -1) {
+               out.write(read);
+           }
+       } finally {
+           try {
+               is.close();
+           } catch (Exception e) {
+           }
+       }
+       return out.toString();
    }
+
 }

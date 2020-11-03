@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, IBM Corporation, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2020, IBM Corporation and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.openliberty.arquillian.managed.needssupportfeature.deploymentfailure;
+package io.openliberty.arquillian.managed;
 
-import jakarta.enterprise.event.Observes;
-import jakarta.enterprise.inject.spi.Extension;
-import jakarta.enterprise.inject.spi.ProcessAnnotatedType;
+// Loads a class from a byte array
+public class ByteClassLoader extends ClassLoader {
 
-/**
- * Causes a definition error by throwing a TestAppException during startup
- */
-public class StartupFailureExtension implements Extension {
-
-    public void crashIt(@Observes ProcessAnnotatedType<?> bbd) {
-        throw new TestAppException("");
+    public Class<?> defineClass(String name, byte[] ba) {
+        return defineClass(name,ba,0,ba.length);
     }
+
 }

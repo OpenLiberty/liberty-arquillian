@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, IBM Corporation, and other contributors
+ * Copyright 2020, IBM Corporation, and other contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,18 +17,18 @@ package io.openliberty.arquillian.managed.needsmanagementmbeans;
 import java.io.IOException;
 
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet("/baz")
-public class BazServlet extends HttpServlet {
+// This class does not use the @WebServlet annotation
+// instead the servlet is configured using a web.xml file
+public class FuzServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.getWriter().print("I am baz");
+        resp.getWriter().print("I am fuz");
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, 2018, IBM Corporation, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2012, 2020, IBM Corporation, Red Hat Middleware LLC, and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,12 +25,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
+import java.lang.annotation.Annotation;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,8 +78,14 @@ import org.jboss.arquillian.container.spi.client.protocol.metadata.Servlet;
 import org.jboss.arquillian.container.test.api.Testable;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ArchivePath;
+import org.jboss.shrinkwrap.api.Filter;
+import org.jboss.shrinkwrap.api.Filters;
+import org.jboss.shrinkwrap.api.asset.ArchiveAsset;
+import org.jboss.shrinkwrap.api.asset.ByteArrayAsset;
+import org.jboss.shrinkwrap.api.asset.ClassAsset;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 import org.w3c.dom.DOMException;
@@ -118,7 +126,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    private static final String WLP_USER_DIR = "WLP_USER_DIR";
    private static final String JAVA_TOOL_OPTIONS = "JAVA_TOOL_OPTIONS";
    
-   private static final String ARQUILLIAN_SERVLET_NAME = "ArquillianServletRunner";
+   private static final String ARQUILLIAN_SERVLET_NAME = "ArquillianServletRunnerEE9";
 
    private static final String className = WLPManagedContainer.class.getName();
 
@@ -525,6 +533,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
          // Return metadata on how to contact the deployed application
          ProtocolMetaData metaData = new ProtocolMetaData();
+         
          HTTPContext httpContext = new HTTPContext("localhost", getHttpPort());
          List<WebModule> modules;
          if (archive instanceof EnterpriseArchive) {
@@ -538,17 +547,17 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          } else {
              modules = Collections.emptyList();
          }
-         
+
          // register servlets
          boolean addedSomeServlets = false;
          for (WebModule module : modules) {
-             List<String> servlets = getServletNames(deployName, module);
-             for (String servlet : servlets) {
-                 httpContext.add(new Servlet(servlet, module.contextRoot));
-                 addedSomeServlets = true;
-             }
+            List<String> servlets = getServletNames(module);
+            for (String servlet : servlets) {
+                  httpContext.add(new Servlet(servlet, module.contextRoot));
+               addedSomeServlets = true;
+            }
          }
-         
+
          if (!addedSomeServlets) {
              // Urk, we found no servlets at all probably because we don't have the J2EE management mbeans
              // Make a best guess at where servlets might be. Even if the servlet names are wrong, this at
@@ -615,38 +624,132 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
        }
        return modules;
    }
-   
+
    /**
-    * Returns the short names of all servlets deployed in the module
+    * Returns the servlet name(s).
     * <p>
-    * Attempts to use J2EE management MBeans, falls back to just returning ArquillianServletRunner for testable archives and nothing otherwise.
+    * Attempts to resolve the classes within the Web Archive and detect servlets.
+    * Falls back to just returning ArquillianServletRunner for testable archives
+    * and returns an empty list otherwise.
     */
-   private List<String> getServletNames(String appDeployName, WebModule webModule) throws DeploymentException {
-       try {
-           // If Java EE Management MBeans are present, query them for deployed servlets. This requires j2eeManagement-1.1 feature
-           Set<ObjectInstance> servletMbeans = mbsc.queryMBeans(new ObjectName("WebSphere:*,J2EEApplication=" + appDeployName + ",j2eeType=Servlet,WebModule="+webModule.name), null);
-           List<String> servletNames = new ArrayList<String>();
-           
-           for (ObjectInstance servletMbean : servletMbeans) {
-               String name = servletMbean.getObjectName().getKeyProperty("name");
-               
-               // Websphere uses the fully qualified servlet class as the servlet name, but arquillian just wants the simple name
-               if (name.contains(".")) {
-                   name = name.substring(name.lastIndexOf(".") + 1);
+   private List<String> getServletNames(WebModule webModule) throws DeploymentException {
+      try {
+         List<String> servletNames = new ArrayList<String>();
+         getServletNames(webModule.archive, servletNames);
+
+         // If we didn't find any servlets and this is a testable archive it ought to
+         // contain the arquillian test servlet, which is all that most tests need to
+         // work
+         if (servletNames.isEmpty() && Testable.isArchiveToTest(webModule.archive)) {
+            servletNames.add(ARQUILLIAN_SERVLET_NAME);
+         }
+         return servletNames;
+      } catch (Exception e) {
+         throw new DeploymentException("Error trying to retrieve servlet names", e);
+      }
+   }
+
+   /**
+    * Recursively search for servlets within the Web Archive and add servlet names.
+    * Only searches for classes within the war file and recursively searches within
+    * the WEB-INF/lib direcotry. Detects servlets if defined in the web.xml or
+    * annotated with @WebServlet.
+    */
+   private void getServletNames(Archive archive, List<String> servletNames) throws DeploymentException {
+      try {
+         Map<ArchivePath, org.jboss.shrinkwrap.api.Node> content = archive.getContent();
+         for (ArchivePath key : content.keySet()) {
+            org.jboss.shrinkwrap.api.Node node = content.get(key);
+            // want to scan all libraries in web-inf/lib
+            boolean isWebINF = node.getPath().get().startsWith("/WEB-INF/lib");
+            if (node.getAsset() != null && node.getAsset() instanceof ArchiveAsset && isWebINF) {
+               ArchiveAsset archiveAsset = (ArchiveAsset) node.getAsset();
+               // recursively search web archives within the web-inf/lib directory
+               getServletNames(archiveAsset.getArchive(), servletNames);
+            }
+            // if asset is a bytearray of a class 
+            if (node.getAsset() != null && node.getAsset() instanceof ByteArrayAsset) {
+               if (key.get().endsWith(".class")) {
+                  ByteArrayAsset byteArrayAsset = (ByteArrayAsset) node.getAsset();
+                  byte[] ba = byteArrayAsset.getSource();
+                  ByteClassLoader loader = new ByteClassLoader();
+                  Class<?> c = loader.defineClass(null, ba);
+                  String name = getServletNameFromAnnotation(c);
+                  if (name != null) {
+                     servletNames.add(name);
+                  }                  
                }
-               
-               servletNames.add(name);
-           }
-           
-           // J2EE Management MBeans aren't always available, so if we didn't find any servlets and this is a testable archive
-           // it ought to contain the arquillian test servlet, which is all that most tests need to work
-           if (servletNames.isEmpty() && Testable.isArchiveToTest(webModule.archive)) {
-               servletNames.add(ARQUILLIAN_SERVLET_NAME);
-           }
-           return servletNames;
-       } catch (Exception e) {
-           throw new DeploymentException("Error trying to retrieve servlet names", e);
-       }
+            }
+            // if asset is a class 
+            if (node.getAsset() != null && node.getAsset() instanceof ClassAsset) {
+               ClassAsset classAsset = (ClassAsset) node.getAsset();
+               Class<?> c = classAsset.getSource();
+               String name = getServletNameFromAnnotation(c);
+               if (name != null) {
+                  servletNames.add(name);
+               }
+            }
+            // if the current resource is a web.xml / web-fragment.xml file read the servlet
+            // names from the xml
+            if (key.get().endsWith("web.xml") || key.get().endsWith("web-fragment.xml")) {
+               DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+               DocumentBuilder builder = factory.newDocumentBuilder();
+               Document doc = builder.parse(node.getAsset().openStream());
+               servletNames.addAll(getServletNamesFromWebXML(doc));
+            }
+         }
+      } catch (Exception e) {
+         throw new DeploymentException("Error trying to retrieve servlet names", e);
+      }
+   }
+
+   /**
+    * Returns the servlet name(s) based on the @WebServlet annotation(s).
+    * <p>
+    * Detect servlets from the @WebServlet annotation. First tries to use the name
+    * property set explicitly on the @WebServlet annotation, otherwise use the
+    * class name. If none of the classes detected have the @WebServlet annotation,
+    * returns null
+    */
+   private String getServletNameFromAnnotation(Class<?> c) throws DeploymentException {
+      try {
+         jakarta.servlet.annotation.WebServlet webServlet = c
+               .getAnnotation(jakarta.servlet.annotation.WebServlet.class);
+         if (webServlet != null) {
+            if (webServlet.name() != null && !webServlet.name().isEmpty()) {
+               // use name property set in @WebServlet
+               return webServlet.name();
+            } else {
+               // default: use class name
+               return c.getSimpleName();
+            }
+         }
+         return null;
+      } catch (Exception e) {
+         throw new DeploymentException(
+               "Error trying to resolve servlet name from jakarta.servlet.annotation.WebServlet annotation", e);
+      }
+   }
+
+   private List<String> getServletNamesFromWebXML(Document webXML) {
+      List<String> servletNames = new ArrayList<String>();
+
+      // find all <servlet> elements
+      NodeList servlets = webXML.getElementsByTagName("servlet");
+      for (int i = 0; i < servlets.getLength(); i++) {
+         Node currElement = servlets.item(i);
+         if (currElement.getNodeType() == Node.ELEMENT_NODE) {
+            // find all <servlet-name> elements inside the current <servlet> element
+            Element servletElement = (Element) currElement;
+            NodeList nameElements = servletElement.getElementsByTagName("servlet-name");
+            if (nameElements.getLength() >= 1) {
+               String servletName = nameElements.item(0).getTextContent();
+               servletNames.add(servletName);
+            }
+         }
+      }
+
+      return servletNames;
    }
 
    private String getContextRoot(EnterpriseArchive ear, WebArchive war) throws DeploymentException {
@@ -1221,7 +1324,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          log.entering(className, "getDefaultProtocol");
       }
 
-      String defaultProtocol = "Servlet 3.0";
+      String defaultProtocol = "Servlet 5.0";
 
       if (log.isLoggable(Level.FINER)) {
          log.exiting(className, "getDefaultProtocol", defaultProtocol);
