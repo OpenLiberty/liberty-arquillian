@@ -1,6 +1,6 @@
 # Arquillian Liberty Server Containers [![Maven Central Latest](https://maven-badges.herokuapp.com/maven-central/io.openliberty.arquillian/arquillian-parent-liberty/badge.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22io.openliberty.arquillian%22%20AND%20a%3A%22arquillian-parent-liberty%22) [![Build Status](https://travis-ci.org/OpenLiberty/liberty-arquillian.svg?branch=master)](https://travis-ci.org/OpenLiberty/liberty-arquillian)
 
-[Arquillian](http://arquillian.org/) is a testing framework to develop automated functional, integration and acceptance tests for your Java applications. There are two types of Liberty `DeployableContainer` implementations; [Liberty Managed](#Arquillian-Liberty-Managed-Container) and [Liberty Remote](#Arquillian-Liberty-Remote-Container).
+[Arquillian](http://arquillian.org/) is a testing framework to develop automated functional, integration and acceptance tests for your Java applications. Arquillian container adapters allow Arquillian to bind to and manage the lifecycle of a runtime. There are two types of Arquillian container adapters for Liberty: [Liberty Managed](#Arquillian-Liberty-Managed-Container) and [Liberty Remote](#Arquillian-Liberty-Remote-Container).
 
 ### Arquillian Liberty Mangaged Container
 

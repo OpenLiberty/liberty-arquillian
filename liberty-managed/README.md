@@ -26,7 +26,7 @@ The following features are required in the `server.xml` of the Liberty server.
 
 Read more about configuring the `arquillian-support-1.0` feature [here](../liberty-support-feature/README.md).
 
-You will also need to enable the `applicationMonitor` MBean support:
+You will also need to enable the `applicationMonitor` MBean support in your `server.xml`:
 
 ```
 <applicationMonitor updateTrigger="mbean"/>

@@ -1,14 +1,14 @@
 # Arquillian support Liberty user feature
 
-A liberty user feature which allows deployment exceptions to be reported more reliably when using the liberty-managed container.
+A Liberty user feature which allows deployment exceptions to be reported more reliably when using the Liberty Managed container.
 
-The arquillian support feature adds an additional http endpoint which the arquillian container can query to determine the cause when an application fails to start.
+The Arquillian support feature adds an additional http endpoint which the Arquillian container can query to determine the cause when an application fails to start.
 
-It is only for supporting the running of arquillian tests and must not be installed on a production system.
+It is only for supporting the running of Arquillian tests and must not be installed on a production system.
 
 ## Usage
 
-1. Extract the arquillian-liberty-support-x.x.x-feature.zip into the `usr` directory of your liberty runtime
+1. Extract the arquillian-liberty-support-x.x.x-feature.zip into the `usr` directory of your Liberty runtime
 1. Add `<feature>usr:arquillian-support-1.0</feature>` to the `<featureManager>` section of your `server.xml`
 
 ## Maven usage
