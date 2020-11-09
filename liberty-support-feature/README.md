@@ -1,6 +1,6 @@
 # Arquillian support Liberty user feature
 
-A liberty user feature which allows deployment exceptions to be reported more reliably when using the liberty-managed container
+A liberty user feature which allows deployment exceptions to be reported more reliably when using the liberty-managed container.
 
 The arquillian support feature adds an additional http endpoint which the arquillian container can query to determine the cause when an application fails to start.
 
