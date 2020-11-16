@@ -1,21 +1,22 @@
-# Arquillian support Liberty user feature
+# Arquillian support Liberty user feature with Jakarta EE 9
 
-A Liberty user feature which allows deployment exceptions to be reported more reliably when using the Liberty Managed container.
+A Liberty user feature which allows deployment exceptions to be reported more reliably when using the Liberty Managed Jakarta container.
 
 The Arquillian support feature adds an additional http endpoint which the Arquillian container can query to determine the cause when an application fails to start.
 
 It is only for supporting the running of Arquillian tests and must not be installed on a production system.
 
-Requires Java EE 8 or below. For Jakarta EE 9 projects, check out the documentation [here](JakartaEE9_README.md).
+Requires Jakarta EE 9. For Java EE 8 projects and below, check out the documentation [here](README.md).
+
 
 ## Usage
 
-1. Extract the arquillian-liberty-support-x.x.x-feature.zip into the `usr` directory of your Liberty runtime
-1. Add `<feature>usr:arquillian-support-1.0</feature>` to the `<featureManager>` section of your `server.xml`
+1. Extract the arquillian-liberty-support-jakarta-x.x.x-feature.zip into the `usr` directory of your Liberty runtime
+1. Add `<feature>usr:arquillian-support-jakarta-2.0</feature>` to the `<featureManager>` section of your `server.xml`
 
 ## Maven usage
 
-You can install the arquillian-liberty-support feature as part of a maven build using the [maven-dependency-plugin:unpack goal](https://maven.apache.org/plugins/maven-dependency-plugin/unpack-mojo.html)
+You can install the arquillian-liberty-support-jakarta feature as part of a maven build using the [maven-dependency-plugin:unpack goal](https://maven.apache.org/plugins/maven-dependency-plugin/unpack-mojo.html)
 
 Example:
 
@@ -36,8 +37,8 @@ Example:
         <artifactItems>
           <artifactItem>
             <groupId>io.openliberty.arquillian</groupId>
-            <artifactId>arquillian-liberty-support</artifactId>
-            <version>1.0.4</version>
+            <artifactId>arquillian-liberty-support-jakarta</artifactId>
+            <version>2.0.0-M1</version>
             <type>zip</type>
             <classifier>feature</classifier>
             <overWrite>false</overWrite>

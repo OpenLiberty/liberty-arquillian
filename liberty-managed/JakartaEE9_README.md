@@ -1,14 +1,14 @@
-# Arquillian Liberty Managed
+# Arquillian Liberty Managed with Jakarta EE 9
 
-An Arquillian container adapter (`DeployableContainer` implementation) that can start and stop a local Liberty process and run tests on it over a remote protocol (effectively in a different JVM).
+An Arquillian container adapter (`DeployableContainer` implementation) that can start and stop a local Liberty process and run tests on it over a remote protocol (effectively in a different JVM). 
 
 ## Prerequisites
 
 **Prerequisite Version**
 
-This `DeployableContainer` has been tested with the latest two releases of Open Liberty and WebSphere Liberty. Requires Java EE 8 or below.
+This `DeployableContainer` has been tested with the latest beta release of Open Liberty. Requires Jakarta EE 9.
 
-For Jakarta EE 9 projects, check out the documentation [here](JakartaEE9_README.md).
+For Java EE 8 projects and below, check out the documentation [here](README.md).
 
 **Prerequisite Configuration**
 
@@ -17,14 +17,13 @@ The following features are required in the `server.xml` of the Liberty server.
 ```
 <!-- Enable features -->
 <featureManager>
-    <feature>jsp-2.3</feature>
+    <feature>jsp-3.0</feature>
     <feature>localConnector-1.0</feature>
-    <feature>j2eeManagement-1.1</feature> <!-- Optional, needed to allow injection on ArquillianResources related to servlets -->
-    <feature>usr:arquillian-support-1.0</feature> <!-- Optional, needed for reliable reporting of correct DeploymentExceptions -->
+    <feature>usr:arquillian-support-jakarta-2.0</feature> <!-- Optional, needed for reliable reporting of correct DeploymentExceptions -->
 </featureManager>
 ```
 
-Read more about configuring the `arquillian-support-1.0` feature [here](../liberty-support-feature/README.md).
+Read more about configuring the `arquillian-support-jakarta-2.0` feature [here](../liberty-support-feature/JakartaEE9_README.md).
 
 You will also need to enable the `applicationMonitor` MBean support in your `server.xml`:
 
@@ -32,11 +31,11 @@ You will also need to enable the `applicationMonitor` MBean support in your `ser
 <applicationMonitor updateTrigger="mbean"/>
 ```
 
-If you need a sample server.xml, please refer to the [one in our source repository](https://github.com/OpenLiberty/liberty-arquillian/blob/arquillian-parent-liberty-1.0.6/liberty-managed/src/test/resources/server.xml).
+If you need a sample server.xml, please refer to the [one in our source repository](https://github.com/OpenLiberty/liberty-arquillian/blob/master/liberty-managed/src/test/resources/server.xml).
 
 ## Configuration
 
-Default Protocol: Servlet 3.0
+Default Protocol: Servlet 5.0
 
 To enable Arquillian Liberty Managed in your project, add the following to your `pom.xml`:
 ```xml
@@ -45,7 +44,7 @@ To enable Arquillian Liberty Managed in your project, add the following to your 
 		<dependency>
 			<groupId>org.jboss.arquillian</groupId>
 			<artifactId>arquillian-bom</artifactId>
-			<version>1.4.0.Final</version>
+			<version>1.7.0.Alpha5</version>
 			<scope>import</scope>
 			<type>pom</type>
 		</dependency>
@@ -56,8 +55,8 @@ To enable Arquillian Liberty Managed in your project, add the following to your 
 	...
 	<dependency>
 		<groupId>io.openliberty.arquillian</groupId>
-		<artifactId>arquillian-liberty-managed</artifactId>
-		<version>1.0.6</version>
+		<artifactId>arquillian-liberty-managed-jakarta</artifactId>
+		<version>2.0.0-M1</version>
 		<scope>test</scope>
 	</dependency>
 	...
