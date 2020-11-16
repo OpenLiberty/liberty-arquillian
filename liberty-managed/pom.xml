@@ -4,8 +4,8 @@
   <!-- Parent -->
   <parent>
     <groupId>io.openliberty.arquillian</groupId>
-    <artifactId>arquillian-parent-liberty</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <artifactId>arquillian-parent-liberty-jakarta</artifactId>
+    <version>2.0.0-M1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -13,9 +13,9 @@
   <modelVersion>4.0.0</modelVersion>
   
   <!-- Artifact Configuration -->
-  <artifactId>arquillian-liberty-managed</artifactId>
-  <name>Arquillian Container Liberty Managed</name>
-  <description>Liberty Managed Container integration for the Arquillian Project</description>
+  <artifactId>arquillian-liberty-managed-jakarta</artifactId>
+  <name>Arquillian Container Liberty Jakarta Managed</name>
+  <description>Jakarta Liberty Managed Container integration for the Arquillian Project</description>
 
   <properties>
     <skipTests>false</skipTests>
@@ -132,7 +132,7 @@
               <artifactItems>
                 <artifactItem>
                   <groupId>${project.groupId}</groupId>
-                  <artifactId>arquillian-liberty-support</artifactId>
+                  <artifactId>arquillian-liberty-support-jakarta</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
                   <classifier>feature</classifier>
@@ -312,7 +312,7 @@
     
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>arquillian-liberty-support</artifactId>
+      <artifactId>arquillian-liberty-support-jakarta</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

@@ -28,7 +28,7 @@ import org.apache.http.client.utils.URIBuilder;
 /**
  * Tries to receive a serialized exception from the server
  * <p>
- * This relies on the liberty-support-feature being installed and running
+ * This relies on the liberty-support-jakarta-feature being installed and running
  * <p>
  * This is the best way to get the exception as it retains all of the exception
  * information from the server, including the stack trace, but will fail if any
@@ -42,7 +42,7 @@ public class SupportFeatureSerializedExceptionLocator implements DeploymentExcep
     
     public SupportFeatureSerializedExceptionLocator(String host, int port) {
         try {
-            uri = new URI("http", null, host, port, "/arquillian-support/deployment-exception", "format=serialize", null);
+            uri = new URI("http", null, host, port, "/arquillian-support-jakarta/deployment-exception", "format=serialize", null);
         } catch (URISyntaxException e) {
             // Shouldn't happen as most of the URI parts are hard coded
             throw new IllegalArgumentException("Invalid URI: " + e, e);
@@ -60,7 +60,7 @@ public class SupportFeatureSerializedExceptionLocator implements DeploymentExcep
             if (resp.getStatusLine().getStatusCode() == 400) {
                 log.warning("After " + appName + " failed to start, the server did not report an exception for that app");
             } else if (resp.getStatusLine().getStatusCode() != 200) {
-                log.info("Unable to recieve serialized exception from server, is usr:arquillian-support-1.0 installed?");
+                log.info("Unable to recieve serialized exception from server, is usr:arquillian-support-jakarta-2.0 installed?");
             } else {
                 try (InputStream inStream = resp.getEntity().getContent()) {
                     ObjectInputStream objStream = new ObjectInputStream(inStream);

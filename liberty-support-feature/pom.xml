@@ -4,8 +4,8 @@
   <!-- Parent -->
   <parent>
     <groupId>io.openliberty.arquillian</groupId>
-    <artifactId>arquillian-parent-liberty</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <artifactId>arquillian-parent-liberty-jakarta</artifactId>
+    <version>2.0.0-M1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -13,9 +13,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <!-- Artifact Configuration -->
-  <artifactId>arquillian-liberty-support</artifactId>
-  <name>Arquillian Container Liberty Support Feature</name>
-  <description>Liberty Feature to support integration for the Arquillian Project</description>
+  <artifactId>arquillian-liberty-support-jakarta</artifactId>
+  <name>Arquillian Container Liberty Support Jakarta Feature</name>
+  <description>Jakarta Liberty Feature to support integration for the Arquillian Project</description>
 
   <build>
     <plugins>
