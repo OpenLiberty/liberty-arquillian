@@ -35,7 +35,7 @@ import io.openliberty.arquillian.managed.exceptions.NestedExceptionBuilder.ExMsg
 /**
  * Tries to receive information about an exception from the server in text form
  * <p>
- * This relies on the liberty-support-feature being installed and running
+ * This relies on the liberty-support-jakarta-feature being installed and running
  * <p>
  * The text format expected from the server includes information about the
  * exception and its cause chain.
@@ -84,7 +84,7 @@ public class SupportFeatureTextExceptionLocator implements DeploymentExceptionLo
     
     public SupportFeatureTextExceptionLocator(String host, int port) {
         try {
-            uri = new URI("http", null, host, port, "/arquillian-support/deployment-exception", "format=text", null);
+            uri = new URI("http", null, host, port, "/arquillian-support-jakarta/deployment-exception", "format=text", null);
         } catch (URISyntaxException e) {
             // Shouldn't happen as most of the URI parts are hard coded
             throw new IllegalArgumentException("Invalid URI: " + e, e);
@@ -102,7 +102,7 @@ public class SupportFeatureTextExceptionLocator implements DeploymentExceptionLo
             if (resp.getStatusLine().getStatusCode() == 400) {
                 log.warning("After " + appName + " failed to start, the server did not report an exception for that app");
             } else if (resp.getStatusLine().getStatusCode() != 200) {
-                log.info("Unable to recieve text format exception from server, is usr:arquillian-support-1.0?");
+                log.info("Unable to recieve text format exception from server, is usr:arquillian-support-jakarta-2.0 installed?");
             } else {
                 log.finer("Reading exception returned from server");
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(resp.getEntity().getContent(), StandardCharsets.UTF_8))) {

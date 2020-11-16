@@ -2,15 +2,15 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.openliberty.arquillian</groupId>
-    <artifactId>arquillian-parent-liberty</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <artifactId>arquillian-parent-liberty-jakarta</artifactId>
+    <version>2.0.0-M1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <artifactId>arquillian-liberty-remote</artifactId>
+  <artifactId>arquillian-liberty-remote-jakarta</artifactId>
 
   <!-- Artifact Configuration -->
-  <name>Arquillian Container Liberty Remote</name>
-  <description>Liberty Remote Container integration for the Arquillian Project</description>
+  <name>Arquillian Container Liberty Jakarta Remote</name>
+  <description>Jakarta Liberty Remote Container integration for the Arquillian Project</description>
 
   <properties>
     <skipTests>false</skipTests>

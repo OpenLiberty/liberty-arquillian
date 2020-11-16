@@ -1,4 +1,4 @@
-Web-ContextPath: arquillian-support
+Web-ContextPath: arquillian-support-jakarta
 Import-Package: jakarta.servlet.*; version="5.0", \
   com.ibm.ws.container.service.app.deploy; version="[1.0, 3)", \
   *

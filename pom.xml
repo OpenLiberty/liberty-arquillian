@@ -14,11 +14,11 @@
 
   <!-- Artifact Configuration -->
   <groupId>io.openliberty.arquillian</groupId>
-  <artifactId>arquillian-parent-liberty</artifactId>
-  <version>1.0.7-SNAPSHOT</version>
+  <artifactId>arquillian-parent-liberty-jakarta</artifactId>
+  <version>2.0.0-M1</version>
   <packaging>pom</packaging>
-  <name>Arquillian Container Liberty Parent</name>
-  <description>Liberty Container integrations for the Arquillian Project</description>
+  <name>Arquillian Container Liberty Jakarta Parent</name>
+  <description>Jakarta Liberty Container integrations for the Arquillian Project</description>
 
   <licenses>
     <license>
@@ -38,7 +38,7 @@
   <!-- Properties -->
   <properties>
     <!-- Versioning -->
-    <version.arquillian_core>1.7.0.Alpha3</version.arquillian_core>
+    <version.arquillian_core>1.7.0.Alpha5</version.arquillian_core>
     <version.surefire.plugin>2.21.0</version.surefire.plugin>
 
     <!-- override from parent -->
