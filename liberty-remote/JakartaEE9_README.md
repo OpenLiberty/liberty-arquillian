@@ -46,6 +46,32 @@ If you need a sample `server.xml`, please refer to the [one in our source reposi
 
 Default Protocol: Servlet 5.0
 
+To enable Arquillian Liberty Remote in your project, add the following to your `pom.xml`:
+```xml
+<dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.jboss.arquillian</groupId>
+			<artifactId>arquillian-bom</artifactId>
+			<version>1.7.0.Alpha5</version>
+			<scope>import</scope>
+			<type>pom</type>
+		</dependency>
+	</dependencies>
+</dependencyManagement>
+
+<dependencies>
+	...
+	<dependency>
+		<groupId>io.openliberty.arquillian</groupId>
+		<artifactId>arquillian-liberty-remote-jakarta</artifactId>
+		<version>2.0.0-M1</version>
+		<scope>test</scope>
+	</dependency>
+	...
+</dependencies>
+```
+
 **Container Configuration Options**
 
 | Name | Type | Default | Description |
@@ -89,15 +115,14 @@ xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/a
 ```
 
 ### Example of Maven profile setup
-
 ```
 <profile>
 	<id>liberty-remote</id>
 	<dependencies>
 		<dependency>
 			<groupId>io.openliberty.arquillian</groupId>
-			<artifactId>arquillian-liberty-remote</artifactId>
-			<version>1.0.0</version>
+			<artifactId>arquillian-liberty-remote-jakarta</artifactId>
+			<version>2.0.0-M1</version>
 		</dependency>
 	</dependencies>
 </profile>

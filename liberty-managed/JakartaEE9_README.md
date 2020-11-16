@@ -19,11 +19,11 @@ The following features are required in the `server.xml` of the Liberty server.
 <featureManager>
     <feature>jsp-3.0</feature>
     <feature>localConnector-1.0</feature>
-    <feature>usr:arquillian-support-1.0</feature> <!-- Optional, needed for reliable reporting of correct DeploymentExceptions -->
+    <feature>usr:arquillian-support-jakarta-2.0</feature> <!-- Optional, needed for reliable reporting of correct DeploymentExceptions -->
 </featureManager>
 ```
 
-Read more about configuring the `arquillian-support-1.0` feature [here](../liberty-support-feature/README.md).
+Read more about configuring the `arquillian-support-jakarta-2.0` feature [here](../liberty-support-feature/JakartaEE9_README.md).
 
 You will also need to enable the `applicationMonitor` MBean support in your `server.xml`:
 
@@ -44,7 +44,7 @@ To enable Arquillian Liberty Managed in your project, add the following to your 
 		<dependency>
 			<groupId>org.jboss.arquillian</groupId>
 			<artifactId>arquillian-bom</artifactId>
-			<version>1.7.0.Alpha3</version>
+			<version>1.7.0.Alpha5</version>
 			<scope>import</scope>
 			<type>pom</type>
 		</dependency>
@@ -55,8 +55,8 @@ To enable Arquillian Liberty Managed in your project, add the following to your 
 	...
 	<dependency>
 		<groupId>io.openliberty.arquillian</groupId>
-		<artifactId>arquillian-liberty-managed</artifactId>
-		<version>1.0.7-SNAPSHOT</version>
+		<artifactId>arquillian-liberty-managed-jakarta</artifactId>
+		<version>2.0.0-M1</version>
 		<scope>test</scope>
 	</dependency>
 	...
