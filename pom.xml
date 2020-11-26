@@ -119,7 +119,7 @@
         <runtime>ol</runtime>
         <runtimeGroupId>io.openliberty.beta</runtimeGroupId>
         <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
-        <runtimeVersion>20.0.0.11-beta</runtimeVersion>
+        <runtimeVersion>21.0.0.1-beta</runtimeVersion>
       </properties>
     </profile>
   </profiles>

@@ -17,7 +17,7 @@ The following features are required in the `server.xml` of the Liberty server.
 ```
 <!-- Enable features -->
 <featureManager>
-    <feature>jsp-3.0</feature>
+    <feature>pages-3.0</feature>
     <feature>restConnector-2.0</feature>
 </featureManager>
 ```
