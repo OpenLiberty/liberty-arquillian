@@ -6,6 +6,6 @@ jdk:
     - openjdk9
     - oraclejdk11
 env:
-    - RUNTIME=ol RUNTIME_VERSION=20.0.0.11-beta
+    - RUNTIME=ol RUNTIME_VERSION=21.0.0.1-beta
 script:
 - travis_wait mvn verify -Druntime=$RUNTIME -DruntimeVersion=$RUNTIME_VERSION

@@ -3,7 +3,7 @@
 
     <!-- Enable features -->
     <featureManager>
-        <feature>jsp-3.0</feature>
+        <feature>pages-3.0</feature>
         <feature>localConnector-1.0</feature>
         <feature>cdi-3.0</feature>
         <feature>jndi-1.0</feature>
