@@ -191,7 +191,8 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
             serviceURL = getVMLocalConnectorAddress(wlpvm);
             if (serviceURL == null)
-               throw new LifecycleException("Unable to retrieve connector address for localConnector");
+               throw new LifecycleException("Unable to retrieve connector address for localConnector."
+                     + "Ensure the `localConnector-1.0` feature is included in the server.xml and installed correctly");
          } else {
 
             if (containerConfiguration.isAddLocalConnector()) {
@@ -278,8 +279,10 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
             // If serviceURL is still null, we were unable to start the virtual machine
             if (serviceURL == null)
-               throw new LifecycleException("Unable to retrieve connector address for localConnector of started VM. vmid: " + vmid + " connectedVM: " + wlpvm);
-
+               throw new LifecycleException(
+                     "Unable to retrieve connector address for localConnector of started VM. vmid: " + vmid
+                           + " connectedVM: " + wlpvm
+                           + ". Ensure the `localConnector-1.0` feature is included in the server.xml and installed correctly");
             log.finer("vmid: " + vmid);
          }
       } catch (Exception e) {
