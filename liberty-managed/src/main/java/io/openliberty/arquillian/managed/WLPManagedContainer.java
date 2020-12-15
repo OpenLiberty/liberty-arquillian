@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -661,8 +660,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
     * the WEB-INF/lib direcotry. Detects servlets if defined in the web.xml or
     * annotated with @WebServlet.
     */
-   private void getServletNames(Archive archive, List<String> servletNames)
-         throws DeploymentException {
+   private void getServletNames(Archive archive, List<String> servletNames) throws DeploymentException {
       try {
          Map<ArchivePath, org.jboss.shrinkwrap.api.Node> content = archive.getContent();
          for (ArchivePath key : content.keySet()) {
@@ -676,57 +674,43 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                getServletNames(archiveAsset.getArchive(), servletNames);
             }
 
+            // some classes are registered as ClassLoaderAssets or ByteArrayAssets
             if (node.getAsset() != null
                   && (node.getAsset() instanceof ClassLoaderAsset || node.getAsset() instanceof ByteArrayAsset)
                   && key.get().endsWith(".class")) {
                byte[] ba = null;
-               if (node.getAsset() instanceof ClassLoaderAsset) {
-                  ByteClassLoader loader = new ByteClassLoader();
 
-                  // if (key.get().endsWith("Servlet.class")) {
-                  if (key.get().contains("WEB-INF")) {
-
+               try {
+                  // only load ClassLoaderAssets from WEB-INF dir to avoid excessive class loading
+                  if (node.getAsset() instanceof ClassLoaderAsset && key.get().contains("WEB-INF")) {
                      ClassLoaderAsset classLoaderAsset = (ClassLoaderAsset) node.getAsset();
                      InputStream inputStream = classLoaderAsset.openStream();
                      ba = IOUtils.toByteArray(inputStream);
                      inputStream.close();
-                     try {
 
-                        Class<?> c = loader.defineClass(null, ba);
-                        String name = getServletNameFromAnnotation(c);
-                        if (name != null) {
-                           servletNames.add(name);
-                        }
-                        loader = null;
-                        ba = null;
-                        c = null;
-                        inputStream = null;
-                        name = null;
-                     } catch (IllegalAccessError e) {
-                        // cannot get access to the class associated with the ClassLoader Asset
-                        // do nothing
-                     }
-
+                  } else if (node.getAsset() instanceof ByteArrayAsset) {
+                     ByteArrayAsset byteArrayAsset = (ByteArrayAsset) node.getAsset();
+                     ba = byteArrayAsset.getSource();
                   }
 
-               } else if (node.getAsset() instanceof ByteArrayAsset) {
-                  ByteArrayAsset byteArrayAsset = (ByteArrayAsset) node.getAsset();
-                  ba = byteArrayAsset.getSource();
-                  try {
+                  if (ba != null) {
                      ByteClassLoader loader = new ByteClassLoader();
                      Class<?> c = loader.defineClass(null, ba);
                      String name = getServletNameFromAnnotation(c);
                      if (name != null) {
                         servletNames.add(name);
                      }
-                  } catch (IllegalAccessError e) {
-                     // cannot get access to the class associated with the ClassLoader Asset
-                     // do nothing
+                     loader = null;
+                     ba = null;
+                     c = null;
                   }
+               } catch (IllegalAccessError | IOException | NoClassDefFoundError e) {
+                  // cannot get access to the class associated with the ClassLoader Asset
+                  // do nothing
                }
             }
 
-            // if asset is a class 
+            // if asset is a class
             if (node.getAsset() != null && node.getAsset() instanceof ClassAsset) {
                ClassAsset classAsset = (ClassAsset) node.getAsset();
                Class<?> c = classAsset.getSource();
@@ -764,21 +748,14 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          if (webServlet != null) {
             if (webServlet.name() != null && !webServlet.name().isEmpty()) {
                // use name property set in @WebServlet
-               String name = webServlet.name();
-               webServlet = null;
-               return name;
+               return webServlet.name();
             } else {
-               String simpleName = c.getSimpleName();
-               c = null;
-               webServlet = null;
-               return simpleName;
                // default: use class name
-               // return c.getSimpleName();
+               return c.getSimpleName();
             }
          }
          return null;
       } catch (Exception e) {
-         // c = null;
          throw new DeploymentException(
                "Error trying to resolve servlet name from jakarta.servlet.annotation.WebServlet annotation", e);
       }
