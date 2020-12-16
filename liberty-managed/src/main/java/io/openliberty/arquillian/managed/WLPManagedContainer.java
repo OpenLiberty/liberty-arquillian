@@ -68,6 +68,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.io.IOUtils;
 import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
@@ -83,6 +84,7 @@ import org.jboss.shrinkwrap.api.Filters;
 import org.jboss.shrinkwrap.api.asset.ArchiveAsset;
 import org.jboss.shrinkwrap.api.asset.ByteArrayAsset;
 import org.jboss.shrinkwrap.api.asset.ClassAsset;
+import org.jboss.shrinkwrap.api.asset.ClassLoaderAsset;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -665,25 +667,50 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             org.jboss.shrinkwrap.api.Node node = content.get(key);
             // want to scan all libraries in web-inf/lib
             boolean isWebINF = node.getPath().get().startsWith("/WEB-INF/lib");
+
             if (node.getAsset() != null && node.getAsset() instanceof ArchiveAsset && isWebINF) {
                ArchiveAsset archiveAsset = (ArchiveAsset) node.getAsset();
                // recursively search web archives within the web-inf/lib directory
                getServletNames(archiveAsset.getArchive(), servletNames);
             }
-            // if asset is a bytearray of a class 
-            if (node.getAsset() != null && node.getAsset() instanceof ByteArrayAsset) {
-               if (key.get().endsWith(".class")) {
-                  ByteArrayAsset byteArrayAsset = (ByteArrayAsset) node.getAsset();
-                  byte[] ba = byteArrayAsset.getSource();
-                  ByteClassLoader loader = new ByteClassLoader();
-                  Class<?> c = loader.defineClass(null, ba);
-                  String name = getServletNameFromAnnotation(c);
-                  if (name != null) {
-                     servletNames.add(name);
-                  }                  
+
+            // some classes are registered as ClassLoaderAssets or ByteArrayAssets
+            if (node.getAsset() != null
+                  && (node.getAsset() instanceof ClassLoaderAsset || node.getAsset() instanceof ByteArrayAsset)
+                  && key.get().endsWith(".class")) {
+               byte[] ba = null;
+
+               try {
+                  // only load ClassLoaderAssets from WEB-INF dir to avoid excessive class loading
+                  if (node.getAsset() instanceof ClassLoaderAsset && key.get().contains("WEB-INF")) {
+                     ClassLoaderAsset classLoaderAsset = (ClassLoaderAsset) node.getAsset();
+                     InputStream inputStream = classLoaderAsset.openStream();
+                     ba = IOUtils.toByteArray(inputStream);
+                     inputStream.close();
+
+                  } else if (node.getAsset() instanceof ByteArrayAsset) {
+                     ByteArrayAsset byteArrayAsset = (ByteArrayAsset) node.getAsset();
+                     ba = byteArrayAsset.getSource();
+                  }
+
+                  if (ba != null) {
+                     ByteClassLoader loader = new ByteClassLoader();
+                     Class<?> c = loader.defineClass(null, ba);
+                     String name = getServletNameFromAnnotation(c);
+                     if (name != null) {
+                        servletNames.add(name);
+                     }
+                     loader = null;
+                     ba = null;
+                     c = null;
+                  }
+               } catch (IllegalAccessError | IOException | NoClassDefFoundError e) {
+                  // cannot get access to the class associated with the ClassLoader Asset
+                  // do nothing
                }
             }
-            // if asset is a class 
+
+            // if asset is a class
             if (node.getAsset() != null && node.getAsset() instanceof ClassAsset) {
                ClassAsset classAsset = (ClassAsset) node.getAsset();
                Class<?> c = classAsset.getSource();
@@ -798,8 +825,6 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
        }
        return createDeploymentName(war.getName());
    }
-
-
 
 	private static void closeQuietly(Closeable closable) {
 		try {
