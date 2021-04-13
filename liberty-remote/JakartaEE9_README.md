@@ -53,7 +53,7 @@ To enable Arquillian Liberty Remote in your project, add the following to your `
 		<dependency>
 			<groupId>org.jboss.arquillian</groupId>
 			<artifactId>arquillian-bom</artifactId>
-			<version>1.7.0.Alpha5</version>
+			<version>1.7.0.Alpha9</version>
 			<scope>import</scope>
 			<type>pom</type>
 		</dependency>
@@ -65,7 +65,7 @@ To enable Arquillian Liberty Remote in your project, add the following to your `
 	<dependency>
 		<groupId>io.openliberty.arquillian</groupId>
 		<artifactId>arquillian-liberty-remote-jakarta</artifactId>
-		<version>2.0.0-M1</version>
+		<version>2.0.0</version>
 		<scope>test</scope>
 	</dependency>
 	...
@@ -122,7 +122,7 @@ xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/a
 		<dependency>
 			<groupId>io.openliberty.arquillian</groupId>
 			<artifactId>arquillian-liberty-remote-jakarta</artifactId>
-			<version>2.0.0-M1</version>
+			<version>2.0.0</version>
 		</dependency>
 	</dependencies>
 </profile>

@@ -15,7 +15,7 @@
   <!-- Artifact Configuration -->
   <groupId>io.openliberty.arquillian</groupId>
   <artifactId>arquillian-parent-liberty-jakarta</artifactId>
-  <version>2.0.0-M2-SNAPSHOT</version>
+  <version>2.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Arquillian Container Liberty Jakarta Parent</name>
   <description>Jakarta Liberty Container integrations for the Arquillian Project</description>
@@ -38,8 +38,8 @@
   <!-- Properties -->
   <properties>
     <!-- Versioning -->
-    <version.arquillian_core>1.7.0.Alpha5</version.arquillian_core>
-    <version.surefire.plugin>2.21.0</version.surefire.plugin>
+    <version.arquillian_core>1.7.0.Alpha9</version.arquillian_core>
+    <version.surefire.plugin>2.22.2</version.surefire.plugin>
 
     <!-- override from parent -->
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -119,7 +119,7 @@
         <runtime>ol</runtime>
         <runtimeGroupId>io.openliberty.beta</runtimeGroupId>
         <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
-        <runtimeVersion>21.0.0.1-beta</runtimeVersion>
+        <runtimeVersion>21.0.0.4-beta</runtimeVersion>
       </properties>
     </profile>
   </profiles>
