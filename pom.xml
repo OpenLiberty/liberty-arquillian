@@ -76,7 +76,8 @@
 
   <!-- Profiles for WLP vs OL -->
   <profiles>
-    <profile>
+    <!-- Commented out as there is not currently support for Jakarta EE 9 in WL-->
+    <!-- <profile>
       <id>wlp-its</id>
       <activation>
           <property>
@@ -90,7 +91,7 @@
           <runtimeArtifactId>wlp-javaee7</runtimeArtifactId>
           <runtimeVersion>${runtimeVersion}</runtimeVersion>
       </properties>
-    </profile>
+    </profile> -->
     <profile>
       <id>ol-its</id>
       <activation>
