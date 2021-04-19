@@ -14,7 +14,7 @@
 
   <properties>
     <skipTests>false</skipTests>
-    <version.jackson>[2.9.10,)</version.jackson>
+    <version.jackson>2.12.3</version.jackson>
     <version.apache.fluent.hc>4.5.6</version.apache.fluent.hc>
     <loggingPropertiesFile>${basedir}/src/test/resources/logging.properties</loggingPropertiesFile>
   </properties>
@@ -86,24 +86,28 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
-        <version>1.2</version>
+        <version>3.3.4</version>
         <executions>
           <execution>
             <id>start-server</id>
             <!-- Plugin execution needs to be bound to previous phase.
                  Because Maven. See MNG-5799 and MNG-5987 -->
             <phase>process-test-classes</phase>
+            <configuration>
+                <serverName>defaultServer</serverName>
+                <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
+            </configuration>
             <goals>
-              <goal>start-server</goal>
+              <goal>start</goal>
             </goals>
           </execution>
           <execution>
             <id>stop-server</id>
             <phase>test</phase>
             <goals>
-              <goal>stop-server</goal>
+              <goal>stop</goal>
             </goals>
           </execution>
         </executions>

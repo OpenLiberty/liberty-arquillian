@@ -70,9 +70,9 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
-        <version>2.6.4</version>
+        <version>3.3.4</version>
         <configuration>
           <skip>${skipTests}</skip>
           <serverName>defaultServer</serverName>
@@ -91,8 +91,12 @@
                  execution id of the test is not 'default-test'.
                  Because Maven. See MNG-5799 and MNG-5987 -->
                  <phase>test</phase>
+                 <configuration>
+                  <serverName>defaultServer</serverName>
+                  <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
+                </configuration>
                  <goals>
-                  <goal>create-server</goal>
+                  <goal>create</goal>
                 </goals>
               </execution>
               <execution>
@@ -103,10 +107,10 @@
                  <phase>test</phase>
                  <configuration>
                   <serverName>managementServer</serverName>
-                  <configFile>src/test/resources/server-with-management.xml</configFile>
+                  <serverXmlFile>src/test/resources/server-with-management.xml</serverXmlFile>
                 </configuration>
                 <goals>
-                  <goal>create-server</goal>
+                  <goal>create</goal>
                 </goals>
               </execution>
             </executions>
