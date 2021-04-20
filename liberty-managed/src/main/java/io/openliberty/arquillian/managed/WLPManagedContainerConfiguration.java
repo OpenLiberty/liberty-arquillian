@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, 2018, IBM Corporation, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2012, 2021, IBM Corporation, Red Hat Middleware LLC, and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -75,7 +75,9 @@ public class WLPManagedContainerConfiguration implements
       }
 
       // Validate serverName
-      if (!serverName.matches("^[A-Za-z][A-Za-z0-9]*$"))
+      // Use only Unicode alphanumeric (e.g. 0-9, a-z, A-Z), underscore (_), dash (-), plus (+), and period (.) characters.
+      // Do not begin with a dash (-) or a period (.).
+      if (!serverName.matches("^[A-Za-z0-9\\+_][A-Za-z0-9\\+_\\.-]*$"))
          throw new ConfigurationException("serverName provided is not valid: '" + serverName + "'");
 
       // Validate httpPort
