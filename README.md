@@ -1,8 +1,8 @@
-# Arquillian Liberty Server Containers [![Maven Central Latest](https://maven-badges.herokuapp.com/maven-central/io.openliberty.arquillian/arquillian-parent-liberty/badge.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22io.openliberty.arquillian%22%20AND%20a%3A%22arquillian-parent-liberty%22) [![Build Status](https://travis-ci.org/OpenLiberty/liberty-arquillian.svg?branch=master)](https://travis-ci.org/OpenLiberty/liberty-arquillian)
+# Arquillian Liberty Server Containers [![Maven Central Latest](https://maven-badges.herokuapp.com/maven-central/io.openliberty.arquillian/arquillian-parent-liberty/badge.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22io.openliberty.arquillian%22%20AND%20a%3A%22arquillian-parent-liberty%22) [![Build Status 1.x](https://github.com/OpenLiberty/liberty-arquillian/actions/workflows/maven.yml/badge.svg?branch=1.x-maintenance)](https://github.com/OpenLiberty/liberty-arquillian/actions?branch=1.x-maintenance)
 
-For Arquillian Liberty Managed container documentation, click [here](https://github.com/OpenLiberty/liberty-arquillian/tree/master/liberty-managed/README.md).
+For Arquillian Liberty Managed container documentation, click [here](https://github.com/OpenLiberty/liberty-arquillian/tree/main/liberty-managed/README.md).
 
-For Arquillian Liberty Remote container documentation, click [here](https://github.com/OpenLiberty/liberty-arquillian/tree/master/liberty-remote/README.md).
+For Arquillian Liberty Remote container documentation, click [here](https://github.com/OpenLiberty/liberty-arquillian/tree/main/liberty-remote/README.md).
 
 ### Testing
 

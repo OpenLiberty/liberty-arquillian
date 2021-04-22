@@ -38,7 +38,7 @@ the remote container adapter relies on this configuration -->
 </remoteFileAccess>
 ````
 
-If you need a sample `server.xml`, please refer to the [one in our source repository](https://github.com/OpenLiberty/liberty-arquillian/blob/master/liberty-remote/src/test/resources/server.xml).
+If you need a sample `server.xml`, please refer to the [one in our source repository](https://github.com/OpenLiberty/liberty-arquillian/blob/main/liberty-remote/src/test/resources/server.xml).
 
 ## Configuration
 
