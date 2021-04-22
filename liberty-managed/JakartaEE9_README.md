@@ -31,7 +31,7 @@ You will also need to enable the `applicationMonitor` MBean support in your `ser
 <applicationMonitor updateTrigger="mbean"/>
 ```
 
-If you need a sample server.xml, please refer to the [one in our source repository](https://github.com/OpenLiberty/liberty-arquillian/blob/master/liberty-managed/src/test/resources/server.xml).
+If you need a sample server.xml, please refer to the [one in our source repository](https://github.com/OpenLiberty/liberty-arquillian/blob/main/liberty-managed/src/test/resources/server.xml).
 
 ## Configuration
 
