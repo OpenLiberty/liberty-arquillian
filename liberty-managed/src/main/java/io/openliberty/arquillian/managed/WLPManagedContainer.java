@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, 2020, IBM Corporation, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2012, 2021, IBM Corporation, Red Hat Middleware LLC, and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -355,6 +355,14 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
      */
     private Thread getShutDownThread(final List<String> cmd) {
        final ProcessBuilder shutDownProcessBuilder = new ProcessBuilder(cmd);
+
+       try {
+          if (containerConfiguration.getUsrDir() != null) {
+             shutDownProcessBuilder.environment().put(WLP_USER_DIR, new File(containerConfiguration.getUsrDir()).getCanonicalPath());
+          }
+       } catch (IOException e) {
+          log.finer("Failed to set WLP_USER_DIR for shut-down shell command.");
+       }
 
        return new Thread(new Runnable() {
             @Override
@@ -1296,6 +1304,15 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          // First run "server stop"
          ProcessBuilder stopProcessBuilder = new ProcessBuilder(getServerCommand(CommandType.STOP));
          stopProcessBuilder.redirectErrorStream(true);
+
+         try {
+            if (containerConfiguration.getUsrDir() != null) {
+               stopProcessBuilder.environment().put(WLP_USER_DIR, new File(containerConfiguration.getUsrDir()).getCanonicalPath());
+            }
+         } catch (IOException e) {
+            throw new LifecycleException("Failed to run server stop command", e);
+         }
+
          try {
             Process stopProcess = stopProcessBuilder.start();
             new Thread(new ConsoleConsumer(stopProcess)).start();
