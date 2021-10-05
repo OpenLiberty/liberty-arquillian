@@ -665,7 +665,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    /**
     * Recursively search for servlets within the Web Archive and add servlet names.
     * Only searches for classes within the war file and recursively searches within
-    * the WEB-INF/lib direcotry. Detects servlets if defined in the web.xml or
+    * the WEB-INF/lib directory. Detects servlets if defined in the web.xml or
     * annotated with @WebServlet.
     */
    private void getServletNames(Archive archive, List<String> servletNames) throws DeploymentException {
@@ -702,8 +702,10 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                   }
 
                   if (ba != null) {
-                     ByteClassLoader loader = new ByteClassLoader();
-                     Class<?> c = loader.defineClass(null, ba);
+                     // try to load byte array with system class loader as parent classloader
+                     ByteClassLoader loader = new ByteClassLoader(ClassLoader.getSystemClassLoader(), ba);
+                     Class<?> c = loader.findClass(null);
+
                      String name = getServletNameFromAnnotation(c);
                      if (name != null) {
                         servletNames.add(name);
@@ -712,9 +714,11 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                      ba = null;
                      c = null;
                   }
-               } catch (IllegalAccessError | IOException | NoClassDefFoundError e) {
-                  // cannot get access to the class associated with the ClassLoader Asset
+               } catch (IOException | IndexOutOfBoundsException | LinkageError e) {
+                  // cannot get access to the class associated with the ClassLoaderAsset or
+                  // ByteArrayAsset
                   // do nothing
+                  log.warning("Failed to resolve servlet names for:" + key.get() + ". " + e.getMessage());
                }
             }
 

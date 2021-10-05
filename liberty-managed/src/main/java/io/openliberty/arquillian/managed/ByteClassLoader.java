@@ -1,5 +1,5 @@
 /*
- * Copyright 2020, IBM Corporation and individual contributors
+ * Copyright 2020, 2021 IBM Corporation and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +17,19 @@ package io.openliberty.arquillian.managed;
 // Loads a class from a byte array
 public class ByteClassLoader extends ClassLoader {
 
-    public Class<?> defineClass(String name, byte[] ba) throws IllegalAccessError {
-        return defineClass(name, ba, 0, ba.length);
+    private final byte[] ba;
+
+    public ByteClassLoader(ClassLoader parent, byte[] ba) {
+        super(parent);
+        this.ba = ba;
+    }
+
+    @Override
+    protected Class<?> findClass(final String simpleName) throws ClassNotFoundException {
+        if (this.ba != null) {
+            return defineClass(simpleName, this.ba, 0, this.ba.length);
+        }
+        return super.findClass(simpleName);
     }
 
 }
