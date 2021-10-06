@@ -718,7 +718,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
                   // cannot get access to the class associated with the ClassLoaderAsset or
                   // ByteArrayAsset
                   // do nothing
-                  log.warning("Failed to resolve servlet names for:" + key.get() + ". " + e.getMessage());
+                  log.warning("Failed to resolve servlet names for:" + key.get() + ". " + e.toString());
                }
             }
 
