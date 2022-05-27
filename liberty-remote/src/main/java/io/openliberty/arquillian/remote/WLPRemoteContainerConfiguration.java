@@ -42,6 +42,7 @@ public class WLPRemoteContainerConfiguration implements ContainerConfiguration {
     private String hostName;
     private int httpPort = 9080;
     private int httpsPort = 9443;
+    private boolean disableHostnameVerification = false;
     private boolean outputToConsole = true;
 
     @Override
@@ -148,4 +149,11 @@ public class WLPRemoteContainerConfiguration implements ContainerConfiguration {
         this.httpsPort = httpsPort;
     }
 
+    public boolean isDisableHostnameVerification() {
+        return disableHostnameVerification;
+    }
+
+    public void setDisableHostnameVerification(boolean disableHostnameVerification) {
+        this.disableHostnameVerification = disableHostnameVerification;
+    }
 }
