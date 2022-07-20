@@ -118,9 +118,9 @@
       </activation>
       <properties>
         <runtime>ol</runtime>
-        <runtimeGroupId>io.openliberty.beta</runtimeGroupId>
+        <runtimeGroupId>io.openliberty</runtimeGroupId>
         <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
-        <runtimeVersion>21.0.0.4-beta</runtimeVersion>
+        <runtimeVersion>22.0.0.6</runtimeVersion>
       </properties>
     </profile>
   </profiles>

@@ -1,8 +1,7 @@
 IBM-Feature-Version: 2
 IBM-ShortName: arquillian-support-jakarta-2.0
 Subsystem-Content: arquillian-liberty-support-jakarta; version=${parsedVersion.osgiVersion},
- com.ibm.wsspi.appserver.webBundle-1.0; type="osgi.subsystem.feature",
- com.ibm.websphere.appserver.servlet-5.0; ibm.tolerates:="5.0,6.0"; type="osgi.subsystem.feature"
+ com.ibm.websphere.appserver.localConnector-1.0; type="osgi.subsystem.feature"
 Subsystem-Description: Jakarta Liberty Feature to support integration for the Arquillian Project
 Subsystem-ManifestVersion: 1
 Subsystem-Name: Arquillian Support Jakarta Feature
