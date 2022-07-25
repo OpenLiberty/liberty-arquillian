@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, IBM Corporation, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2018, 2022 IBM Corporation, Red Hat Middleware LLC, and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,25 +14,23 @@
  */
 package io.openliberty.arquillian.support;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.management.MBeanException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.StandardMBean;
 
 import io.openliberty.arquillian.support.IncidentListener.ExceptionInfo;
 
-@WebServlet("/deployment-exception")
-public class DeploymentExceptionServlet extends HttpServlet {
+public class DeploymentExceptionMBeanImpl extends StandardMBean implements DeploymentExceptionMBean {
 
-    private static final long serialVersionUID = 1L;
     private static final Set<Class<?>> topClasses = new HashSet<>();
     static {
         topClasses.add(Object.class);
@@ -41,72 +39,64 @@ public class DeploymentExceptionServlet extends HttpServlet {
         topClasses.add(Error.class);
         topClasses.add(RuntimeException.class);
     }
-    
+
+    private final IncidentListener listener;
+
+    DeploymentExceptionMBeanImpl(IncidentListener listener) throws NotCompliantMBeanException {
+        super(DeploymentExceptionMBean.class);
+        this.listener = listener;
+    }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        IncidentListener listener = getIncidentListener(req);
-        
-        resp.setContentType("text/plain;charset=UTF-8");
+    public Object[] getDeploymentException(String appName, String format) throws MBeanException {
+
         ExceptionInfo ex = listener.getLastException();
         
-        String appName = req.getParameter("appName");
-        
         if (appName == null) {
-            resp.setStatus(400);
-            resp.getWriter().println("No appName given");
-            return;
+            return new Object[] { Integer.valueOf(400), "No appName given" };
         }
-        
+
         if (ex == null) {
-            resp.setStatus(400);
-            resp.getWriter().println("No exception logged");
-            return;
+            return new Object[] { Integer.valueOf(400), "No exception logged" };
         }
-        
+
         if (!appName.equals(ex.getAppName())) {
-            resp.setStatus(400);;
-            resp.getWriter().println("Last exception was not thrown by the requested app");
-            return;
+            return new Object[] { Integer.valueOf(400), "Last exception was not thrown by the requested app" };
         }
-        
-        String format = req.getParameter("format");
+
         if (format == null) {
-            resp.setStatus(400);
-            resp.getWriter().println("Format parameter not set");
+            return new Object[] { Integer.valueOf(400), "Format parameter not set" };
         } else if (format.equals("text")) {
-            printText(resp.getWriter(), ex.getException());
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            printText(pw, ex.getException());
+            pw.flush();
+            return new Object[] { Integer.valueOf(200), sw.toString() };
         } else if (format.equals("stack")) {
-            ex.getException().printStackTrace(resp.getWriter());
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.getException().printStackTrace(pw);
+            pw.flush();
+            return new Object[] { Integer.valueOf(200), sw.toString() };
         } else if (format.equals("serialize")) {
-            resp.setContentType("application/java-serialized-object");
-            try (ObjectOutputStream oos = new ObjectOutputStream(resp.getOutputStream())) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
                 oos.writeObject(ex.getException());
+                oos.flush();
+                return new Object[] { Integer.valueOf(200), baos.toByteArray() };
+            } catch (IOException io) {
+                throw new MBeanException(io);
             }
         } else {
-            resp.setStatus(400);
-            resp.getWriter().println("Invalid format requested");
+            return new Object[] { Integer.valueOf(400), "Invalid format requested" };
         }
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if ("true".equalsIgnoreCase(req.getParameter("clear"))) {
-            getIncidentListener(req).clear();
-        } else {
-            throw new ServletException("Invalid command");
-        }
+    public void clear() {
+        listener.clear();
     }
 
-    private IncidentListener getIncidentListener(HttpServletRequest req) {
-        ServletContext context = req.getServletContext();
-        IncidentListener listener = (IncidentListener) context.getAttribute(Initializer.INCIDENT_LISTENER_ATTRIBUTE);
-        if (listener == null) {
-            throw new RuntimeException("Incident listener is not set");
-        }
-        return listener;
-    }
-    
     private void printText(PrintWriter resp, Throwable exception) {
         Throwable t = exception;
         HashSet<Throwable> processed = new HashSet<>();
@@ -132,5 +122,4 @@ public class DeploymentExceptionServlet extends HttpServlet {
         
         resp.println(exception.getMessage());
     }
-
 }

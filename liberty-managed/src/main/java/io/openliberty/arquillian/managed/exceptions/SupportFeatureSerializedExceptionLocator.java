@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, IBM Corporation, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2018, 2022 IBM Corporation, Red Hat Middleware LLC, and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +14,15 @@
  */
 package io.openliberty.arquillian.managed.exceptions;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.logging.Logger;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.utils.URIBuilder;
+import javax.management.MBeanServerConnection;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 /**
  * Tries to receive a serialized exception from the server
@@ -37,15 +36,19 @@ import org.apache.http.client.utils.URIBuilder;
 public class SupportFeatureSerializedExceptionLocator implements DeploymentExceptionLocator {
     
     private final static Logger log = Logger.getLogger(SupportFeatureSerializedExceptionLocator.class.getName());
+
+    private final MBeanServerConnection mbsc;
+    private final ObjectName on;
     
-    private final URI uri;
-    
-    public SupportFeatureSerializedExceptionLocator(String host, int port) {
+    public SupportFeatureSerializedExceptionLocator(MBeanServerConnection mbsc) {
+        this.mbsc = mbsc;
+        StringBuilder sb = new StringBuilder("LibertyArquillian:");
+        sb.append("type=").append("DeploymentExceptionMBean");
         try {
-            uri = new URI("http", null, host, port, "/arquillian-support-jakarta/deployment-exception", "format=serialize", null);
-        } catch (URISyntaxException e) {
+            on = new ObjectName(sb.toString());
+        } catch (MalformedObjectNameException e) {
             // Shouldn't happen as most of the URI parts are hard coded
-            throw new IllegalArgumentException("Invalid URI: " + e, e);
+            throw new IllegalArgumentException("Invalid ObjectName: " + sb.toString() + " " + e, e);
         }
     }
 
@@ -53,16 +56,15 @@ public class SupportFeatureSerializedExceptionLocator implements DeploymentExcep
     public Throwable getException(String appName, String logLine, long deploymentTime) {
         Throwable result = null;
         try {
-            URIBuilder uriBuilder = new URIBuilder(uri);
-            uriBuilder.addParameter("appName", appName);
-            
-            HttpResponse resp = Request.Get(uriBuilder.build()).execute().returnResponse();
-            if (resp.getStatusLine().getStatusCode() == 400) {
+            Object[] response = (Object[]) mbsc.invoke(on, "getDeploymentException", new String[] { appName, "serialize" },
+                    new String[] { String.class.getName(), String.class.getName() });
+            int status = ((Integer) response[0]).intValue();
+            if (status == 400) {
                 log.warning("After " + appName + " failed to start, the server did not report an exception for that app");
-            } else if (resp.getStatusLine().getStatusCode() != 200) {
-                log.info("Unable to recieve serialized exception from server, is usr:arquillian-support-jakarta-2.0 installed?");
+            } else if (status != 200) {
+                log.info("Unable to receive serialized exception from server, is usr:arquillian-support-jakarta-2.0 installed?");
             } else {
-                try (InputStream inStream = resp.getEntity().getContent()) {
+                try (InputStream inStream = new ByteArrayInputStream((byte[]) response[1])) {
                     ObjectInputStream objStream = new ObjectInputStream(inStream);
                     Object readObject = objStream.readObject();
                     if (readObject instanceof Throwable) {
@@ -75,7 +77,7 @@ public class SupportFeatureSerializedExceptionLocator implements DeploymentExcep
         } catch (ClassNotFoundException ex) {
             log.finer("Unable to find class for serialized exception: " + ex);
         } catch (Exception ex) {
-            log.warning("Unexpected exception while trying to recieve serialized exception: " + ex);
+            log.warning("Unexpected exception while trying to receive serialized exception: " + ex);
         }
         
         return result;

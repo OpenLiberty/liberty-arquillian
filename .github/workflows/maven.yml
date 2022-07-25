@@ -15,7 +15,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         java: [1.8, 11]
         runtime: [ol]
-        runtime_version: [21.0.0.4-beta]
+        runtime_version: [22.0.0.6]
 
     steps:
     - uses: actions/checkout@v2

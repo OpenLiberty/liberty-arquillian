@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, 2021, IBM Corporation, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2012, 2022 IBM Corporation, Red Hat Middleware LLC, and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,15 +24,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.ProcessBuilder.Redirect;
-import java.lang.annotation.Annotation;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,7 +50,6 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import javax.swing.text.html.MinimalHTMLWriter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -79,15 +75,12 @@ import org.jboss.arquillian.container.spi.client.protocol.metadata.Servlet;
 import org.jboss.arquillian.container.test.api.Testable;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ArchivePath;
-import org.jboss.shrinkwrap.api.Filter;
-import org.jboss.shrinkwrap.api.Filters;
 import org.jboss.shrinkwrap.api.asset.ArchiveAsset;
 import org.jboss.shrinkwrap.api.asset.ByteArrayAsset;
 import org.jboss.shrinkwrap.api.asset.ClassAsset;
 import org.jboss.shrinkwrap.api.asset.ClassLoaderAsset;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 import org.w3c.dom.DOMException;
@@ -471,8 +464,8 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
        try {
           // Attempt to find the exception that occurred on the server
           exceptionLocators = new ArrayList<>();
-          exceptionLocators.add(new SupportFeatureSerializedExceptionLocator("localhost", getHttpPort()));
-          exceptionLocators.add(new SupportFeatureTextExceptionLocator("localhost", getHttpPort()));
+          exceptionLocators.add(new SupportFeatureSerializedExceptionLocator(mbsc));
+          exceptionLocators.add(new SupportFeatureTextExceptionLocator(mbsc));
           exceptionLocators.add(new FFDCExceptionLocator(getLogsDirectory()));
           exceptionLocators.add(new CDILogExceptionLocator());
        } catch (Exception e) {

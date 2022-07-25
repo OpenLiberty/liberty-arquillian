@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, IBM Corporation, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2018, 2022 IBM Corporation, Red Hat Middleware LLC, and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,19 +16,16 @@ package io.openliberty.arquillian.managed.exceptions;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.utils.URIBuilder;
+import javax.management.MBeanServerConnection;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 import io.openliberty.arquillian.managed.exceptions.NestedExceptionBuilder.ExMsg;
 
@@ -76,18 +73,22 @@ import io.openliberty.arquillian.managed.exceptions.NestedExceptionBuilder.ExMsg
 public class SupportFeatureTextExceptionLocator implements DeploymentExceptionLocator {
 
     private final static Logger log = Logger.getLogger(SupportFeatureTextExceptionLocator.class.getName());
-    
-    private final URI uri;
+
+    private final MBeanServerConnection mbsc;
+    private final ObjectName on;
     
     private static final Pattern CLASS_PATTERN = Pattern.compile("exClass (.*)");
     private static final Pattern SUPERCLASS_PATTERN = Pattern.compile("exSuperclass (.*)");
     
-    public SupportFeatureTextExceptionLocator(String host, int port) {
+    public SupportFeatureTextExceptionLocator(MBeanServerConnection mbsc) {
+        this.mbsc = mbsc;
+        StringBuilder sb = new StringBuilder("LibertyArquillian:");
+        sb.append("type=").append("DeploymentExceptionMBean");
         try {
-            uri = new URI("http", null, host, port, "/arquillian-support-jakarta/deployment-exception", "format=text", null);
-        } catch (URISyntaxException e) {
+            on = new ObjectName(sb.toString());
+        } catch (MalformedObjectNameException e) {
             // Shouldn't happen as most of the URI parts are hard coded
-            throw new IllegalArgumentException("Invalid URI: " + e, e);
+            throw new IllegalArgumentException("Invalid ObjectName: " + sb.toString() + " " + e, e);
         }
     }
 
@@ -95,17 +96,16 @@ public class SupportFeatureTextExceptionLocator implements DeploymentExceptionLo
     @Override
     public Throwable getException(String appName, String logLine, long deploymentTime) {
         try {
-            URIBuilder uriBuilder = new URIBuilder(uri);
-            uriBuilder.addParameter("appName", appName);
-            
-            HttpResponse resp = Request.Get(uriBuilder.build()).execute().returnResponse();
-            if (resp.getStatusLine().getStatusCode() == 400) {
+            Object[] response = (Object[]) mbsc.invoke(on, "getDeploymentException", new String[] { appName, "text" },
+                    new String[] { String.class.getName(), String.class.getName() });
+            int status = ((Integer) response[0]).intValue();
+            if (status == 400) {
                 log.warning("After " + appName + " failed to start, the server did not report an exception for that app");
-            } else if (resp.getStatusLine().getStatusCode() != 200) {
-                log.info("Unable to recieve text format exception from server, is usr:arquillian-support-jakarta-2.0 installed?");
+            } else if (status != 200) {
+                log.info("Unable to receive text format exception from server, is usr:arquillian-support-jakarta-2.0 installed?");
             } else {
                 log.finer("Reading exception returned from server");
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(resp.getEntity().getContent(), StandardCharsets.UTF_8))) {
+                try (BufferedReader reader = new BufferedReader(new StringReader((String) response[1]))) {
                     return readResponse(reader);
                 }
             }

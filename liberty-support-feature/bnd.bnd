@@ -1,5 +1,6 @@
 Web-ContextPath: arquillian-support-jakarta
-Import-Package: jakarta.servlet.*; version="5.0", \
+Import-Package: \
   com.ibm.ws.container.service.app.deploy; version="[1.0, 3)", \
   *
+Bundle-Activator: io.openliberty.arquillian.support.Initializer
 Bundle-Version: ${parsedVersion.osgiVersion}
