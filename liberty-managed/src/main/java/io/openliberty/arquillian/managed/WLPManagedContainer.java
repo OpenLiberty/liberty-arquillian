@@ -122,6 +122,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
    private static final String JAVA_TOOL_OPTIONS = "JAVA_TOOL_OPTIONS";
    
    private static final String ARQUILLIAN_SERVLET_NAME = "ArquillianServletRunnerEE9";
+   private static final String ARQUILLIAN_REST_NAME = "ArquillianRESTRunnerEE9";
 
    private static final String className = WLPManagedContainer.class.getName();
 
@@ -557,23 +558,29 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          // register servlets
          boolean addedSomeServlets = false;
          for (WebModule module : modules) {
-            List<String> servlets = getServletNames(module);
-            for (String servlet : servlets) {
-                  httpContext.add(new Servlet(servlet, module.contextRoot));
-               addedSomeServlets = true;
-            }
+             List<String> servlets = getServletNames(module);
+             for (String servlet : servlets) {
+                 httpContext.add(new Servlet(servlet, module.contextRoot));
+                 addedSomeServlets = true;
+             }
          }
 
-         if (!addedSomeServlets) {
+         String servletToAdd = null;
+         if (!containerConfiguration.isServletTestProtocol()) {
+             servletToAdd = ARQUILLIAN_REST_NAME;
+         } else if (!addedSomeServlets) {
+             servletToAdd = ARQUILLIAN_SERVLET_NAME;
+         }
+         if (servletToAdd != null) {
              // Urk, we found no servlets at all probably because we don't have the J2EE management mbeans
              // Make a best guess at where servlets might be. Even if the servlet names are wrong, this at
              // least allows basic URL injection to work.
              if (modules.size() == 1) {
                  // If there's only one web module, add that
                  WebModule m = modules.get(0);
-                 httpContext.add(new Servlet(ARQUILLIAN_SERVLET_NAME, m.contextRoot));
+                 httpContext.add(new Servlet(servletToAdd, m.contextRoot));
              } else {
-                 httpContext.add(new Servlet(ARQUILLIAN_SERVLET_NAME, deployName));
+                 httpContext.add(new Servlet(servletToAdd, deployName));
              }
          }
          
@@ -646,7 +653,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          // If we didn't find any servlets and this is a testable archive it ought to
          // contain the arquillian test servlet, which is all that most tests need to
          // work
-         if (servletNames.isEmpty() && Testable.isArchiveToTest(webModule.archive)) {
+         if (containerConfiguration.isServletTestProtocol() && servletNames.isEmpty() && Testable.isArchiveToTest(webModule.archive)) {
             servletNames.add(ARQUILLIAN_SERVLET_NAME);
          }
          return servletNames;
@@ -1366,7 +1373,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          log.entering(className, "getDefaultProtocol");
       }
 
-      String defaultProtocol = "Servlet 5.0";
+      String defaultProtocol = containerConfiguration.isServletTestProtocol() ? "Servlet 5.0" : "REST 3.0";
 
       if (log.isLoggable(Level.FINER)) {
          log.exiting(className, "getDefaultProtocol", defaultProtocol);

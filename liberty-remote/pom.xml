@@ -3,7 +3,7 @@
   <parent>
     <groupId>io.openliberty.arquillian</groupId>
     <artifactId>arquillian-parent-liberty-jakarta</artifactId>
-    <version>2.0.3-SNAPSHOT</version>
+    <version>2.1.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>arquillian-liberty-remote-jakarta</artifactId>
@@ -62,24 +62,36 @@
               <name>java.util.logging.config.file</name>
               <value>${loggingPropertiesFile}</value>
             </property>
-            <property>
-              <name>javax.net.ssl.trustStore</name>
-              <value>${project.build.directory}/liberty/wlp/usr/servers/defaultServer/resources/security/key.jks</value>
-            </property>
           </systemProperties>
         </configuration>
         <executions>
           <execution>
-            <id>wlp-8554-test</id>
+            <id>wlp-remote-deployment-servlet-test</id>
             <goals>
               <goal>test</goal>
             </goals>
             <configuration>
               <skip>${skipTests}</skip>
-              <reportsDirectory>${project.build.directory}/surefire-reports/wlp-remote-deployment-test
+              <reportsDirectory>${project.build.directory}/surefire-reports/wlp-remote-deployment-servlet-test
               </reportsDirectory>
               <systemPropertyVariables>
                 <arquillian.launch>wlp-remote</arquillian.launch>
+                <javax.net.ssl.trustStore>${project.build.directory}/liberty/wlp/usr/servers/defaultServer/resources/security/key.jks</javax.net.ssl.trustStore>
+              </systemPropertyVariables>
+            </configuration>
+          </execution>
+          <execution>
+            <id>wlp-remote-deployment-rest-test</id>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>${skipTests}</skip>
+              <reportsDirectory>${project.build.directory}/surefire-reports/wlp-remote-deployment-rest-test
+              </reportsDirectory>
+              <systemPropertyVariables>
+                <arquillian.launch>wlp-rest-remote</arquillian.launch>
+                <javax.net.ssl.trustStore>${project.build.directory}/liberty/wlp/usr/servers/restServer/resources/security/key.jks</javax.net.ssl.trustStore>
               </systemPropertyVariables>
             </configuration>
           </execution>
@@ -106,6 +118,29 @@
           <execution>
             <id>stop-server</id>
             <phase>test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>start-rest-server</id>
+            <!-- Plugin execution needs to be bound to previous phase.
+                 Because Maven. See MNG-5799 and MNG-5987 -->
+            <phase>process-test-classes</phase>
+            <configuration>
+              <serverName>restServer</serverName>
+               <serverXmlFile>src/test/resources/restServer.xml</serverXmlFile>
+             </configuration>
+            <goals>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>stop-rest-server</id>
+            <phase>test</phase>
+            <configuration>
+              <serverName>restServer</serverName>
+             </configuration>
             <goals>
               <goal>stop</goal>
             </goals>
@@ -149,6 +184,10 @@
     <dependency>
       <groupId>org.jboss.arquillian.container</groupId>
       <artifactId>arquillian-container-test-spi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.protocol</groupId>
+      <artifactId>arquillian-protocol-rest-jakarta</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.protocol</groupId>

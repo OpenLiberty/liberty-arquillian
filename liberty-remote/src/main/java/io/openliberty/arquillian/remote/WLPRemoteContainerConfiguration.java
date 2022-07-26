@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, 2014, Red Hat Middleware LLC, and other contributors
+ * Copyright 2012, 2022 Red Hat Middleware LLC, and other contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,6 +43,7 @@ public class WLPRemoteContainerConfiguration implements ContainerConfiguration {
     private int httpPort = 9080;
     private int httpsPort = 9443;
     private boolean outputToConsole = true;
+    private String testProtocol = "servlet";
 
     @Override
     public void validate() throws ConfigurationException {
@@ -66,6 +67,9 @@ public class WLPRemoteContainerConfiguration implements ContainerConfiguration {
         if (httpsPort > 65535 || httpsPort < 0)
             throw new ConfigurationException("httpsPort provided is not valid: " + httpPort);
 
+        if (!"rest".equalsIgnoreCase(testProtocol) && !"servlet".equalsIgnoreCase(testProtocol)) {
+            throw new ConfigurationException("testProtocol must be set to rest or servlet");
+        }
     }
 
     public String getServerName() {
@@ -148,4 +152,15 @@ public class WLPRemoteContainerConfiguration implements ContainerConfiguration {
         this.httpsPort = httpsPort;
     }
 
+    public String getTestProtocol() {
+        return testProtocol;
+    }
+
+    public void setTestProtocol(String protocol) {
+        this.testProtocol = protocol;
+    }
+
+    public boolean isServletTestProtocol() {
+        return "servlet".equalsIgnoreCase(testProtocol);
+    }
 }

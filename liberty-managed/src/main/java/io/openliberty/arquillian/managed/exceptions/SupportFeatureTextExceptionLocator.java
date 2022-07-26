@@ -102,7 +102,7 @@ public class SupportFeatureTextExceptionLocator implements DeploymentExceptionLo
             if (status == 400) {
                 log.warning("After " + appName + " failed to start, the server did not report an exception for that app");
             } else if (status != 200) {
-                log.info("Unable to receive text format exception from server, is usr:arquillian-support-jakarta-2.0 installed?");
+                log.info("Unable to receive text format exception from server, is usr:arquillian-support-jakarta-2.1 installed?");
             } else {
                 log.finer("Reading exception returned from server");
                 try (BufferedReader reader = new BufferedReader(new StringReader((String) response[1]))) {

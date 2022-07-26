@@ -19,7 +19,7 @@ Example:
   <dependency>
     <groupId>io.openliberty.arquillian</groupId>
     <artifactId>arquillian-liberty-support-jakarta</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
   </dependency>
 </dependencies>
 <plugin>
@@ -40,7 +40,7 @@ Example:
       <artifactItem>
         <groupId>io.openliberty.arquillian</groupId>
         <artifactId>arquillian-liberty-support-jakarta</artifactId>
-        <version>2.0.0</version>
+        <version>2.1.0</version>
         <type>zip</type>
         <classifier>feature</classifier>
         <overWrite>false</overWrite>
@@ -50,12 +50,12 @@ Example:
   </configuration>
 </plugin>
 ```
-Then add `<feature>usr:arquillian-support-jakarta-2.0</feature>` to the `<featureManager>` section of your `server.xml`.
+Then add `<feature>usr:arquillian-support-jakarta-2.1</feature>` to the `<featureManager>` section of your `server.xml`.
 ```
 <featureManager>
     <feature>pages-3.0</feature>
     <feature>localConnector-1.0</feature>
-    <feature>usr:arquillian-support-jakarta-2.0</feature>
+    <feature>usr:arquillian-support-jakarta-2.1</feature>
 </featureManager>
 ```
 
@@ -67,12 +67,12 @@ git clone git@github.com:OpenLiberty/liberty-arquillian.git
 mvn install
 ```
 2.  Extract the arquillian-liberty-support-jakarta-x.x.x-feature.zip into the `usr` directory of your Liberty runtime
-3. Add `<feature>usr:arquillian-support-jakarta-2.0</feature>` to the `<featureManager>` section of your `server.xml`
+3. Add `<feature>usr:arquillian-support-jakarta-2.1</feature>` to the `<featureManager>` section of your `server.xml`
 
 ```
 <featureManager>
     <feature>pages-3.0</feature>
     <feature>localConnector-1.0</feature>
-    <feature>usr:arquillian-support-jakarta-2.0</feature>
+    <feature>usr:arquillian-support-jakarta-2.1</feature>
 </featureManager>
 ```

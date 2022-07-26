@@ -62,7 +62,7 @@ public class SupportFeatureSerializedExceptionLocator implements DeploymentExcep
             if (status == 400) {
                 log.warning("After " + appName + " failed to start, the server did not report an exception for that app");
             } else if (status != 200) {
-                log.info("Unable to receive serialized exception from server, is usr:arquillian-support-jakarta-2.0 installed?");
+                log.info("Unable to receive serialized exception from server, is usr:arquillian-support-jakarta-2.1 installed?");
             } else {
                 try (InputStream inStream = new ByteArrayInputStream((byte[]) response[1])) {
                     ObjectInputStream objStream = new ObjectInputStream(inStream);

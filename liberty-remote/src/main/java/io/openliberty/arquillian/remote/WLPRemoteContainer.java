@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Red Hat Inc. and/or its affiliates and other contributors
+ * Copyright 2014, 2022 Red Hat Inc. and/or its affiliates and other contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -106,7 +106,7 @@ public class WLPRemoteContainer implements DeployableContainer<WLPRemoteContaine
             log.entering(className, "getDefaultProtocol");
         }
 
-        String defaultProtocol = "Servlet 5.0";
+        String defaultProtocol = containerConfiguration.isServletTestProtocol() ? "Servlet 5.0" : "REST 3.0";
 
         if (log.isLoggable(Level.FINER)) {
             log.exiting(className, "getDefaultProtocol", defaultProtocol);
@@ -147,7 +147,9 @@ public class WLPRemoteContainer implements DeployableContainer<WLPRemoteContaine
         // Return metadata on how to contact the deployed application
         ProtocolMetaData metaData = new ProtocolMetaData();
         HTTPContext httpContext = new HTTPContext(containerConfiguration.getHostName(), containerConfiguration.getHttpPort());
-        httpContext.add(new Servlet("ArquillianServletRunnerEE9", deployName));
+        String servletName = containerConfiguration.isServletTestProtocol() ?
+                "ArquillianServletRunnerEE9" : "ArquillianRESTRunnerEE9";
+        httpContext.add(new Servlet(servletName, deployName));
         metaData.addContext(httpContext);
 
         if (log.isLoggable(Level.FINER)) {

@@ -3,7 +3,7 @@
 
     <!-- Enable features -->
     <featureManager>
-        <feature>pages-3.0</feature>
+        <feature>restfulWS-3.0</feature>
         <feature>localConnector-1.0</feature>
         <feature>cdi-3.0</feature>
         <feature>jndi-1.0</feature>

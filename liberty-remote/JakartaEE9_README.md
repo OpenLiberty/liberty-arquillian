@@ -22,6 +22,16 @@ The following features are required in the `server.xml` of the Liberty server.
 </featureManager>
 ```
 
+or
+
+```
+<!-- Enable features -->
+<featureManager>
+    <feature>restfulWS-3.0</feature>
+    <feature>restConnector-2.0</feature>
+</featureManager>
+```
+
 You will also need to enable security, one example would be:
 
 ```
@@ -32,28 +42,29 @@ You will also need to enable security, one example would be:
 
 You need to have those keys trusted by your client as well, otherwise you'll see SSL certificate trust errors, and you need to give permissions for the container adapter to write to the dropins directory:
 
-````
+```
 <!-- This section is needed to allow upload of files to the dropins directory,
 the remote container adapter relies on this configuration -->
 <remoteFileAccess>
     <writeDir>${server.config.dir}/dropins</writeDir>
 </remoteFileAccess>
-````
+```
 
 If you need a sample `server.xml`, please refer to the [one in our source repository](https://github.com/OpenLiberty/liberty-arquillian/blob/main/liberty-remote/src/test/resources/server.xml).
 
 ## Configuration
 
-Default Protocol: Servlet 5.0
+Default Protocol: Servlet 5.0 or REST 3.0 depending on configuration
 
 To enable Arquillian Liberty Remote in your project, add the following to your `pom.xml`:
+
 ```xml
 <dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.jboss.arquillian</groupId>
 			<artifactId>arquillian-bom</artifactId>
-			<version>1.7.0.Alpha9</version>
+			<version>1.7.0.Alpha12</version>
 			<scope>import</scope>
 			<type>pom</type>
 		</dependency>
@@ -65,7 +76,7 @@ To enable Arquillian Liberty Remote in your project, add the following to your `
 	<dependency>
 		<groupId>io.openliberty.arquillian</groupId>
 		<artifactId>arquillian-liberty-remote-jakarta</artifactId>
-		<version>2.0.0</version>
+		<version>2.1.0</version>
 		<scope>test</scope>
 	</dependency>
 	...
@@ -86,6 +97,7 @@ To enable Arquillian Liberty Remote in your project, add the following to your `
 | appDeployTimeout | Integer | 20 | Time in seconds to wait for the application deployment to complete and the application to start |
 | appUndeployTimeout | Integer | 2 | Time in seconds to wait for the application undeployment to complete |
 | outputToConsole | Boolean | true | When enabled output from the application server process will be emitted to stdout |
+| testProtocol | String | servlet | Aquillian protocol to contact the server to run a test (available: servlet or rest) |
 
 ## Examples
 
@@ -122,7 +134,7 @@ xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/a
 		<dependency>
 			<groupId>io.openliberty.arquillian</groupId>
 			<artifactId>arquillian-liberty-remote-jakarta</artifactId>
-			<version>2.0.0</version>
+			<version>2.1.0</version>
 		</dependency>
 	</dependencies>
 </profile>
