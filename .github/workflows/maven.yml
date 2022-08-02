@@ -13,7 +13,7 @@ jobs:
       max-parallel: 5
       matrix:
         os: [ubuntu-latest, windows-latest]
-        java: [1.8, 11]
+        java: [1.8, 11, 17]
         runtime: [ol]
         runtime_version: [22.0.0.6]
 
