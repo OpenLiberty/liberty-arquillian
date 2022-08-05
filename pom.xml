@@ -76,8 +76,7 @@
 
   <!-- Profiles for WLP vs OL -->
   <profiles>
-    <!-- Commented out as there is not currently support for Jakarta EE 9 in WL-->
-    <!-- <profile>
+    <profile>
       <id>wlp-its</id>
       <activation>
           <property>
@@ -88,10 +87,11 @@
       <properties>
           <runtime>wlp</runtime>
           <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
-          <runtimeArtifactId>wlp-javaee7</runtimeArtifactId>
+          <runtimeArtifactId>wlp-jakartaee9</runtimeArtifactId>
           <runtimeVersion>${runtimeVersion}</runtimeVersion>
+          <skipEE10Tests>true</skipEE10Tests>
       </properties>
-    </profile> -->
+    </profile>
     <profile>
       <id>ol-its</id>
       <activation>
@@ -102,6 +102,22 @@
       </activation>
       <properties>
         <runtime>ol</runtime>
+        <runtimeGroupId>io.openliberty</runtimeGroupId>
+        <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
+        <runtimeVersion>${runtimeVersion}</runtimeVersion>
+        <skipEE10Tests>true</skipEE10Tests>
+      </properties>
+    </profile>
+    <profile>
+      <id>olbeta-its</id>
+      <activation>
+        <property>
+          <name>runtime</name>
+          <value>olbeta</value>
+        </property>
+      </activation>
+      <properties>
+        <runtime>olbeta</runtime>
         <runtimeGroupId>io.openliberty.beta</runtimeGroupId>
         <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
         <runtimeVersion>${runtimeVersion}</runtimeVersion>
@@ -112,12 +128,12 @@
       <activation>
         <property>
           <name>runtime</name>
-          <value>ol</value>
+          <value>olbeta</value>
         </property>
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <runtime>ol</runtime>
+        <runtime>olbeta</runtime>
         <runtimeGroupId>io.openliberty.beta</runtimeGroupId>
         <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
         <runtimeVersion>22.0.0.9-beta</runtimeVersion>

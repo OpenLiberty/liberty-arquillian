@@ -10,12 +10,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
-      max-parallel: 5
+      max-parallel: 7
       matrix:
         os: [ubuntu-latest, windows-latest]
         java: [1.8, 11]
-        runtime: [ol]
-        runtime_version: [22.0.0.9-beta]
+        runtime: [ol, olbeta, wlp]
+        runtime_version: [22.0.0.8, 22.0.0.9-beta]
+        exclude:
+        - runtime: olbeta
+          runtime_version: 22.0.0.8
+        - runtime: ol
+          runtime_version: 22.0.0.9-beta
+        - runtime: wlp
+          runtime_version: 22.0.0.9-beta
 
     steps:
     - uses: actions/checkout@v2
