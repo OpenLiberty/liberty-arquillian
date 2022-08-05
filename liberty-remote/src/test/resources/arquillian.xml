@@ -18,4 +18,15 @@
 			<property name="httpsPort">9443</property>
 		</configuration>
 	</container>
+	<container qualifier="wlp-rest-remote">
+		<configuration>	
+			<property name="hostName">localhost</property>
+			<property name="serverName">restServer</property>
+			<property name="username">admin</property>
+			<property name="password">admin</property>
+			<property name="httpPort">9081</property>
+			<property name="httpsPort">9444</property>
+            <property name="testProtocol">rest</property>
+		</configuration>
+	</container>
 </arquillian>

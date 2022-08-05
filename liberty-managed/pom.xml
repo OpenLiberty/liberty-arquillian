@@ -5,7 +5,7 @@
   <parent>
     <groupId>io.openliberty.arquillian</groupId>
     <artifactId>arquillian-parent-liberty-jakarta</artifactId>
-    <version>2.0.3-SNAPSHOT</version>
+    <version>2.1.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -40,6 +40,9 @@
       <activation>
         <jdk>[1.0,1.9)</jdk>
       </activation>
+      <properties>
+        <skipEE10Tests>true</skipEE10Tests>
+      </properties>
       <dependencies>
         <dependency>
           <groupId>com.sun</groupId>
@@ -55,6 +58,9 @@
       <activation>
           <jdk>[11,)</jdk>
       </activation>
+      <properties>
+        <skipEE10Tests>false</skipEE10Tests>
+      </properties>
       <dependencies>
         <dependency>
           <groupId>jakarta.annotation</groupId>
@@ -97,7 +103,7 @@
                  </configuration>
                  <goals>
                   <goal>create</goal>
-                </goals>
+                 </goals>
           </execution>
           <execution>
             <id>create-server-management</id>
@@ -108,13 +114,55 @@
                  <configuration>
                   <serverName>managementServer</serverName>
                   <serverXmlFile>src/test/resources/server-with-management.xml</serverXmlFile>
-                </configuration>
-                <goals>
+                 </configuration>
+                 <goals>
                   <goal>create</goal>
                 </goals>
-              </execution>
-            </executions>
-          </plugin>
+          </execution>
+          <execution>
+            <id>create-rest-server</id>
+            <!-- Plugin execution only succeeds here in the correct order because
+                 execution id of the test is not 'default-test'.
+                 Because Maven. See MNG-5799 and MNG-5987 -->
+                 <phase>test</phase>
+                 <configuration>
+                  <serverName>restServer</serverName>
+                  <serverXmlFile>src/test/resources/restServer.xml</serverXmlFile>
+                 </configuration>
+                 <goals>
+                  <goal>create</goal>
+                 </goals>
+          </execution>
+          <execution>
+            <id>create-rest-server-management</id>
+            <!-- Plugin execution only succeeds here in the correct order because
+                 execution id of the test is not 'default-test'.
+                 Because Maven. See MNG-5799 and MNG-5987 -->
+                 <phase>test</phase>
+                 <configuration>
+                  <serverName>managementRestServer</serverName>
+                  <serverXmlFile>src/test/resources/restServer-with-management.xml</serverXmlFile>
+                 </configuration>
+                 <goals>
+                  <goal>create</goal>
+                 </goals>
+          </execution>
+          <execution>
+            <id>create-rest-server-management-ee10</id>
+            <!-- Plugin execution only succeeds here in the correct order because
+                 execution id of the test is not 'default-test'.
+                 Because Maven. See MNG-5799 and MNG-5987 -->
+                 <phase>test</phase>
+                 <configuration>
+                  <serverName>managementRestServer-ee10</serverName>
+                  <serverXmlFile>src/test/resources/restServer-with-management-ee10.xml</serverXmlFile>
+                 </configuration>
+                 <goals>
+                  <goal>create</goal>
+                 </goals>
+          </execution>
+        </executions>
+        </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
@@ -159,17 +207,17 @@
             </configuration>
             <executions>
               <execution>
-                <id>wlp-dropins-deployment-test</id>
+                <id>wlp-dropins-deployment-servlet-test</id>
                 <phase>test</phase>
                 <goals>
                   <goal>test</goal>
                 </goals>
                 <configuration>
                   <skip>${skipTests}</skip>
-                  <reportsDirectory>${project.build.directory}/surefire-reports/wlp-dropins-deployment-test
+                  <reportsDirectory>${project.build.directory}/surefire-reports/wlp-dropins-deployment-servlet-test
                   </reportsDirectory>
                   <systemPropertyVariables>
-                    <arquillian.launch>wlp-dropins-deployment</arquillian.launch>
+                    <arquillian.launch>wlp-dropins-deployment-servlet</arquillian.launch>
                   </systemPropertyVariables>
                   <excludes>
                     <exclude>**/needsmanagementmbeans/**</exclude>
@@ -178,16 +226,16 @@
                 </configuration>
               </execution>
               <execution>
-                <id>wlp-xml-deployment-test</id>
+                <id>wlp-xml-deployment-servlet-test</id>
                 <phase>test</phase>
                 <goals>
                   <goal>test</goal>
                 </goals>
                 <configuration>
                   <skip>${skipTests}</skip>
-                  <reportsDirectory>${project.build.directory}/surefire-reports/wlp-xml-deployment-test</reportsDirectory>
+                  <reportsDirectory>${project.build.directory}/surefire-reports/wlp-xml-deployment-servlet-test</reportsDirectory>
                   <systemPropertyVariables>
-                    <arquillian.launch>wlp-xml-deployment</arquillian.launch>
+                    <arquillian.launch>wlp-xml-deployment-servlet</arquillian.launch>
                   </systemPropertyVariables>
                   <excludes>
                     <exclude>**/needsmanagementmbeans/**</exclude>
@@ -196,17 +244,88 @@
                 </configuration>
               </execution>
               <execution>
-                <id>wlp-xml-management-deployment-test</id>
+                <id>wlp-xml-management-deployment-servlet-test</id>
                 <phase>test</phase>
                 <goals>
                   <goal>test</goal>
                 </goals>
                 <configuration>
                   <skip>${skipTests}</skip>
-                  <reportsDirectory>${project.build.directory}/surefire-reports/wlp-xml-management-deployment-test</reportsDirectory>
+                  <reportsDirectory>${project.build.directory}/surefire-reports/wlp-xml-management-deployment-servlet-test</reportsDirectory>
                   <systemPropertyVariables>
-                    <arquillian.launch>wlp-xml-management-deployment</arquillian.launch>
+                    <arquillian.launch>wlp-xml-management-deployment-servlet</arquillian.launch>
                   </systemPropertyVariables>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>wlp-dropins-deployment-rest-test</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <skip>${skipTests}</skip>
+                  <reportsDirectory>${project.build.directory}/surefire-reports/wlp-dropins-deployment-rest-test
+                  </reportsDirectory>
+                  <systemPropertyVariables>
+                    <arquillian.launch>wlp-dropins-deployment-rest</arquillian.launch>
+                  </systemPropertyVariables>
+                  <excludes>
+                    <exclude>**/needsmanagementmbeans/**</exclude>
+                    <exclude>**/needssupportfeature/**</exclude>
+                  </excludes>
+                </configuration>
+              </execution>
+              <execution>
+                <id>wlp-xml-deployment-rest-test</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <skip>${skipTests}</skip>
+                  <reportsDirectory>${project.build.directory}/surefire-reports/wlp-xml-deployment-rest-test</reportsDirectory>
+                  <systemPropertyVariables>
+                    <arquillian.launch>wlp-xml-deployment-rest</arquillian.launch>
+                  </systemPropertyVariables>
+                  <excludes>
+                    <exclude>**/needsmanagementmbeans/**</exclude>
+                    <exclude>**/needssupportfeature/**</exclude>
+                  </excludes>
+                </configuration>
+              </execution>
+              <execution>
+                <id>wlp-xml-management-deployment-rest-test</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <skip>${skipTests}</skip>
+                  <reportsDirectory>${project.build.directory}/surefire-reports/wlp-xml-management-deployment-rest-test</reportsDirectory>
+                  <systemPropertyVariables>
+                    <arquillian.launch>wlp-xml-management-deployment-rest</arquillian.launch>
+                  </systemPropertyVariables>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>wlp-xml-management-deployment-rest-ee10-test</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <skip>${skipTests}</skip>
+                  <skip>${skipEE10Tests}</skip>
+                  <reportsDirectory>${project.build.directory}/surefire-reports/wlp-xml-management-deployment-rest-ee10-test</reportsDirectory>
+                  <systemPropertyVariables>
+                    <arquillian.launch>wlp-xml-management-deployment-rest-ee10</arquillian.launch>
+                  </systemPropertyVariables>
+                  <includes>
+                    <include>**/needssupportfeature/**</include>
+                  </includes>
                 </configuration>
               </execution>
 
@@ -226,6 +345,10 @@
         <dependency>
           <groupId>org.jboss.arquillian.container</groupId>
           <artifactId>arquillian-container-test-spi</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.jboss.arquillian.protocol</groupId>
+          <artifactId>arquillian-protocol-rest-jakarta</artifactId>
         </dependency>
         <dependency>
           <groupId>org.jboss.arquillian.protocol</groupId>
@@ -283,8 +406,6 @@
           <artifactId>jakarta.enterprise.cdi-api</artifactId>
           <version>3.0.0</version>
         </dependency>
-
-        
 
     <!-- WELD classes, these are present in FFDC
     and are sometimes instances of TCK @ShouldThrow exceptions -->

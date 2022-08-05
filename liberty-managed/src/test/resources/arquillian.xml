@@ -7,7 +7,7 @@
     <property name="deploymentExportPath">target/</property>
   </engine>
 
-  <container qualifier="wlp-dropins-deployment" default="true">
+  <container qualifier="wlp-dropins-deployment-servlet" default="true">
     <configuration>
       <property name="wlpHome">${project.build.directory}/liberty/wlp/</property>
       <property name="deployType">dropins</property>
@@ -17,7 +17,7 @@
       <property name="appUndeployTimeout">10</property>
     </configuration>
   </container>
-  <container qualifier="wlp-xml-deployment">
+  <container qualifier="wlp-xml-deployment-servlet">
     <configuration>
       <property name="wlpHome">${project.build.directory}/liberty/wlp/</property>
       <property name="httpPort">9080</property>
@@ -32,7 +32,7 @@
       <property name="appUndeployTimeout">10</property>
     </configuration>
   </container>
-  <container qualifier="wlp-xml-management-deployment">
+  <container qualifier="wlp-xml-management-deployment-servlet">
     <configuration>
       <property name="wlpHome">${project.build.directory}/liberty/wlp/</property>
       <property name="deployType">xml</property>
@@ -44,4 +44,59 @@
     </configuration>
   </container>
   
+  <container qualifier="wlp-dropins-deployment-rest">
+    <configuration>
+      <property name="wlpHome">${project.build.directory}/liberty/wlp/</property>
+      <property name="deployType">dropins</property>
+      <property name="serverName">restServer</property>
+      <property name="testProtocol">rest</property>
+
+      <!-- Adjust timeouts to work on Cloudbees CI server -->
+      <property name="appDeployTimeout">60</property>
+      <property name="appUndeployTimeout">10</property>
+    </configuration>
+  </container>
+  <container qualifier="wlp-xml-deployment-rest">
+    <configuration>
+      <property name="wlpHome">${project.build.directory}/liberty/wlp/</property>
+      <property name="httpPort">9080</property>
+      <property name="deployType">xml</property>
+      <property name="serverName">restServer</property>
+      <property name="testProtocol">rest</property>
+      <property name="javaVmArguments">-Xmx512m</property>
+      <!-- the values below are the documented default, so it is not changing anything,
+           other than testing these code paths -->
+      <property name="apiTypeVisibility">spec, ibm-api, api</property>
+
+      <!-- Adjust timeouts to work on Cloudbees CI server -->
+      <property name="appDeployTimeout">60</property>
+      <property name="appUndeployTimeout">10</property>
+    </configuration>
+  </container>
+  <container qualifier="wlp-xml-management-deployment-rest">
+    <configuration>
+      <property name="wlpHome">${project.build.directory}/liberty/wlp/</property>
+      <property name="deployType">xml</property>
+      <property name="serverName">managementRestServer</property>
+      <property name="testProtocol">rest</property>
+
+      <!-- Adjust timeouts to work on Cloudbees CI server -->
+      <property name="appDeployTimeout">60</property>
+      <property name="appUndeployTimeout">10</property>
+    </configuration>
+  </container>
+
+  <container qualifier="wlp-xml-management-deployment-rest-ee10">
+    <configuration>
+      <property name="wlpHome">${project.build.directory}/liberty/wlp/</property>
+      <property name="deployType">xml</property>
+      <property name="serverName">managementRestServer-ee10</property>
+      <property name="testProtocol">rest</property>
+
+      <!-- Adjust timeouts to work on Cloudbees CI server -->
+      <property name="appDeployTimeout">60</property>
+      <property name="appUndeployTimeout">10</property>
+    </configuration>
+  </container>
+
 </arquillian>

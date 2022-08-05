@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, 2021, IBM Corporation, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2012, 2022 IBM Corporation, Red Hat Middleware LLC, and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,6 +45,7 @@ public class WLPManagedContainerConfiguration implements
    private int verifyAppDeployTimeout = appDeployTimeout;
    private int fileDeleteRetries = 30; 
    private int standardFileDeleteRetryInterval = 50;
+   private String testProtocol = "servlet";
 
    @Override
    public void validate() throws ConfigurationException {
@@ -110,6 +111,10 @@ public class WLPManagedContainerConfiguration implements
 
       if (standardFileDeleteRetryInterval < 0) {
          throw new ConfigurationException("standardFileDeleteRetryInterval cannot be negative");
+      }
+
+      if (!"rest".equalsIgnoreCase(testProtocol) && !"servlet".equalsIgnoreCase(testProtocol)) {
+          throw new ConfigurationException("testProtocol must be set to rest or servlet");
       }
    }
 
@@ -296,4 +301,15 @@ public class WLPManagedContainerConfiguration implements
       this.standardFileDeleteRetryInterval = standardFileDeleteRetryInterval;
    }
 
+   public String getTestProtocol() {
+       return testProtocol;
+   }
+
+   public void setTestProtocol(String protocol) {
+       this.testProtocol = protocol;
+   }
+
+   public boolean isServletTestProtocol() {
+       return "servlet".equalsIgnoreCase(testProtocol);
+   }
 }
