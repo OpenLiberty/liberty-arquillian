@@ -2,7 +2,7 @@
 
 [Arquillian](http://arquillian.org/) is a testing framework to develop automated functional, integration and acceptance tests for your Java applications. Arquillian container adapters allow Arquillian to bind to and manage the lifecycle of a runtime. There are two types of Arquillian container adapters for Liberty: [Liberty Managed](#Arquillian-Liberty-Managed-Container) and [Liberty Remote](#Arquillian-Liberty-Remote-Container).
 
-### Arquillian Liberty Mangaged Container
+### Arquillian Liberty Managed Container
 
 An Arquillian container adapter (`DeployableContainer` implementation) that can start and stop a local Liberty process and run tests on it over a remote protocol (effectively in a different JVM). For an introduction to testing microservices with the Arquillian Liberty Managed container and [Open Liberty](https://openliberty.io/), check out the [this guide](https://openliberty.io/guides/arquillian-managed.html).
 
@@ -24,11 +24,11 @@ To run tests, you will need to specify the following parameters:
 
 | Parameter        | Description |
 | ---------------- | ----------- |
-| runtime          | The runtime to use. Specify `ol` for Open Liberty and `wlp` for WebSphere Liberty. |
+| runtime          | The runtime to use. Specify `ol` for Open Liberty, `olbeta` for Open Liberty beta, and `wlp` for WebSphere Liberty. |
 | runtimeVersion   | Version of the specified runtime to use. |
 
-For example, to run tests on version 20.0.0.11 of the Open Liberty runtime, use the following command:
+For example, to run tests on version 22.0.0.6 of the Open Liberty runtime, use the following command:
 
 ```
-mvn verify -Druntime=ol -DruntimeVersion=20.0.0.11
+mvn verify -Druntime=ol -DruntimeVersion=22.0.0.6
 ```

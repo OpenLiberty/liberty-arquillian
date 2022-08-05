@@ -58,9 +58,6 @@
       <activation>
           <jdk>[11,)</jdk>
       </activation>
-      <properties>
-        <skipEE10Tests>false</skipEE10Tests>
-      </properties>
       <dependencies>
         <dependency>
           <groupId>jakarta.annotation</groupId>
