@@ -733,7 +733,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             }
             // if the current resource is a web.xml / web-fragment.xml file read the servlet
             // names from the xml
-            if (key.get().endsWith("web.xml") || key.get().endsWith("web-fragment.xml")) {
+            if (key.get().endsWith("/web.xml") || key.get().endsWith("/web-fragment.xml")) {
                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                DocumentBuilder builder = factory.newDocumentBuilder();
                Document doc = builder.parse(node.getAsset().openStream());
