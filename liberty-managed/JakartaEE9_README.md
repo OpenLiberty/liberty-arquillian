@@ -56,7 +56,7 @@ To enable Arquillian Liberty Managed in your project, add the following to your 
 		<dependency>
 			<groupId>org.jboss.arquillian</groupId>
 			<artifactId>arquillian-bom</artifactId>
-			<version>1.7.0.Alpha12</version>
+			<version>1.7.0.Alpha13</version>
 			<scope>import</scope>
 			<type>pom</type>
 		</dependency>
