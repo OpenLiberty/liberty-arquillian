@@ -14,7 +14,7 @@
 
   <properties>
     <skipTests>false</skipTests>
-    <version.jackson>2.12.6.1</version.jackson>
+    <version.jackson>2.13.4.1</version.jackson>
     <version.apache.fluent.hc>4.5.6</version.apache.fluent.hc>
     <loggingPropertiesFile>${basedir}/src/test/resources/logging.properties</loggingPropertiesFile>
   </properties>
