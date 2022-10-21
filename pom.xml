@@ -39,7 +39,7 @@
   <properties>
     <!-- Versioning -->
     <version.arquillian_core>1.7.0.Alpha13</version.arquillian_core>
-    <version.surefire.plugin>2.22.2</version.surefire.plugin>
+    <version.surefire.plugin>3.0.0-M7</version.surefire.plugin>
 
     <!-- override from parent -->
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -136,7 +136,7 @@
         <runtime>olbeta</runtime>
         <runtimeGroupId>io.openliberty.beta</runtimeGroupId>
         <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
-        <runtimeVersion>22.0.0.9-beta</runtimeVersion>
+        <runtimeVersion>22.0.0.11-beta</runtimeVersion>
       </properties>
     </profile>
   </profiles>
