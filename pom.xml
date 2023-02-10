@@ -38,7 +38,7 @@
   <!-- Properties -->
   <properties>
     <!-- Versioning -->
-    <version.arquillian_core>1.7.0.Alpha13</version.arquillian_core>
+    <version.arquillian_core>1.7.0.Alpha14</version.arquillian_core>
     <version.surefire.plugin>3.0.0-M7</version.surefire.plugin>
 
     <!-- override from parent -->
