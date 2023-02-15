@@ -107,8 +107,7 @@ public class WLPRestClient {
      * Deletes the specified application from the servers dropins directory. WLP
      * will detect this and then undeploy it.
      * 
-     * @param String
-     *            - applicationName
+     * @param applicationName
      * @throws ClientProtocolException
      * @throws IOException
      */
@@ -194,7 +193,6 @@ public class WLPRestClient {
      * 
      * @param applicationName
      * @return true if the application is in STARTED state
-     * @throws DeploymentException
      */
     public boolean isApplicationStarted(String applicationName) {
 
