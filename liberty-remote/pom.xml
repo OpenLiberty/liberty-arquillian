@@ -72,6 +72,7 @@
             </goals>
             <configuration>
               <skip>${skipTests}</skip>
+              <skip>${skipEE9Tests}</skip>
               <reportsDirectory>${project.build.directory}/surefire-reports/wlp-remote-deployment-servlet-test
               </reportsDirectory>
               <systemPropertyVariables>
@@ -87,6 +88,7 @@
             </goals>
             <configuration>
               <skip>${skipTests}</skip>
+              <skip>${skipEE9Tests}</skip>
               <reportsDirectory>${project.build.directory}/surefire-reports/wlp-remote-deployment-rest-test
               </reportsDirectory>
               <systemPropertyVariables>
@@ -152,7 +154,7 @@
           <assemblyArtifact>
             <groupId>${runtimeGroupId}</groupId>
             <artifactId>${runtimeArtifactId}</artifactId>
-            <version>${runtimeVersion}</version>
+            <version>${libertyVersion}</version>
             <type>zip</type>
           </assemblyArtifact>
         </configuration>

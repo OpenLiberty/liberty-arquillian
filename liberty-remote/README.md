@@ -8,7 +8,7 @@ An Arquillian container adapter (`DeployableContainer` implementation) that can 
 
 This `DeployableContainer` has been tested with the latest two releases of Open Liberty and WebSphere Liberty. Requires Java EE 8 or below.
 
-For Jakarta EE 9 projects, check out the documentation [here](JakartaEE9_README.md).
+For Jakarta EE 9 and 10 projects, check out the documentation [here](JakartaEE9_README.md).
 
 **Prerequisite Configuration**
 
