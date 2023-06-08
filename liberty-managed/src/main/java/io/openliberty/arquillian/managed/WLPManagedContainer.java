@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, 2022 IBM Corporation, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2012, 2023 IBM Corporation, Red Hat Middleware LLC, and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -653,8 +653,8 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
          // If we didn't find any servlets and this is a testable archive it ought to
          // contain the arquillian test servlet, which is all that most tests need to
          // work
-         if (containerConfiguration.isServletTestProtocol() && servletNames.isEmpty() && Testable.isArchiveToTest(webModule.archive)) {
-            servletNames.add(ARQUILLIAN_SERVLET_NAME);
+         if (servletNames.isEmpty() && Testable.isArchiveToTest(webModule.archive)) {
+            servletNames.add(containerConfiguration.isServletTestProtocol() ? ARQUILLIAN_SERVLET_NAME : ARQUILLIAN_REST_NAME);
          }
          return servletNames;
       } catch (Exception e) {
