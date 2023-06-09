@@ -6,7 +6,7 @@
 
 An Arquillian container adapter (`DeployableContainer` implementation) that can start and stop a local Liberty process and run tests on it over a remote protocol (effectively in a different JVM). For an introduction to testing microservices with the Arquillian Liberty Managed container and [Open Liberty](https://openliberty.io/), check out the [this guide](https://openliberty.io/guides/arquillian-managed.html).
 
-**Jakarta EE 9:** for Arquillian Liberty Managed container documentation with Jakarta EE 9, click [here](liberty-managed/JakartaEE9_README.md).
+**Jakarta EE 9 and 10:** for Arquillian Liberty Managed container documentation with Jakarta EE 9 and EE 10, click [here](liberty-managed/JakartaEE9_README.md).
 
 **Java EE 8 or below:** for Arquillian Liberty Managed container documentation with Java EE 8 or below, click [here](liberty-managed/README.md).
 
@@ -14,7 +14,7 @@ An Arquillian container adapter (`DeployableContainer` implementation) that can 
 
 An Arquillian container adapter (`DeployableContainer` implementation) that can connect and run against a remote (different JVM, different machine) Liberty server and run tests on it over a remote protocol (effectively in a different JVM).
 
-**Jakarta EE 9:** for Arquillian Liberty Remote container documentation with Jakarta EE 9, click [here](liberty-remote/JakartaEE9_README.md).
+**Jakarta EE 9 and 10:** for Arquillian Liberty Remote container documentation with Jakarta EE 9 and EE 10, click [here](liberty-remote/JakartaEE9_README.md).
 
 **Java EE 8 or below:** for Arquillian Liberty Remote container documentation with Java EE 8 or below, click [here](liberty-remote/README.md).
 
@@ -24,7 +24,7 @@ To run tests, you will need to specify the following parameters:
 
 | Parameter        | Description |
 | ---------------- | ----------- |
-| runtime          | The runtime to use. Specify `ol` for Open Liberty, `olbeta` for Open Liberty beta, and `wlp` for WebSphere Liberty. |
+| runtime          | The runtime to use. Specify `ol` for Open Liberty, `olbeta` for Open Liberty beta, and `wlp-ee9` or `wlp-ee10` for WebSphere Liberty. |
 | runtimeVersion   | Version of the specified runtime to use. |
 
 For example, to run tests on version 22.0.0.6 of the Open Liberty runtime, use the following command:
@@ -32,3 +32,5 @@ For example, to run tests on version 22.0.0.6 of the Open Liberty runtime, use t
 ```
 mvn verify -Druntime=ol -DruntimeVersion=22.0.0.6
 ```
+
+EE 9 archive images are no longer published for WebSphere Liberty so runtimeVersion is ignored for `wlp-ee9` and 23.0.0.2 is used which is the last version of the wlp-jakartaee9 archive that was published.

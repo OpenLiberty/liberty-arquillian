@@ -1,4 +1,4 @@
-# Arquillian Liberty Managed with Jakarta EE 9
+# Arquillian Liberty Managed with Jakarta EE 9 and 10
 
 An Arquillian container adapter (`DeployableContainer` implementation) that can start and stop a local Liberty process and run tests on it over a remote protocol (effectively in a different JVM). 
 
@@ -6,7 +6,7 @@ An Arquillian container adapter (`DeployableContainer` implementation) that can 
 
 **Prerequisite Version**
 
-This `DeployableContainer` has been tested with the latest beta release of Open Liberty. Requires Jakarta EE 9.
+This `DeployableContainer` has been tested with the latest release of Open Liberty. Requires Jakarta EE 9 or 10.
 
 For Java EE 8 projects and below, check out the documentation [here](README.md).
 
@@ -56,7 +56,7 @@ To enable Arquillian Liberty Managed in your project, add the following to your 
 		<dependency>
 			<groupId>org.jboss.arquillian</groupId>
 			<artifactId>arquillian-bom</artifactId>
-			<version>1.7.0.Alpha14</version>
+			<version>1.7.0.Final</version>
 			<scope>import</scope>
 			<type>pom</type>
 		</dependency>

@@ -14,17 +14,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         java: [8, 11, 17]
-        runtime: [ol, olbeta, wlp]
-        runtime_version: [22.0.0.10, 22.0.0.11-beta]
+        runtime: [ol, wlp-ee9, wlp-ee10]
+        runtime_version: [23.0.0.3]
         exclude:
-        - runtime: olbeta
-          runtime_version: 22.0.0.10
-        - runtime: ol
-          runtime_version: 22.0.0.11-beta
-        - runtime: wlp
-          runtime_version: 22.0.0.11-beta
         - java: 8
-          runtime_version: 22.0.0.11-beta
+          runtime: wlp-ee10
 
     steps:
     - uses: actions/checkout@v3

@@ -6,7 +6,7 @@ The Arquillian support feature adds an additional http endpoint which the Arquil
 
 It is only for supporting the running of Arquillian tests and must not be installed on a production system.
 
-Requires Java EE 8 or below. For Jakarta EE 9 projects, check out the documentation [here](JakartaEE9_README.md).
+Requires Java EE 8 or below. For Jakarta EE 9 and 10 projects, check out the documentation [here](JakartaEE9_README.md).
 
 ## Configuring with a Maven project
 

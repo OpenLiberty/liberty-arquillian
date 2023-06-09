@@ -1,4 +1,4 @@
-# Arquillian support Liberty user feature with Jakarta EE 9
+# Arquillian support Liberty user feature with Jakarta EE 9 and 10
 
 A Liberty user feature which allows deployment exceptions to be reported more reliably when using the Liberty Managed Jakarta container.
 
@@ -6,7 +6,7 @@ The Arquillian support feature adds an additional http endpoint which the Arquil
 
 It is only for supporting the running of Arquillian tests and must not be installed on a production system.
 
-Requires Jakarta EE 9. For Java EE 8 projects and below, check out the documentation [here](README.md).
+Requires Jakarta EE 9 or 10. For Java EE 8 projects and below, check out the documentation [here](README.md).
 
 ## Configuring with a Maven project
 

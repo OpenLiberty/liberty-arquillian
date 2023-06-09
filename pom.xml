@@ -38,7 +38,7 @@
   <!-- Properties -->
   <properties>
     <!-- Versioning -->
-    <version.arquillian_core>1.7.0.Alpha14</version.arquillian_core>
+    <version.arquillian_core>1.7.0.Final</version.arquillian_core>
     <version.surefire.plugin>3.0.0-M7</version.surefire.plugin>
 
     <!-- override from parent -->
@@ -77,19 +77,35 @@
   <!-- Profiles for WLP vs OL -->
   <profiles>
     <profile>
-      <id>wlp-its</id>
+      <id>wlp-ee9-its</id>
       <activation>
           <property>
             <name>runtime</name>
-            <value>wlp</value>
+            <value>wlp-ee9</value>
           </property>
       </activation>
       <properties>
-          <runtime>wlp</runtime>
+          <runtime>wlp-ee9</runtime>
           <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
           <runtimeArtifactId>wlp-jakartaee9</runtimeArtifactId>
-          <runtimeVersion>${runtimeVersion}</runtimeVersion>
+          <libertyVersion>23.0.0.2</libertyVersion>
           <skipEE10Tests>true</skipEE10Tests>
+      </properties>
+    </profile>
+    <profile>
+      <id>wlp-ee10-its</id>
+      <activation>
+          <property>
+            <name>runtime</name>
+            <value>wlp-ee10</value>
+          </property>
+      </activation>
+      <properties>
+          <runtime>wlp-ee10</runtime>
+          <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
+          <runtimeArtifactId>wlp-jakartaee10</runtimeArtifactId>
+          <libertyVersion>${runtimeVersion}</libertyVersion>
+          <skipEE9Tests>true</skipEE9Tests>
       </properties>
     </profile>
     <profile>
@@ -104,8 +120,7 @@
         <runtime>ol</runtime>
         <runtimeGroupId>io.openliberty</runtimeGroupId>
         <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
-        <runtimeVersion>${runtimeVersion}</runtimeVersion>
-        <skipEE10Tests>true</skipEE10Tests>
+        <libertyVersion>${runtimeVersion}</libertyVersion>
       </properties>
     </profile>
     <profile>
@@ -120,7 +135,7 @@
         <runtime>olbeta</runtime>
         <runtimeGroupId>io.openliberty.beta</runtimeGroupId>
         <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
-        <runtimeVersion>${runtimeVersion}</runtimeVersion>
+        <libertyVersion>${runtimeVersion}</libertyVersion>
       </properties>
     </profile>
     <profile>
@@ -128,15 +143,15 @@
       <activation>
         <property>
           <name>runtime</name>
-          <value>olbeta</value>
+          <value>ol</value>
         </property>
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <runtime>olbeta</runtime>
-        <runtimeGroupId>io.openliberty.beta</runtimeGroupId>
+        <runtime>ol</runtime>
+        <runtimeGroupId>io.openliberty</runtimeGroupId>
         <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
-        <runtimeVersion>22.0.0.11-beta</runtimeVersion>
+        <libertyVersion>23.0.0.3</libertyVersion>
       </properties>
     </profile>
   </profiles>
