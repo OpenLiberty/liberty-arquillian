@@ -68,7 +68,7 @@ To enable Arquillian Liberty Managed in your project, add the following to your 
 	<dependency>
 		<groupId>io.openliberty.arquillian</groupId>
 		<artifactId>arquillian-liberty-managed-jakarta</artifactId>
-		<version>2.1.2</version>
+		<version>2.1.3</version>
 		<scope>test</scope>
 	</dependency>
 	...

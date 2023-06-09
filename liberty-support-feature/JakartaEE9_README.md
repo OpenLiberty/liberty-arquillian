@@ -19,7 +19,7 @@ Example:
   <dependency>
     <groupId>io.openliberty.arquillian</groupId>
     <artifactId>arquillian-liberty-support-jakarta</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.3</version>
   </dependency>
 </dependencies>
 <plugin>
@@ -40,7 +40,7 @@ Example:
       <artifactItem>
         <groupId>io.openliberty.arquillian</groupId>
         <artifactId>arquillian-liberty-support-jakarta</artifactId>
-        <version>2.1.0</version>
+        <version>2.1.3</version>
         <type>zip</type>
         <classifier>feature</classifier>
         <overWrite>false</overWrite>
