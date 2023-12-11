@@ -15,6 +15,7 @@
 package io.openliberty.arquillian.managed;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -23,7 +24,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.asset.FileAsset;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -45,7 +46,7 @@ public class WLPIntegrationClientTestCase
                               .addClass(HelloServlet.class))
             .addAsModule(ShrinkWrap.create(JavaArchive.class, "test.jar")
                               .addClass(WLPIntegrationClientTestCase.class)
-                              .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml"));
+                              .addAsManifestResource(new FileAsset(new File("src/resources/beans.xml")), "beans.xml"));
    }
    
    @Test

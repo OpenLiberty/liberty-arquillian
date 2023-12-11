@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2010-2023, Red Hat Middleware LLC, and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,7 @@
 package io.openliberty.arquillian.remote;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -22,7 +23,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.asset.FileAsset;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -42,7 +43,7 @@ public class WLPIntegrationClientTestCase {
                 .addAsModule(ShrinkWrap.create(WebArchive.class, "test.war").addClass(HelloServlet.class))
                 .addAsModule(
                         ShrinkWrap.create(JavaArchive.class, "test.jar").addClass(WLPIntegrationClientTestCase.class)
-                                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml"));
+                                .addAsManifestResource(new FileAsset(new File("src/resources/beans.xml")), "beans.xml"));
     }
 
     @Test

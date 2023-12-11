@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, IBM Corporation, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2019-2023, IBM Corporation, Red Hat Middleware LLC, and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,8 @@ package io.openliberty.arquillian.managed.needssupportfeature.deploymentfailure;
 
 import static org.junit.Assert.fail;
 
+import java.io.File;
+
 import jakarta.enterprise.inject.spi.Extension;
 
 import org.jboss.arquillian.container.test.api.Deployer;
@@ -23,7 +25,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.asset.FileAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +41,7 @@ public class WLPDeploymentExceptionTest {
         WebArchive war = ShrinkWrap.create(WebArchive.class)
                                    .addPackage(WLPDeploymentExceptionTest.class.getPackage())
                                    .addAsServiceProvider(Extension.class, StartupFailureExtension.class)
-                                   .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
+                                   .addAsWebInfResource(new FileAsset(new File("src/resources/beans.xml")), "beans.xml");
 
         return war;
     }

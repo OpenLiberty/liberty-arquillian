@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2013-2023, Red Hat Middleware LLC, and individual contributors
  * identified by the Git commit log. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +14,14 @@
  */
 package io.openliberty.arquillian.managed;
 
+import java.io.File;
+
 import jakarta.inject.Inject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.asset.FileAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +34,7 @@ public class WLPInjectionTestCase
    public static JavaArchive createDeployment() {
        JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
            .addClass(Greeter.class)
-           .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
+           .addAsManifestResource(new FileAsset(new File("src/resources/beans.xml")), "beans.xml");
        return jar;
    }
    
