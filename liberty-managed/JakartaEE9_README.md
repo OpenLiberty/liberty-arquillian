@@ -10,6 +10,8 @@ This `DeployableContainer` has been tested with the latest release of Open Liber
 
 For Java EE 8 projects and below, check out the documentation [here](README.md).
 
+For Jakarta EE 9 projects using Java SE 8, you will need to use the 2.x versions of the Liberty Arquillian plugin.
+
 **Prerequisite Configuration**
 
 The following features are required in the `server.xml` of the Liberty server.

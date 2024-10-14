@@ -8,6 +8,8 @@ It is only for supporting the running of Arquillian tests and must not be instal
 
 Requires Jakarta EE 9, 10 or 11. For Java EE 8 projects and below, check out the documentation [here](README.md).
 
+For Jakarta EE 9 projects using Java SE 8, you will need to use the 2.x versions of the Liberty Arquillian plugin.
+
 ## Configuring with a Maven project
 
 You can install the arquillian-liberty-support-jakarta feature as part of a maven build using the [maven-dependency-plugin:unpack goal](https://maven.apache.org/plugins/maven-dependency-plugin/unpack-mojo.html).

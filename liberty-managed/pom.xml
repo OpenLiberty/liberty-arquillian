@@ -5,7 +5,7 @@
   <parent>
     <groupId>io.openliberty.arquillian</groupId>
     <artifactId>arquillian-parent-liberty-jakarta</artifactId>
-    <version>3.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
