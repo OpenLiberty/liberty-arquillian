@@ -57,12 +57,12 @@
         <version>${version.surefire.plugin}</version>
         <configuration>
           <skip>true</skip>
-          <systemProperties>
+          <systemPropertyVariables>
             <property>
               <name>java.util.logging.config.file</name>
               <value>${loggingPropertiesFile}</value>
             </property>
-          </systemProperties>
+          </systemPropertyVariables>
         </configuration>
         <executions>
           <execution>

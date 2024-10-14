@@ -1,4 +1,4 @@
-# Arquillian Liberty Managed with Jakarta EE 9 and 10
+# Arquillian Liberty Managed with Jakarta EE 9, 10 and 11
 
 An Arquillian container adapter (`DeployableContainer` implementation) that can start and stop a local Liberty process and run tests on it over a remote protocol (effectively in a different JVM). 
 
@@ -6,7 +6,7 @@ An Arquillian container adapter (`DeployableContainer` implementation) that can 
 
 **Prerequisite Version**
 
-This `DeployableContainer` has been tested with the latest release of Open Liberty. Requires Jakarta EE 9 or 10.
+This `DeployableContainer` has been tested with the latest release of Open Liberty. Requires Jakarta EE 9, 10 or 11.
 
 For Java EE 8 projects and below, check out the documentation [here](README.md).
 
@@ -19,7 +19,7 @@ The following features are required in the `server.xml` of the Liberty server.
 <featureManager>
     <feature>pages-3.0</feature>
     <feature>localConnector-1.0</feature>
-    <feature>usr:arquillian-support-jakarta-2.1</feature> <!-- Optional, needed for reliable reporting of correct DeploymentExceptions -->
+    <feature>usr:arquillian-support-jakarta-3.0</feature> <!-- Optional, needed for reliable reporting of correct DeploymentExceptions -->
 </featureManager>
 ```
 
@@ -30,11 +30,11 @@ or
 <featureManager>
     <feature>restfulWS-3.0</feature>
     <feature>localConnector-1.0</feature>
-    <feature>usr:arquillian-support-jakarta-2.1</feature> <!-- Optional, needed for reliable reporting of correct DeploymentExceptions -->
+    <feature>usr:arquillian-support-jakarta-3.0</feature> <!-- Optional, needed for reliable reporting of correct DeploymentExceptions -->
 </featureManager>
 ```
 
-Read more about configuring the `arquillian-support-jakarta-2.1` feature [here](../liberty-support-feature/JakartaEE9_README.md).
+Read more about configuring the `arquillian-support-jakarta-3.0` feature [here](../liberty-support-feature/JakartaEE9_README.md).
 
 You will also need to enable the `applicationMonitor` MBean support in your `server.xml`:
 
@@ -56,7 +56,7 @@ To enable Arquillian Liberty Managed in your project, add the following to your 
 		<dependency>
 			<groupId>org.jboss.arquillian</groupId>
 			<artifactId>arquillian-bom</artifactId>
-			<version>1.7.0.Final</version>
+			<version>1.9.1.Final</version>
 			<scope>import</scope>
 			<type>pom</type>
 		</dependency>
@@ -68,7 +68,7 @@ To enable Arquillian Liberty Managed in your project, add the following to your 
 	<dependency>
 		<groupId>io.openliberty.arquillian</groupId>
 		<artifactId>arquillian-liberty-managed-jakarta</artifactId>
-		<version>2.1.3</version>
+		<version>3.0.0</version>
 		<scope>test</scope>
 	</dependency>
 	...

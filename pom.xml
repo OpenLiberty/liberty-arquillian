@@ -38,8 +38,9 @@
   <!-- Properties -->
   <properties>
     <!-- Versioning -->
-    <version.arquillian_core>1.7.0.Final</version.arquillian_core>
-    <version.surefire.plugin>3.0.0-M7</version.surefire.plugin>
+    <version.arquillian_core>1.9.1.Final</version.arquillian_core>
+    <version.arquillian_jakarta>10.0.0.Final</version.arquillian_jakarta>
+    <version.surefire.plugin>3.2.5</version.surefire.plugin>
 
     <!-- override from parent -->
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -62,6 +63,13 @@
         <groupId>org.jboss.arquillian</groupId>
         <artifactId>arquillian-build</artifactId>
         <version>${version.arquillian_core}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.arquillian.jakarta</groupId>
+        <artifactId>arquillian-jakarta-bom</artifactId>
+        <version>${version.arquillian_jakarta}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

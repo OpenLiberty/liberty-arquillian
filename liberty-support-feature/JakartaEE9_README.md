@@ -1,4 +1,4 @@
-# Arquillian support Liberty user feature with Jakarta EE 9 and 10
+# Arquillian support Liberty user feature with Jakarta EE 9, 10 and 11
 
 A Liberty user feature which allows deployment exceptions to be reported more reliably when using the Liberty Managed Jakarta container.
 
@@ -6,7 +6,7 @@ The Arquillian support feature adds an additional http endpoint which the Arquil
 
 It is only for supporting the running of Arquillian tests and must not be installed on a production system.
 
-Requires Jakarta EE 9 or 10. For Java EE 8 projects and below, check out the documentation [here](README.md).
+Requires Jakarta EE 9, 10 or 11. For Java EE 8 projects and below, check out the documentation [here](README.md).
 
 ## Configuring with a Maven project
 
@@ -19,7 +19,7 @@ Example:
   <dependency>
     <groupId>io.openliberty.arquillian</groupId>
     <artifactId>arquillian-liberty-support-jakarta</artifactId>
-    <version>2.1.3</version>
+    <version>3.0.0</version>
   </dependency>
 </dependencies>
 <plugin>
@@ -40,7 +40,7 @@ Example:
       <artifactItem>
         <groupId>io.openliberty.arquillian</groupId>
         <artifactId>arquillian-liberty-support-jakarta</artifactId>
-        <version>2.1.3</version>
+        <version>3.0.0</version>
         <type>zip</type>
         <classifier>feature</classifier>
         <overWrite>false</overWrite>
@@ -50,12 +50,12 @@ Example:
   </configuration>
 </plugin>
 ```
-Then add `<feature>usr:arquillian-support-jakarta-2.1</feature>` to the `<featureManager>` section of your `server.xml`.
+Then add `<feature>usr:arquillian-support-jakarta-3.0</feature>` to the `<featureManager>` section of your `server.xml`.
 ```
 <featureManager>
     <feature>pages-3.0</feature>
     <feature>localConnector-1.0</feature>
-    <feature>usr:arquillian-support-jakarta-2.1</feature>
+    <feature>usr:arquillian-support-jakarta-3.0</feature>
 </featureManager>
 ```
 
@@ -67,12 +67,12 @@ git clone git@github.com:OpenLiberty/liberty-arquillian.git
 mvn install
 ```
 2.  Extract the arquillian-liberty-support-jakarta-x.x.x-feature.zip into the `usr` directory of your Liberty runtime
-3. Add `<feature>usr:arquillian-support-jakarta-2.1</feature>` to the `<featureManager>` section of your `server.xml`
+3. Add `<feature>usr:arquillian-support-jakarta-3.0</feature>` to the `<featureManager>` section of your `server.xml`
 
 ```
 <featureManager>
     <feature>pages-3.0</feature>
     <feature>localConnector-1.0</feature>
-    <feature>usr:arquillian-support-jakarta-2.1</feature>
+    <feature>usr:arquillian-support-jakarta-3.0</feature>
 </featureManager>
 ```
