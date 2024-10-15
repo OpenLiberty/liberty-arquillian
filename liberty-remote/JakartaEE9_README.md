@@ -1,4 +1,4 @@
-# Arquillian Liberty Remote with Jakarta EE 9 and 10
+# Arquillian Liberty Remote with Jakarta EE 9, 10 and 11
 
 An Arquillian container adapter (`DeployableContainer` implementation) that can connect and run against a remote (different JVM, different machine) Liberty server andrun tests on it over a remote protocol (effectively in a different JVM).
 
@@ -6,9 +6,11 @@ An Arquillian container adapter (`DeployableContainer` implementation) that can 
 
 **Prerequisite Version**
 
-This `DeployableContainer` has been tested with the latest release of Open Liberty. Requires Jakarta EE 9 or EE 10.
+This `DeployableContainer` has been tested with the latest release of Open Liberty. Requires Jakarta EE 9, 10 or 11
 
 For Java EE 8 projects and below, check out the documentation [here](README.md).
+
+For Jakarta EE 9 projects using Java SE 8, you will need to use the 2.x versions of the Liberty Arquillian plugin.
 
 **Prerequisite Configuration**
 
@@ -64,7 +66,7 @@ To enable Arquillian Liberty Remote in your project, add the following to your `
 		<dependency>
 			<groupId>org.jboss.arquillian</groupId>
 			<artifactId>arquillian-bom</artifactId>
-			<version>1.7.0.Final</version>
+			<version>1.9.1.Final</version>
 			<scope>import</scope>
 			<type>pom</type>
 		</dependency>
@@ -76,7 +78,7 @@ To enable Arquillian Liberty Remote in your project, add the following to your `
 	<dependency>
 		<groupId>io.openliberty.arquillian</groupId>
 		<artifactId>arquillian-liberty-remote-jakarta</artifactId>
-		<version>2.1.3</version>
+		<version>3.0.0</version>
 		<scope>test</scope>
 	</dependency>
 	...
@@ -134,7 +136,7 @@ xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/a
 		<dependency>
 			<groupId>io.openliberty.arquillian</groupId>
 			<artifactId>arquillian-liberty-remote-jakarta</artifactId>
-			<version>2.1.3</version>
+			<version>3.0.0</version>
 		</dependency>
 	</dependencies>
 </profile>

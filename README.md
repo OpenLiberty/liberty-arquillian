@@ -6,7 +6,7 @@
 
 An Arquillian container adapter (`DeployableContainer` implementation) that can start and stop a local Liberty process and run tests on it over a remote protocol (effectively in a different JVM). For an introduction to testing microservices with the Arquillian Liberty Managed container and [Open Liberty](https://openliberty.io/), check out the [this guide](https://openliberty.io/guides/arquillian-managed.html).
 
-**Jakarta EE 9 and 10:** for Arquillian Liberty Managed container documentation with Jakarta EE 9 and EE 10, click [here](liberty-managed/JakartaEE9_README.md).
+**Jakarta EE 9, 10 and 11:** for Arquillian Liberty Managed container documentation with Jakarta EE 9, 10 and 11, click [here](liberty-managed/JakartaEE9_README.md).
 
 **Java EE 8 or below:** for Arquillian Liberty Managed container documentation with Java EE 8 or below, click [here](liberty-managed/README.md).
 
@@ -14,7 +14,7 @@ An Arquillian container adapter (`DeployableContainer` implementation) that can 
 
 An Arquillian container adapter (`DeployableContainer` implementation) that can connect and run against a remote (different JVM, different machine) Liberty server and run tests on it over a remote protocol (effectively in a different JVM).
 
-**Jakarta EE 9 and 10:** for Arquillian Liberty Remote container documentation with Jakarta EE 9 and EE 10, click [here](liberty-remote/JakartaEE9_README.md).
+**Jakarta EE 9, 10 and 11:** for Arquillian Liberty Remote container documentation with Jakarta EE 9, 10 and 11, click [here](liberty-remote/JakartaEE9_README.md).
 
 **Java EE 8 or below:** for Arquillian Liberty Remote container documentation with Java EE 8 or below, click [here](liberty-remote/README.md).
 

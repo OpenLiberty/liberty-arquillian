@@ -5,7 +5,7 @@
   <parent>
     <groupId>io.openliberty.arquillian</groupId>
     <artifactId>arquillian-parent-liberty-jakarta</artifactId>
-    <version>3.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -193,12 +193,12 @@
             <version>${version.surefire.plugin}</version>
             <configuration>
               <skip>true</skip>
-              <systemProperties>
+              <systemPropertyVariables>
                 <property>
                   <name>java.util.logging.config.file</name>
                   <value>${loggingPropertiesFile}</value>
                 </property>
-              </systemProperties>
+              </systemPropertyVariables>
               <argLine>-Dproject.build.directory=${project.build.directory}</argLine>
               <trimStackTrace>false</trimStackTrace>
             </configuration>
