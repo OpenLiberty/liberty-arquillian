@@ -2,9 +2,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ main ]
+    branches: [ 2.x-maintenance ]
   pull_request:
-    branches: [ main ]
+    branches: [ 2.x-maintenance ]
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -15,7 +15,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         java: [8, 11, 17]
         runtime: [ol, wlp-ee9, wlp-ee10]
-        runtime_version: [23.0.0.3]
+        runtime_version: [24.0.0.9]
         exclude:
         - java: 8
           runtime: wlp-ee10
