@@ -15,7 +15,7 @@
   <!-- Artifact Configuration -->
   <groupId>io.openliberty.arquillian</groupId>
   <artifactId>arquillian-parent-liberty-jakarta</artifactId>
-  <version>2.1.4-SNAPSHOT</version>
+  <version>3.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Arquillian Container Liberty Jakarta Parent</name>
   <description>Jakarta Liberty Container integrations for the Arquillian Project</description>
