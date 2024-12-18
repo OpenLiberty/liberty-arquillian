@@ -536,7 +536,11 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
              log.finer("Deployment done");
          }
 
-         waitForApplicationTargetState(new String[] {deployName}, true, containerConfiguration.getAppDeployTimeout());
+         if (containerConfiguration.isCheckAppTargetState()) {
+             waitForApplicationTargetState(new String[] {deployName}, true, containerConfiguration.getAppDeployTimeout());
+         } else {
+             Thread.sleep(containerConfiguration.getAppDeployTimeout() * 1000);
+         }
 
          // Return metadata on how to contact the deployed application
          ProtocolMetaData metaData = new ProtocolMetaData();
@@ -930,8 +934,12 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             // Update server.xml on file system
             writeServerXML(document);
 
-            // Wait until the application is undeployed
-            waitForApplicationTargetState(new String[] {deployName}, false, containerConfiguration.getAppUndeployTimeout());
+            if (containerConfiguration.isCheckAppTargetState()) {
+               // Wait until the application is undeployed
+               waitForApplicationTargetState(new String[] {deployName}, false, containerConfiguration.getAppUndeployTimeout());
+            } else {
+               Thread.sleep(containerConfiguration.getAppUndeployTimeout() * 1000);
+            }
          }
 
          // Now we can proceed and delete the archive for either deploy type
