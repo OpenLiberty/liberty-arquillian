@@ -46,7 +46,7 @@ public class WLPManagedContainerConfiguration implements
    private int fileDeleteRetries = 30; 
    private int standardFileDeleteRetryInterval = 50;
    private String testProtocol = "servlet";
-   private boolean checkAppTargetState = true;
+   private boolean allowAppDeployFailures = false;
 
    @Override
    public void validate() throws ConfigurationException {
@@ -314,11 +314,11 @@ public class WLPManagedContainerConfiguration implements
        return "servlet".equalsIgnoreCase(testProtocol);
    }
 
-   public boolean isCheckAppTargetState() {
-	   return checkAppTargetState;
+   public boolean isAllowAppDeployFailures() {
+	   return allowAppDeployFailures;
    }
 
-   public void setCheckAppTargetState(boolean checkAppTargetState) {
-	   this.checkAppTargetState = checkAppTargetState;
+   public void setAllowAppDeployFailures(boolean allowAppDeployFailures) {
+	   this.allowAppDeployFailures = allowAppDeployFailures;
    }
 }

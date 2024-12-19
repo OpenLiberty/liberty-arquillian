@@ -536,10 +536,11 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
              log.finer("Deployment done");
          }
 
-         if (containerConfiguration.isCheckAppTargetState()) {
+         try {
              waitForApplicationTargetState(new String[] {deployName}, true, containerConfiguration.getAppDeployTimeout());
-         } else {
-             Thread.sleep(containerConfiguration.getAppDeployTimeout() * 1000);
+         } catch (DeploymentException de) {
+             if (!containerConfiguration.isAllowAppDeployFailures())
+                 throw de;
          }
 
          // Return metadata on how to contact the deployed application
@@ -934,11 +935,12 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             // Update server.xml on file system
             writeServerXML(document);
 
-            if (containerConfiguration.isCheckAppTargetState()) {
-               // Wait until the application is undeployed
-               waitForApplicationTargetState(new String[] {deployName}, false, containerConfiguration.getAppUndeployTimeout());
-            } else {
-               Thread.sleep(containerConfiguration.getAppUndeployTimeout() * 1000);
+            try {
+                // Wait until the application is undeployed
+                waitForApplicationTargetState(new String[] {deployName}, false, containerConfiguration.getAppUndeployTimeout());
+            } catch (DeploymentException de) {
+                if (!containerConfiguration.isAllowAppDeployFailures())
+                    throw de;
             }
          }
 

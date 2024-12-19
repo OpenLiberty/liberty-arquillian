@@ -101,7 +101,7 @@ To enable Arquillian Liberty Managed in your project, add the following to your 
 | fileDeleteRetries | Integer | 30 | How many times to attempt deleting a file |
 | standardFileDeleteRetryInterval | Integer | 50 | How long in milliseconds to wait between attempting to delete a file |
 | testProtocol | String | servlet | Arquillian protocol to contact the server to run a test (available: servlet or rest) |
-| checkAppTargetState | boolean | true | When disabled, deployed apps do not need to reach a particular expected state (typically STARTED), suppressing potential deployment exceptions. |
+| allowAppDeployFailures | boolean | false | When enabled, application deployment exceptions are not thrown. |
 
 
 ## Examples
