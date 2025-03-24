@@ -100,7 +100,8 @@ To enable Arquillian Liberty Managed in your project, add the following to your 
 | outputToConsole | Boolean | true | When enabled output from the application server process will be emitted to stdout |
 | fileDeleteRetries | Integer | 30 | How many times to attempt deleting a file |
 | standardFileDeleteRetryInterval | Integer | 50 | How long in milliseconds to wait between attempting to delete a file |
-| testProtocol | String | servlet | Aquillian protocol to contact the server to run a test (available: servlet or rest) |
+| testProtocol | String | servlet | Arquillian protocol to contact the server to run a test (available: servlet or rest) |
+| allowAppDeployFailures | boolean | false | When enabled, application deployment exceptions are not thrown. |
 
 
 ## Examples
