@@ -207,7 +207,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
                 addFeatures(document, "localConnector-1.0");
 
-                writeServerXML(document, serverXML);
+                writeXML(document, serverXML);
             }
 
             // Start the WebSphere Liberty Profile VM
@@ -514,6 +514,23 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
             // Update server.xml on file system
             writeServerXML(document);
+
+            if (containerConfiguration.getDefaultClientModule() != null) {
+                String clientAppDir = getClientConfigDir() + "/apps/";
+                File clientExportedArchiveLocation = new File(clientAppDir, archiveName);
+                archive.as(ZipExporter.class).exportTo(clientExportedArchiveLocation, true);
+
+                String clientArchiveName = clientAppDir + deployName + ".ear";
+
+                // Read client.xml file into Memory
+                Document clientDoc = readClientXML();
+
+                // Add the archive as appropriate to the client.xml file
+                addEnterpriseApplication(clientDoc, deployName, clientArchiveName);
+
+                // Update client.xml on file system
+                writeClientXML(clientDoc);
+            }
          }
          // Otherwise put the application in the dropins directory
          else {
@@ -936,6 +953,17 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             // Update server.xml on file system
             writeServerXML(document);
 
+            if (containerConfiguration.getDefaultClientModule() != null) {
+                // Read client.xml file into Memory
+                Document clientDoc = readClientXML();
+
+                // Remove the archive from the client.xml file
+                removeEnterpriseApplication(clientDoc, deployName);
+
+                // Update client.xml on file system
+                writeClientXML(clientDoc);
+            }
+
             try {
                 // Wait until the application is undeployed
                 waitForApplicationTargetState(new String[] {deployName}, false, containerConfiguration.getAppUndeployTimeout());
@@ -963,6 +991,12 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
             waitForApplicationTargetState(new String[] {deployName}, false, containerConfiguration.getAppUndeployTimeout());
          }
 
+         // Remove the deployed archive from client as needed
+         if (containerConfiguration.getDefaultClientModule() != null) {
+            String clientAppDir = getClientConfigDir() + "/apps/";
+            File clientExportedArchiveLocation = new File(clientAppDir, archiveName);
+            deleteWithRetries(clientExportedArchiveLocation, containerConfiguration.isFailSafeUndeployment(), containerConfiguration.getFileDeleteRetries(), containerConfiguration.getStandardFileDeleteRetryInterval());
+         }
       } catch (Exception e) {
          throw new DeploymentException("Exception while undeploying application.", e);
       }
@@ -1038,8 +1072,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       return dropInTempDir;
     }
 
-   private String getServerXML() throws IOException
-   {
+   private String getServerXML() throws IOException {
       String serverXML = getServerConfigDir() + "/server.xml";
       if (log.isLoggable(Level.FINER))
          log.finer("server.xml: " + serverXML);
@@ -1055,6 +1088,13 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       }
 
       return serverXML;
+   }
+
+   private String getClientXML() throws IOException {
+      String clientXML = getClientConfigDir() + "/client.xml";
+      if (log.isLoggable(Level.FINER))
+         log.finer("client.xml: " + clientXML);
+      return clientXML;
    }
 
    private String createDeploymentName(String archiveName)
@@ -1074,44 +1114,68 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 
    private Document readServerXML() throws DeploymentException {
       try {
-    	      return readServerXML(getServerXML());
+         return readServerXML(getServerXML());
       } catch (IOException e) {
-          throw new DeploymentException( "Can't read server.xml", e);
+         throw new DeploymentException( "Can't read server.xml", e);
       }
    }
 
    private Document readServerXML(String serverXML) throws DeploymentException {
-	   InputStream input = null;
-	   try {
-		   input = new FileInputStream(new File(serverXML));
-		   return readXML(input);
-	   } catch (Exception e) {
-		   throw new DeploymentException("Exception while reading server.xml file.", e);
-	   } finally {
-	       closeQuietly(input);
-	   }
-	}
+      InputStream input = null;
+      try {
+         input = new FileInputStream(new File(serverXML));
+         return readXML(input);
+      } catch (Exception e) {
+         throw new DeploymentException("Exception while reading server.xml file.", e);
+      } finally {
+         closeQuietly(input);
+      }
+   }
+
+   private Document readClientXML() throws DeploymentException {
+      try {
+         return readClientXML(getClientXML());
+      } catch (IOException e) {
+         throw new DeploymentException( "Can't read client.xml", e);
+      }
+   }
+
+   private Document readClientXML(String clientXML) throws DeploymentException {
+      InputStream input = null;
+      try {
+         input = new FileInputStream(new File(clientXML));
+         return readXML(input);
+      } catch (Exception e) {
+         throw new DeploymentException("Exception while reading client.xml file.", e);
+      } finally {
+         closeQuietly(input);
+      }
+   }
 
    private Document readXML(InputStream input) throws ParserConfigurationException, SAXException, IOException {
-	   DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-	   DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-	   return documentBuilder.parse(input);
+      DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+      return documentBuilder.parse(input);
    }
 
    private void writeServerXML(Document doc) throws DeploymentException, IOException {
-       writeServerXML(doc, getServerXML());
+       writeXML(doc, getServerXML());
    }
 
-   private void writeServerXML(Document doc, String serverXML) throws DeploymentException {
+   private void writeClientXML(Document doc) throws DeploymentException, IOException {
+       writeXML(doc, getClientXML());
+   }
+
+   private void writeXML(Document doc, String xmlFile) throws DeploymentException {
       try {
          TransformerFactory tf = TransformerFactory.newInstance();
          Transformer tr = tf.newTransformer();
          tr.setOutputProperty(OutputKeys.INDENT, "yes");
          DOMSource source = new DOMSource(doc);
-         StreamResult res = new StreamResult(new File(serverXML));
+         StreamResult res = new StreamResult(new File(xmlFile));
          tr.transform(source, res);
       } catch (Exception e) {
-         throw new DeploymentException("Exception wile writing server.xml file.", e);
+         throw new DeploymentException("Exception wile writing file: " + xmlFile, e);
       }
    }
 
@@ -1148,8 +1212,7 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
        return false;
    }
 
-   private Element createApplication(Document doc, String deploymentName, String archiveName, String type) throws DeploymentException
-   {
+   private Element createApplication(Document doc, String deploymentName, String archiveName, String type) throws DeploymentException {
       // create new Application
       Element application = doc.createElement("application");
       application.setAttribute("id", deploymentName);
@@ -1194,20 +1257,46 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
       return application;
    }
 
-   private void addApplication(Document doc, String deployName, String archiveName, String type) throws DOMException, DeploymentException
-   {
+   private void addApplication(Document doc, String deployName, String archiveName, String type) throws DOMException, DeploymentException {
       NodeList rootList = doc.getElementsByTagName("server");
       Node root = rootList.item(0);
       root.appendChild(createApplication(doc, deployName, archiveName, type));
    }
 
-   private void removeApplication(Document doc, String deployName)
-   {
+   private void removeApplication(Document doc, String deployName) {
       Node server = doc.getElementsByTagName("server").item(0);
       NodeList serverlist = server.getChildNodes();
       for (int i=0; serverlist.getLength() > i; i++) {
          Node node = serverlist.item(i);
          if (node.getNodeName().equals("application") && node.getAttributes().getNamedItem("id").getNodeValue().equals(deployName)) {
+            node.getParentNode().removeChild(node);
+         }
+      }
+   }
+
+   private Element createEnterpriseApplication(Document doc, String deploymentName, String archiveName) throws DeploymentException {
+      // create new enterpriseApplication
+      Element enterpriseApplication = doc.createElement("enterpriseApplication");
+      enterpriseApplication.setAttribute("id", deploymentName);
+      enterpriseApplication.setAttribute("location", archiveName);
+      enterpriseApplication.setAttribute("name", deploymentName);
+      enterpriseApplication.setAttribute("defaultClientModule", containerConfiguration.getDefaultClientModule());
+
+      return enterpriseApplication;
+   }
+
+   private void addEnterpriseApplication(Document doc, String deployName, String archiveName) throws DOMException, DeploymentException {
+      NodeList rootList = doc.getElementsByTagName("client");
+      Node root = rootList.item(0);
+      root.appendChild(createEnterpriseApplication(doc, deployName, archiveName));
+   }
+
+   private void removeEnterpriseApplication(Document doc, String deployName) {
+      Node client = doc.getElementsByTagName("client").item(0);
+      NodeList clientList = client.getChildNodes();
+      for (int i=0; clientList.getLength() > i; i++) {
+         Node node = clientList.item(i);
+         if (node.getNodeName().equals("enterpriseApplication") && node.getAttributes().getNamedItem("id").getNodeValue().equals(deployName)) {
             node.getParentNode().removeChild(node);
          }
       }
@@ -1625,6 +1714,17 @@ public class WLPManagedContainer implements DeployableContainer<WLPManagedContai
 	   String serverConfigDir = getWlpUsrDir() + "/servers/" + containerConfiguration.getServerName();
 	   log.finer("server.config.dir path: " + serverConfigDir);
 	   return serverConfigDir;
+   }
+
+   /**
+    * Get client config dir (where client.xml etc. usually are)
+    * @return client.config.dir
+    * @throws IOException
+    */
+   private String getClientConfigDir() throws IOException {
+	   String clientConfigDir = getWlpUsrDir() + "/clients/" + containerConfiguration.getClientName();
+	   log.finer("client.config.dir path: " + clientConfigDir);
+	   return clientConfigDir;
    }
 
    /**

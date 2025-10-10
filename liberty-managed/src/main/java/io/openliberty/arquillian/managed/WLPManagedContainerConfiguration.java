@@ -49,6 +49,9 @@ public class WLPManagedContainerConfiguration implements
    private String testProtocol = "servlet";
    private boolean allowAppDeployFailures = false;
 
+   private String clientName = null;
+   private String defaultClientModule = null;
+
    @Override
    public void validate() throws ConfigurationException {
       // Validate wlpHome
@@ -125,6 +128,24 @@ public class WLPManagedContainerConfiguration implements
 
       if (!"rest".equalsIgnoreCase(testProtocol) && !"servlet".equalsIgnoreCase(testProtocol)) {
           throw new ConfigurationException("testProtocol must be set to rest or servlet");
+      }
+
+      // Validate clientName
+      // Use only Unicode alphanumeric (e.g. 0-9, a-z, A-Z), underscore (_), dash (-), plus (+), and period (.) characters.
+      // Do not begin with a dash (-) or a period (.).
+      if (clientName != null) {
+          if (!clientName.matches("^[A-Za-z0-9\\+_][A-Za-z0-9\\+_\\.-]*$"))
+              throw new ConfigurationException("clientName provided is not valid: '" + clientName + "'");
+      }
+
+      // Validate defaultClientModule
+      if (defaultClientModule != null) {
+         if (!defaultClientModule.isEmpty()) {
+            if (!deployType.equalsIgnoreCase("xml"))
+               throw new ConfigurationException("deployType must be set to xml when defaultClientModule is not empty");
+            else if (clientName == null)
+               throw new ConfigurationException("clientName must be set when defaultClientModule is not empty");
+         }
       }
    }
 
@@ -331,10 +352,26 @@ public class WLPManagedContainerConfiguration implements
    }
 
    public boolean isAllowAppDeployFailures() {
-	   return allowAppDeployFailures;
+       return allowAppDeployFailures;
    }
 
    public void setAllowAppDeployFailures(boolean allowAppDeployFailures) {
-	   this.allowAppDeployFailures = allowAppDeployFailures;
+       this.allowAppDeployFailures = allowAppDeployFailures;
+   }
+
+   public String getClientName() {
+       return clientName;
+   }
+
+   public void setClientName(String clientName) {
+       this.clientName = clientName;
+   }
+
+   public String getDefaultClientModule() {
+       return defaultClientModule;
+   }
+
+   public void setDefaultClientModule(String defaultClientModule) {
+       this.defaultClientModule = defaultClientModule;
    }
 }
