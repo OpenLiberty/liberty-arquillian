@@ -20,6 +20,7 @@ For Jakarta EE projects, use this table to determine which version of the Arquil
 | 3.x + Java 11                    | ✅           | ✅            | ❌            |
 | 3.x + Java 17                    | ✅           | ✅            | ✅            |
 | 3.x + Java 21                    | ✅           | ✅            | ✅            |
+| 3.x + Java 25                    | ✅           | ✅            | ✅            |
 
 **Prerequisite Configuration**
 

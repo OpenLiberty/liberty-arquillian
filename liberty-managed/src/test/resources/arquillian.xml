@@ -86,12 +86,24 @@
       <property name="appUndeployTimeout">10</property>
     </configuration>
   </container>
-
   <container qualifier="wlp-xml-management-deployment-rest-ee10">
     <configuration>
       <property name="wlpHome">${project.build.directory}/liberty/wlp/</property>
       <property name="deployType">xml</property>
       <property name="serverName">managementRestServer-ee10</property>
+      <property name="testProtocol">rest</property>
+
+      <!-- Adjust timeouts to work on Cloudbees CI server -->
+      <property name="appDeployTimeout">60</property>
+      <property name="appUndeployTimeout">10</property>
+    </configuration>
+  </container>
+
+  <container qualifier="wlp-xml-management-deployment-rest-ee11">
+    <configuration>
+      <property name="wlpHome">${project.build.directory}/liberty/wlp/</property>
+      <property name="deployType">xml</property>
+      <property name="serverName">managementRestServer-ee11</property>
       <property name="testProtocol">rest</property>
 
       <!-- Adjust timeouts to work on Cloudbees CI server -->

@@ -43,6 +43,7 @@
       </activation>
       <properties>
         <skipEE10Tests>true</skipEE10Tests>
+        <skipEE11Tests>true</skipEE11Tests>
       </properties>
       <dependencies>
         <dependency>
@@ -59,6 +60,9 @@
       <activation>
           <jdk>[11,)</jdk>
       </activation>
+      <properties>
+        <skipEE11Tests>true</skipEE11Tests>
+      </properties>
       <dependencies>
         <dependency>
           <groupId>jakarta.annotation</groupId>
@@ -154,6 +158,20 @@
                  <configuration>
                   <serverName>managementRestServer-ee10</serverName>
                   <serverXmlFile>src/test/resources/restServer-with-management-ee10.xml</serverXmlFile>
+                 </configuration>
+                 <goals>
+                  <goal>create</goal>
+                 </goals>
+          </execution>
+          <execution>
+            <id>create-rest-server-management-ee11</id>
+            <!-- Plugin execution only succeeds here in the correct order because
+                 execution id of the test is not 'default-test'.
+                 Because Maven. See MNG-5799 and MNG-5987 -->
+                 <phase>test</phase>
+                 <configuration>
+                  <serverName>managementRestServer-ee11</serverName>
+                  <serverXmlFile>src/test/resources/restServer-with-management-ee11.xml</serverXmlFile>
                  </configuration>
                  <goals>
                   <goal>create</goal>
@@ -326,6 +344,25 @@
                   <reportsDirectory>${project.build.directory}/surefire-reports/wlp-xml-management-deployment-rest-ee10-test</reportsDirectory>
                   <systemPropertyVariables>
                     <arquillian.launch>wlp-xml-management-deployment-rest-ee10</arquillian.launch>
+                  </systemPropertyVariables>
+                  <includes>
+                    <include>**/needssupportfeature/**</include>
+                  </includes>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>wlp-xml-management-deployment-rest-ee11-test</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <skip>${skipTests}</skip>
+                  <skip>${skipEE11Tests}</skip>
+                  <reportsDirectory>${project.build.directory}/surefire-reports/wlp-xml-management-deployment-rest-ee11-test</reportsDirectory>
+                  <systemPropertyVariables>
+                    <arquillian.launch>wlp-xml-management-deployment-rest-ee11</arquillian.launch>
                   </systemPropertyVariables>
                   <includes>
                     <include>**/needssupportfeature/**</include>

@@ -130,8 +130,10 @@
           <runtime>wlp-ee9</runtime>
           <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
           <runtimeArtifactId>wlp-jakartaee9</runtimeArtifactId>
+          <!-- This is the final version published for this artifact -->
           <libertyVersion>23.0.0.2</libertyVersion>
           <skipEE10Tests>true</skipEE10Tests>
+          <skipEE11Tests>true</skipEE11Tests>
       </properties>
     </profile>
     <profile>
@@ -146,8 +148,27 @@
           <runtime>wlp-ee10</runtime>
           <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
           <runtimeArtifactId>wlp-jakartaee10</runtimeArtifactId>
+          <!-- This is the final version published for this artifact -->
+          <libertyVersion>26.0.0.4</libertyVersion>
+          <skipEE9Tests>true</skipEE9Tests>
+          <skipEE11Tests>true</skipEE11Tests>
+      </properties>
+    </profile>
+    <profile>
+      <id>wlp-ee11-its</id>
+      <activation>
+          <property>
+            <name>runtime</name>
+            <value>wlp-ee11</value>
+          </property>
+      </activation>
+      <properties>
+          <runtime>wlp-ee11</runtime>
+          <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
+          <runtimeArtifactId>wlp-jakartaee11</runtimeArtifactId>
           <libertyVersion>${runtimeVersion}</libertyVersion>
           <skipEE9Tests>true</skipEE9Tests>
+          <skipEE10Tests>true</skipEE10Tests>
       </properties>
     </profile>
     <profile>
@@ -193,7 +214,7 @@
         <runtime>ol</runtime>
         <runtimeGroupId>io.openliberty</runtimeGroupId>
         <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
-        <libertyVersion>25.0.0.9</libertyVersion>
+        <libertyVersion>26.0.0.5</libertyVersion>
       </properties>
     </profile>
     <profile>
