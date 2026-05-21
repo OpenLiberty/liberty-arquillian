@@ -19,6 +19,8 @@ jobs:
         exclude:
         - java: 21
           runtime: wlp-ee9
+        - java: 11
+          runtime: wlp-ee11
 
     steps:
     - uses: actions/checkout@v3

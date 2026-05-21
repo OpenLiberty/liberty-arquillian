@@ -17,6 +17,7 @@
 	<!-- userName and password should also be set in arquillian.xml to these 
 		values -->
 	<quickStartSecurity userName="admin" userPassword="admin" />
+    <ltpa keysPassword="WebAS"/>
 
 	<!-- Enable the keystore -->
 	<keyStore id="defaultKeyStore" password="password" location="key.jks" type="JKS"/>
