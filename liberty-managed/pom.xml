@@ -58,11 +58,25 @@
     <profile>
       <id>java-11</id>
       <activation>
-          <jdk>[11,)</jdk>
+          <jdk>[1.9,17)</jdk>
       </activation>
       <properties>
         <skipEE11Tests>true</skipEE11Tests>
       </properties>
+      <dependencies>
+        <dependency>
+          <groupId>jakarta.annotation</groupId>
+          <artifactId>jakarta.annotation-api</artifactId>
+          <version>2.0.0</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>java-17-plus</id>
+      <activation>
+          <jdk>[17,)</jdk>
+      </activation>
       <dependencies>
         <dependency>
           <groupId>jakarta.annotation</groupId>
