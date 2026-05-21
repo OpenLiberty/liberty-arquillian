@@ -13,10 +13,12 @@ jobs:
       max-parallel: 7
       matrix:
         os: [ubuntu-latest, windows-latest]
-        java: [11, 17, 21]
+        java: [11, 17, 21, 25]
         runtime: [ol, wlp-ee9, wlp-ee10, wlp-ee11]
         runtime_version: [26.0.0.5]
         exclude:
+        - java: 25
+          runtime: wlp-ee9
         - java: 21
           runtime: wlp-ee9
         - java: 11
