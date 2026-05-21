@@ -7,7 +7,7 @@
   <!-- Artifact Configuration -->
   <groupId>io.openliberty.arquillian</groupId>
   <artifactId>arquillian-parent-liberty-jakarta</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>3.0.0</version>
   <packaging>pom</packaging>
   <name>Arquillian Container Liberty Jakarta Parent</name>
   <description>Jakarta Liberty Container integrations for the Arquillian Project</description>
@@ -35,7 +35,7 @@
     <connection>scm:git:git@github.com:OpenLiberty/liberty-arquillian.git</connection>
     <developerConnection>scm:git:git@github.com:OpenLiberty/liberty-arquillian.git</developerConnection>
     <url>git@github.com:OpenLiberty/liberty-arquillian.git</url>
-    <tag>HEAD</tag>
+    <tag>arquillian-parent-liberty-jakarta-3.0.0</tag>
   </scm>
 
   <distributionManagement>
