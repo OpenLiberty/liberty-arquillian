@@ -24,13 +24,13 @@ To run tests, you will need to specify the following parameters:
 
 | Parameter        | Description |
 | ---------------- | ----------- |
-| runtime          | The runtime to use. Specify `ol` for Open Liberty, `olbeta` for Open Liberty beta, and `wlp-ee9` or `wlp-ee10` for WebSphere Liberty. |
+| runtime          | The runtime to use. Specify `ol` for Open Liberty, `olbeta` for Open Liberty beta, and `wlp-ee9`, `wlp-ee10` or `wlp-ee11` for WebSphere Liberty. |
 | runtimeVersion   | Version of the specified runtime to use. |
 
-For example, to run tests on version 22.0.0.6 of the Open Liberty runtime, use the following command:
+For example, to run tests on version 26.0.0.3 of the Open Liberty runtime, use the following command:
 
 ```
-mvn verify -Druntime=ol -DruntimeVersion=22.0.0.6
+mvn verify -Druntime=ol -DruntimeVersion=26.0.0.3
 ```
 
-EE 9 archive images are no longer published for WebSphere Liberty so runtimeVersion is ignored for `wlp-ee9` and 23.0.0.2 is used which is the last version of the wlp-jakartaee9 archive that was published.
+EE 9 and EE 10 archive images are no longer published for WebSphere Liberty. The runtimeVersion is ignored for both `wlp-ee9` and `wlp-ee10`. The last published version of the `wlp-jakartaee9` archive (23.0.0.2) and the `wlp-jakartaee10` archive (26.0.0.4) are used instead.
