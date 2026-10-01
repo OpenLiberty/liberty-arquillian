@@ -15,7 +15,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         java: [11, 17, 21, 25]
         runtime: [ol, wlp-ee9, wlp-ee10, wlp-ee11]
-        runtime_version: [26.0.0.5]
+        runtime_version: [26.0.0.6]
         exclude:
         - java: 25
           runtime: wlp-ee9
