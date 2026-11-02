@@ -24,6 +24,8 @@
 	<!-- Enable the keystore -->
 	<keyStore id="defaultKeyStore" password="password" location="key.jks" type="JKS"/>
 
+	<ltpa keysPassword="password"/>
+
 	<applicationMonitor updateTrigger="mbean" />
 	<logging consoleLogLevel="INFO" />
 
