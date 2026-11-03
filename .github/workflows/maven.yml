@@ -28,4 +28,4 @@ jobs:
     - name: Checkout liberty-arquillian
       uses: actions/checkout@v2
     - name: Build with Maven
-      run: mvn verify -Druntime="${{ matrix.runtime }}" -DruntimeVersion="${{ matrix.runtime_version}}"
+      run: mvn verify -Dliberty.runtime="${{ matrix.runtime }}" -Dliberty.runtimeVersion="${{ matrix.runtime_version}}"

@@ -80,7 +80,7 @@
       <id>wlp-its</id>
       <activation>
           <property>
-            <name>runtime</name>
+            <name>liberty.runtime</name>
             <value>wlp</value>
           </property>
       </activation>
@@ -88,14 +88,14 @@
           <runtime>wlp</runtime>
           <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
           <runtimeArtifactId>wlp-javaee7</runtimeArtifactId>
-          <runtimeVersion>${runtimeVersion}</runtimeVersion>
+          <runtimeVersion>${liberty.runtimeVersion}</runtimeVersion>
       </properties>
     </profile>
     <profile>
       <id>ol-its</id>
       <activation>
         <property>
-          <name>runtime</name>
+          <name>liberty.runtime</name>
           <value>ol</value>
         </property>
       </activation>
@@ -103,14 +103,14 @@
         <runtime>ol</runtime>
         <runtimeGroupId>io.openliberty</runtimeGroupId>
         <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
-        <runtimeVersion>${runtimeVersion}</runtimeVersion>
+        <runtimeVersion>${liberty.runtimeVersion}</runtimeVersion>
       </properties>
     </profile>
     <profile>
       <id>default-its</id>
       <activation>
         <property>
-          <name>runtime</name>
+          <name>liberty.runtime</name>
           <value>ol</value>
         </property>
         <activeByDefault>true</activeByDefault>

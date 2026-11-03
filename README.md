@@ -10,11 +10,11 @@ To run tests, you will need to specify the following parameters:
 
 | Parameter        | Description |
 | ---------------- | ----------- |
-| runtime          | The runtime to use. Specify `ol` for Open Liberty and `wlp` for WebSphere Liberty. |
-| runtimeVersion   | Version of the specified runtime to use. |
+| liberty.runtime          | The runtime to use. Specify `ol` for Open Liberty and `wlp` for WebSphere Liberty. |
+| liberty.runtimeVersion   | Version of the specified runtime to use. |
 
 For example, to run tests on version 21.0.0.3 of the Open Liberty runtime, use the following command:
 
 ```
-mvn verify -Druntime=ol -DruntimeVersion=21.0.0.3
+mvn verify -Dliberty.runtime=ol -Dliberty.runtimeVersion=21.0.0.3
 ```
