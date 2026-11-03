@@ -11,11 +11,12 @@
   <!-- Artifact Configuration -->
   <name>Arquillian Container Liberty Remote</name>
   <description>Liberty Remote Container integration for the Arquillian Project</description>
+  <url>https://github.com/OpenLiberty/liberty-arquillian</url>
 
   <properties>
     <skipTests>false</skipTests>
-    <version.jackson>2.12.3</version.jackson>
-    <version.apache.fluent.hc>4.5.6</version.apache.fluent.hc>
+    <version.jackson>2.22.3</version.jackson>
+    <version.apache.fluent.hc>4.5.14</version.apache.fluent.hc>
     <loggingPropertiesFile>${basedir}/src/test/resources/logging.properties</loggingPropertiesFile>
   </properties>
   

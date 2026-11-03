@@ -16,13 +16,14 @@
   <artifactId>arquillian-liberty-support</artifactId>
   <name>Arquillian Container Liberty Support Feature</name>
   <description>Liberty Feature to support integration for the Arquillian Project</description>
+  <url>https://github.com/OpenLiberty/liberty-arquillian</url>
 
   <build>
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.6.1</version>
         <executions>
           <execution>
             <id>parse-version</id>
@@ -36,7 +37,7 @@
       <plugin>
         <groupId>biz.aQute.bnd</groupId>
         <artifactId>bnd-maven-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>6.4.0</version>
         <executions>
           <execution>
             <goals>
@@ -49,7 +50,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.1.1</version>
+        <version>3.4.2</version>
         <configuration>
           <archive>
             <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
@@ -78,7 +79,7 @@
 
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>2.4.3</version>
+        <version>3.3.1</version>
         <executions>
           <execution>
             <id>copy-resources</id>
