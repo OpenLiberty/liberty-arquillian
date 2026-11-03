@@ -20,3 +20,9 @@ test-output/
 
 # Wercker
 .wercker/
+
+# Mac
+.DS_Store
+
+# Liberty Tools
+.libertyls
