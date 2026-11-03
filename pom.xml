@@ -39,7 +39,7 @@
   <properties>
     <!-- Versioning -->
     <version.arquillian_core>1.10.2.Final</version.arquillian_core>
-    <version.surefire.plugin>2.21.0</version.surefire.plugin>
+    <version.surefire.plugin>3.5.4</version.surefire.plugin>
 
     <!-- override from parent -->
     <maven.compiler.target>1.8</maven.compiler.target>
