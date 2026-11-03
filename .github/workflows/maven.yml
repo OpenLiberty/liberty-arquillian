@@ -3,6 +3,8 @@ name: Debug surefire 2.21 on Windows
 on:
   push:
     branches: [ debug-surefire-2.21 ]
+  pull_request:
+    branches: [ 1.x-maintenance ]
 jobs:
   build:
     runs-on: windows-latest
@@ -22,8 +24,16 @@ jobs:
     - name: Show fork evidence
       shell: bash
       run: |
-        echo "=== dump files ==="; find . -name "*.dump*" -o -name "*.jvmRun*" | head
-        for f in $(find . -name "*.dump*" | head -5); do echo "--- $f"; cat "$f" | head -60; done
-        echo "=== debug log: fork/java lines ==="
-        grep -nE "Forking command line|Error:|Exception in|Could not|Unrecognized|Invalid|Caused by|surefirebooter|exit|Exit" mvn-debug.log | grep -v "^\S*\s*at " | tail -60
-        echo "=== tail ==="; tail -80 mvn-debug.log
+        n=$(grep -n "Forking command line" mvn-debug.log | tail -1 | cut -d: -f1)
+        echo "=== lines after fork (line $n) ==="; sed -n "${n},$((n+40))p" mvn-debug.log | cut -c1-400
+        echo "=== dump files ==="
+        for f in $(find . -name "*.dump*"); do echo "--- $f"; head -80 "$f"; done
+        echo "=== java settings ==="; java -XshowSettings:properties -version 2>&1 | grep -E "file.encoding|java.version|user.dir"
+    - name: Run the fork command by hand
+      shell: cmd
+      run: |
+        cd liberty-managed
+        dir target\surefire-reports\wlp-dropins-deployment-test
+        for /f "delims=" %%d in ('dir /b /ad /o-d "%TEMP%\surefire*" 2^>nul') do (echo found %%d & dir "%TEMP%\%%d" & goto :done)
+        :done
+        exit /b 0
