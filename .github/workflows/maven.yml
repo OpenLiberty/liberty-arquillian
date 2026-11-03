@@ -29,11 +29,11 @@ jobs:
         echo "=== dump files ==="
         for f in $(find . -name "*.dump*"); do echo "--- $f"; head -80 "$f"; done
         echo "=== java settings ==="; java -XshowSettings:properties -version 2>&1 | grep -E "file.encoding|java.version|user.dir"
-    - name: Run the fork command by hand
-      shell: cmd
+    - name: Liberty server logs
+      shell: bash
       run: |
-        cd liberty-managed
-        dir target\surefire-reports\wlp-dropins-deployment-test
-        for /f "delims=" %%d in ('dir /b /ad /o-d "%TEMP%\surefire*" 2^>nul') do (echo found %%d & dir "%TEMP%\%%d" & goto :done)
-        :done
-        exit /b 0
+        d=liberty-managed/target/liberty/wlp/usr/servers
+        find liberty-managed/target -maxdepth 6 -type d -name logs | head
+        for f in $(find $d -name "console.log" -o -name "messages.log" | head -4); do echo "=== $f"; tail -60 "$f" | cut -c1-300; done
+        echo "=== ffdc ==="; find $d -path "*ffdc*" -type f | head -5
+        echo "=== hs_err ==="; find . -name "hs_err*" | head
