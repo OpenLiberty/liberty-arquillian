@@ -16,6 +16,7 @@
   <artifactId>arquillian-liberty-managed</artifactId>
   <name>Arquillian Container Liberty Managed</name>
   <description>Liberty Managed Container integration for the Arquillian Project</description>
+  <url>https://github.com/OpenLiberty/liberty-arquillian</url>
 
   <properties>
     <skipTests>false</skipTests>
@@ -118,7 +119,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
-            <version>3.1.1</version>
+            <version>3.8.1</version>
             <executions>
               <execution>
                 <id>extract-support-feature</id>
@@ -262,7 +263,7 @@
         <dependency>
           <groupId>org.apache.httpcomponents</groupId>
           <artifactId>fluent-hc</artifactId>
-          <version>4.5.6</version>
+          <version>4.5.14</version>
         </dependency>
 
 

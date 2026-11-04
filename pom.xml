@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <!-- Parent -->
-  <parent>
-    <groupId>net.wasdev.maven.parent</groupId>
-    <artifactId>parent</artifactId>
-    <version>1.4</version>
-    <relativePath />
-  </parent>
-
   <!-- Model Version -->
   <modelVersion>4.0.0</modelVersion>
 
@@ -19,6 +11,7 @@
   <packaging>pom</packaging>
   <name>Arquillian Container Liberty Parent</name>
   <description>Liberty Container integrations for the Arquillian Project</description>
+  <url>https://github.com/OpenLiberty/liberty-arquillian</url>
 
   <licenses>
     <license>
@@ -28,6 +21,16 @@
     </license>
   </licenses>
 
+  <developers>
+    <developer>
+      <name>Cheryl King</name>
+      <id>developers</id>
+      <email>developers@openliberty.io</email>
+      <organization>Open Liberty</organization>
+      <url>https://github.com/OpenLiberty</url>
+    </developer>
+  </developers>
+
   <scm>
     <connection>scm:git:git@github.com:OpenLiberty/liberty-arquillian.git</connection>
     <developerConnection>scm:git:git@github.com:OpenLiberty/liberty-arquillian.git</developerConnection>
@@ -35,15 +38,29 @@
     <tag>HEAD</tag>
   </scm>
 
+   <distributionManagement>
+    <snapshotRepository>
+      <id>maven-central-snapshots</id>
+      <name>Maven Central Snapshot Repository</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+    </snapshotRepository>
+    <repository>
+      <id>maven-central-releases</id>
+      <name>Maven Central Release Repository</name>
+      <url>https://central.sonatype.com/api/v1/publisher</url>
+    </repository>
+  </distributionManagement>
+
   <!-- Properties -->
   <properties>
     <!-- Versioning -->
     <version.arquillian_core>1.10.2.Final</version.arquillian_core>
     <version.surefire.plugin>3.5.4</version.surefire.plugin>
 
-    <!-- override from parent -->
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.source>1.8</maven.compiler.source>
+    <!-- Do not set maven.compiler.release: liberty-managed uses com.sun.tools.attach, which is not in the Java 8 release API -->
+    <maven.compiler.target>8</maven.compiler.target>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -73,6 +90,22 @@
     <module>liberty-remote</module>
     <module>liberty-support-feature</module>
   </modules>
+
+  <build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <version>3.1.1</version>
+            <configuration>
+                <autoVersionSubmodules>true</autoVersionSubmodules>
+                <useReleaseProfile>false</useReleaseProfile>
+                <releaseProfiles>sonatype-oss-release</releaseProfiles>
+                <goals>deploy</goals>
+            </configuration>
+        </plugin>        
+    </plugins>
+  </build>
 
   <!-- Profiles for WLP vs OL -->
   <profiles>
@@ -119,8 +152,69 @@
         <runtime>ol</runtime>
         <runtimeGroupId>io.openliberty</runtimeGroupId>
         <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
-        <runtimeVersion>21.0.0.3</runtimeVersion>
+        <runtimeVersion>26.0.0.9</runtimeVersion>
       </properties>
+    </profile>
+    <profile>
+        <id>sonatype-oss-release</id>
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>0.8.0</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <publishingServerId>maven-central-releases</publishingServerId>
+                        <deploymentName>${project.artifactId}</deploymentName>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.3.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.11.2</version>
+                    <configuration>
+                        <bottom><![CDATA[Copyright &#169; {currentYear} the original author or authors.]]></bottom>
+                        <failOnError>false</failOnError>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>3.2.8</version>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </build>
     </profile>
   </profiles>
 
