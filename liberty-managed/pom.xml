@@ -94,7 +94,7 @@
       <plugin>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
-        <version>3.11.5</version>
+        <version>3.12.5</version>
         <configuration>
           <skip>${skipTests}</skip>
           <serverName>defaultServer</serverName>

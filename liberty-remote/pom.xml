@@ -15,8 +15,9 @@
 
   <properties>
     <skipTests>false</skipTests>
-    <version.jackson>2.22.3</version.jackson>
+    <version.jackson>2.22.4</version.jackson>
     <version.apache.fluent.hc>4.5.14</version.apache.fluent.hc>
+    <version.commons.codec>1.18.0</version.commons.codec>
     <loggingPropertiesFile>${basedir}/src/test/resources/logging.properties</loggingPropertiesFile>
   </properties>
   
@@ -103,7 +104,7 @@
       <plugin>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
-        <version>3.11.5</version>
+        <version>3.12.5</version>
         <executions>
           <execution>
             <id>start-server</id>
@@ -170,6 +171,18 @@
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>fluent-hc</artifactId>
       <version>${version.apache.fluent.hc}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-codec</groupId>
+          <artifactId>commons-codec</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>${version.commons.codec}</version>
     </dependency>
 
     <dependency>
